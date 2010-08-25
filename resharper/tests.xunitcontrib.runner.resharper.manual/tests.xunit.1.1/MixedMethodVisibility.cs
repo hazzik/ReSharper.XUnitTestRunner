@@ -6,6 +6,12 @@ namespace tests.xunit
     {
         public class PublicClass
         {
+            //CONSTRUCTOR: should not be be flagged as 'Can make private'
+            public PublicClass()
+            {
+                Assert.Equal(1, 1);
+            }
+
             // TEST: Method should be flagged and should run as a test
             [Fact]
             public void PublicMethod()

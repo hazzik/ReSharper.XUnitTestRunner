@@ -6,13 +6,17 @@ using Xunit.Sdk;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    internal sealed class UnitTestElementIdentifier
+    internal static class UnitTestElementIdentifier
     {
-        private static readonly CLRTypeName PropertyDataAttributeName = new CLRTypeName("Xunit.Extensions.PropertyDataAttribute");
+        private static readonly CLRTypeName propertyDataAttributeName = new CLRTypeName("Xunit.Extensions.PropertyDataAttribute");
 
         public static bool IsAnyUnitTestElement(IDeclaredElement element)
         {
-            return IsDirectUnitTestClass(element as IClass) || IsContainingUnitTestClass(element as IClass) || IsUnitTestMethod(element) || IsUnitTestDataProperty(element);
+            return IsDirectUnitTestClass(element as IClass) ||
+                   IsContainingUnitTestClass(element as IClass) ||
+                   IsUnitTestMethod(element) ||
+                   IsUnitTestDataProperty(element) ||
+                   IsUnitTestClassConstructor(element);
         }
 
         public static bool IsUnitTest(IDeclaredElement element)
@@ -32,21 +36,28 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public static bool IsUnitTestStuff(IDeclaredElement element)
         {
-            return IsContainingUnitTestClass(element as IClass) || IsUnitTestDataProperty(element);
+            return IsContainingUnitTestClass(element as IClass) ||
+                   IsUnitTestDataProperty(element) ||
+                   IsUnitTestClassConstructor(element);
         }
 
+        private static bool IsUnitTestClassConstructor(IDeclaredElement element)
+        {
+            var constructor = element as IConstructor;
+            return constructor != null && IsUnitTestContainer(constructor.GetContainingType());
+        }
 
         private static bool IsDirectUnitTestClass(IClass @class)
         {
             return @class != null && IsExportedType(@class) && TypeUtility.IsTestClass(@class.AsTypeInfo());
         }
 
-        public static bool IsDirectUnitTestClass(IMetadataTypeInfo metadataTypeInfo)
+        private static bool IsDirectUnitTestClass(IMetadataTypeInfo metadataTypeInfo)
         {
             return IsExportedType(metadataTypeInfo) && TypeUtility.IsTestClass(metadataTypeInfo.AsTypeInfo());
         }
 
-        private static bool IsContainingUnitTestClass(IClass @class)
+        public static bool IsContainingUnitTestClass(IClass @class)
         {
             return @class != null && IsExportedType(@class) &&
                    @class.NestedTypes.Aggregate(false, (foundAnyUnitTestElements, nestedType) => IsAnyUnitTestElement(nestedType) || foundAnyUnitTestElements);
@@ -87,7 +98,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 // public read-write fields are named parameters. The name of the property we're after
                 // is not a public field/property, so it's a positional parameter
                 var propertyNames = from method in element.GetContainingType().Methods
-                                    from attributeInstance in method.GetAttributeInstances(PropertyDataAttributeName, false)
+                                    from attributeInstance in method.GetAttributeInstances(propertyDataAttributeName, false)
                                     select attributeInstance.PositionParameter(0).ConstantValue.Value as string;
                 return propertyNames.Any(name => name == element.ShortName);
             }
