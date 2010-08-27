@@ -118,7 +118,7 @@ echo Support for ReSharper 5.0 successfully copied.
 
 :CopyResharper_v50_x64
 
-if not exist "%ProgramFiles(x86)%\JetBrains\Resharper\v5.0\bin" goto End
+if not exist "%ProgramFiles(x86)%\JetBrains\Resharper\v5.0\bin" goto CopyResharper_v51_x86
 
 mkdir ReSharper_v5.0
 cd ReSharper_v5.0
@@ -191,3 +191,4 @@ echo Support for ReSharper 5.1 successfully copied. [Platform=x64]
 goto End
 
 :End
+pause
