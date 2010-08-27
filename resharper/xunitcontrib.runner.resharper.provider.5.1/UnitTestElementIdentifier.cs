@@ -44,7 +44,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         private static bool IsUnitTestClassConstructor(IDeclaredElement element)
         {
             var constructor = element as IConstructor;
-            return constructor != null && IsUnitTestContainer(constructor.GetContainingType());
+            return constructor != null && constructor.IsDefault && IsUnitTestContainer(constructor.GetContainingType());
         }
 
         private static bool IsDirectUnitTestClass(IClass @class)
@@ -57,7 +57,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return IsExportedType(metadataTypeInfo) && TypeUtility.IsTestClass(metadataTypeInfo.AsTypeInfo());
         }
 
-        public static bool IsContainingUnitTestClass(IClass @class)
+    	private static bool IsContainingUnitTestClass(IClass @class)
         {
             return @class != null && IsExportedType(@class) &&
                    @class.NestedTypes.Aggregate(false, (foundAnyUnitTestElements, nestedType) => IsAnyUnitTestElement(nestedType) || foundAnyUnitTestElements);
