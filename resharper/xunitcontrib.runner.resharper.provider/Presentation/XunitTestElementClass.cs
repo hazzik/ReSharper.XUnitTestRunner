@@ -37,9 +37,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return cache.GetTypeElementByCLRName(GetTypeClrName());
         }
 
-        public override string GetKind()
+        public override string Kind
         {
-            return "xUnit.net Test Class";
+            get { return "xUnit.net Test Class"; }
         }
 
         public override string ShortName
@@ -52,7 +52,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new CLRTypeName(GetTypeClrName()).ShortName;
         }
 
-        public override bool Matches(string filter, IdentifierMatcher matcher)
+        public virtual bool Matches(string filter, IdentifierMatcher matcher)
         {
             return matcher.Matches(GetTypeClrName());
         }

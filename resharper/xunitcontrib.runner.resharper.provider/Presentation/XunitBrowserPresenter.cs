@@ -36,7 +36,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         {
             item.RichText = value.Class.GetTypeClrName() != value.GetTypeClrName() ? string.Format("{0}.{1}", new CLRTypeName(value.GetTypeClrName()).ShortName, value.MethodName) : value.MethodName;
 
-            if (value.IsExplicit)
+            if (value.Explicit)
                 item.RichText.SetForeColor(SystemColors.GrayText);
 
             var stateImage = UnitTestManager.GetStateImage(state);

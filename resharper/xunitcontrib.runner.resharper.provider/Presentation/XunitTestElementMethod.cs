@@ -60,9 +60,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return null;
         }
 
-        public override string GetKind()
+        public override string Kind
         {
-            return "xUnit.net Test";
+            get { return "xUnit.net Test"; }
         }
 
         public override string GetTitle()
@@ -70,7 +70,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return string.Format("{0}.{1}", @class.GetTitle(), methodName);
         }
 
-        public override bool Matches(string filter, IdentifierMatcher matcher)
+        public virtual bool Matches(string filter, IdentifierMatcher matcher)
         {
             return @class.Matches(filter, matcher) || matcher.Matches(methodName);
         }
