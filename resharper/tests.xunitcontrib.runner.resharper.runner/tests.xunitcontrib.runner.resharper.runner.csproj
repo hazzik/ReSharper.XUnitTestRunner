@@ -81,9 +81,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xunitcontrib.runner.resharper.runner.5.1\xunitcontrib.runner.resharper.runner.5.1.csproj">
+    <ProjectReference Include="..\xunitcontrib.runner.resharper.runner.5.1\xunitcontrib.runner.resharper.runner.csproj">
       <Project>{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}</Project>
-      <Name>xunitcontrib.runner.resharper.runner.5.1</Name>
+      <Name>xunitcontrib.runner.resharper.runner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
