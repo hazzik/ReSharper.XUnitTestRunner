@@ -1,6 +1,8 @@
+using System;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
+using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
 using JetBrains.Text;
 
@@ -47,9 +49,19 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return GetTitle(); }
         }
 
+        public override bool Equals(IUnitTestElement other)
+        {
+            return Equals(other as object);
+        }
+
         public override string GetTitle()
         {
             return new CLRTypeName(GetTypeClrName()).ShortName;
+        }
+
+        public override bool Equals(IUnitTestViewElement other)
+        {
+            return Equals(other as object);
         }
 
         public virtual bool Matches(string filter, IdentifierMatcher matcher)

@@ -53,7 +53,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
         }
 
-        public bool InteriorShouldBeProcessed(IElement element)
+        public bool InteriorShouldBeProcessed(ITreeNode element)
         {
             if (element is ITypeMemberDeclaration)
                 return (element is ITypeDeclaration);
@@ -61,11 +61,11 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return true;
         }
 
-        public void ProcessAfterInterior(IElement element)
+        public void ProcessAfterInterior(ITreeNode element)
         {
         }
 
-        public void ProcessBeforeInterior(IElement element)
+        public void ProcessBeforeInterior(ITreeNode element)
         {
             var declaration = element as IDeclaration;
 

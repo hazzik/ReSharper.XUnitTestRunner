@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Util;
+using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
 using JetBrains.Text;
 
@@ -41,6 +43,11 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return methodName; }
         }
 
+        public override bool Equals(IUnitTestElement other)
+        {
+            return Equals(other as object);
+        }
+
         internal int Order
         {
             get { return order; }
@@ -68,6 +75,11 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public override string GetTitle()
         {
             return string.Format("{0}.{1}", @class.GetTitle(), methodName);
+        }
+
+        public override bool Equals(IUnitTestViewElement other)
+        {
+            return Equals(other as object);
         }
 
         public virtual bool Matches(string filter, IdentifierMatcher matcher)
