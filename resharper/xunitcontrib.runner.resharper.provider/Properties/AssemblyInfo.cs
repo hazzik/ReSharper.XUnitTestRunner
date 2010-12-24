@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using JetBrains.UI.Application.PluginSupport;
+using JetBrains.Application.PluginSupport;
 
 [assembly : AssemblyTitle("xUnit.net unit test provider for ReSharper 5.1")]
 [assembly : PluginTitle("xUnit.net unit test provider for ReSharper 5.1")]
