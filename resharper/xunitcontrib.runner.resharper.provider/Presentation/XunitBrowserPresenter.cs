@@ -2,6 +2,7 @@ using System.Drawing;
 using JetBrains.CommonControls;
 using JetBrains.ReSharper.Features.Common.TreePsiBrowser;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.UnitTestExplorer;
 using JetBrains.ReSharper.UnitTestFramework;
 using JetBrains.ReSharper.UnitTestFramework.UI;
 using JetBrains.TreeModels;
@@ -39,8 +40,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             if (value.Explicit)
                 item.RichText.SetForeColor(SystemColors.GrayText);
 
-            var stateImage = UnitTestManager.GetStateImage(state);
-            var typeImage = UnitTestManager.GetStandardImage(UnitTestElementImage.Test);
+            var stateImage = UnitTestIconManager.GetStateImage(state);
+            var typeImage = UnitTestIconManager.GetStandardImage(UnitTestElementImage.Test);
 
             if (stateImage != null)
                 item.Images.Add(stateImage);
@@ -60,8 +61,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             else
                 item.RichText = string.IsNullOrEmpty(name.NamespaceName) ? name.ShortName : string.Format("{0}.{1}", name.NamespaceName, name.ShortName);
 
-            var stateImage = UnitTestManager.GetStateImage(state);
-            var typeImage = UnitTestManager.GetStandardImage(UnitTestElementImage.TestContainer);
+            var stateImage = UnitTestIconManager.GetStateImage(state);
+            var typeImage = UnitTestIconManager.GetStandardImage(UnitTestElementImage.TestContainer);
 
             if (stateImage != null)
                 item.Images.Add(stateImage);
