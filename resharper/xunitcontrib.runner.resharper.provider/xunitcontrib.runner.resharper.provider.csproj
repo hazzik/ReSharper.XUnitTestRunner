@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XunitContrib.Runner.ReSharper.UnitTestProvider</RootNamespace>
-    <AssemblyName>xunitcontrib.runner.resharper.provider.5.1</AssemblyName>
+    <AssemblyName>xunitcontrib.runner.resharper.provider.6.0</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
@@ -98,6 +98,9 @@
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.ReSharper.Psi.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="JetBrains.ReSharper.Resources">
+      <HintPath>..\..\3rdParty\ReSharper\JetBrains.ReSharper.Resources.dll</HintPath>
+    </Reference>
     <Reference Include="JetBrains.ReSharper.TaskRunnerFramework">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.ReSharper.TaskRunnerFramework.dll</HintPath>
       <Private>False</Private>
@@ -115,9 +118,14 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.5.0.1479, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rdParty\xUnit.net-1.5\xunit.dll</HintPath>
+    <Reference Include="xunit">
+      <HintPath>..\..\3rdParty\xUnit.net-1.6\xunit.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\..\3rdParty\xUnit.net-1.6\xunit.extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.runner.utility">
+      <HintPath>..\..\3rdParty\xUnit.net-1.6\xunit.runner.utility.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

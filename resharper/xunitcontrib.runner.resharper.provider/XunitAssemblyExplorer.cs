@@ -2,6 +2,7 @@
 using System.Linq;
 using JetBrains.Metadata.Reader.API;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
 using Xunit.Sdk;
@@ -14,14 +15,16 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         private readonly IMetadataAssembly assembly;
         private readonly IProject project;
         private readonly UnitTestElementConsumer consumer;
+        private readonly CacheManager cacheManager;
 
         internal XunitAssemblyExplorer(IUnitTestProvider unitTestProvider, IMetadataAssembly assembly, IProject project,
-            UnitTestElementConsumer consumer)
+                                       UnitTestElementConsumer consumer, CacheManager cacheManager)
         {
             this.unitTestProvider = unitTestProvider;
             this.assembly = assembly;
             this.project = project;
             this.consumer = consumer;
+            this.cacheManager = cacheManager;
         }
 
         public void ProcessTypeInfo(IMetadataTypeInfo metadataTypeInfo)
@@ -39,7 +42,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         private void ProcessTestClass(string typeName, IEnumerable<IMethodInfo> methods)
         {
-            var classUnitTestElement = new XunitTestElementClass(unitTestProvider, project, typeName, assembly.Location);
+            var classUnitTestElement = new XunitTestElementClass(unitTestProvider, project, typeName, assembly.Location, cacheManager);
             consumer(classUnitTestElement);
 
             var order = 1;

@@ -4,6 +4,7 @@ using JetBrains.Application;
 using JetBrains.Application.Progress;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.UnitTestFramework;
 using Xunit.Sdk;
@@ -16,16 +17,15 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         private readonly UnitTestElementLocationConsumer consumer;
         private readonly IFile file;
         private readonly CheckForInterrupt interrupted;
+        private readonly CacheManager cacheManager;
         private readonly IProject project;
         private readonly string assemblyPath;
 
         private readonly Dictionary<ITypeElement, XunitTestElementClass> classes = new Dictionary<ITypeElement, XunitTestElementClass>();
         private readonly Dictionary<IDeclaredElement, int> orders = new Dictionary<IDeclaredElement, int>();
 
-        public XunitFileExplorer(IUnitTestProvider provider,
-                                 UnitTestElementLocationConsumer consumer,
-                                 IFile file,
-                                 CheckForInterrupt interrupted)
+        public XunitFileExplorer(IUnitTestProvider provider, UnitTestElementLocationConsumer consumer, IFile file,
+                                 CheckForInterrupt interrupted, CacheManager cacheManager)
         {
             if (file == null)
                 throw new ArgumentNullException("file");
@@ -37,7 +37,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             this.provider = provider;
             this.file = file;
             this.interrupted = interrupted;
-            project = file.ProjectFile.GetProject();
+            this.cacheManager = cacheManager;
+            project = file.GetSourceFile().ToProjectFile().GetProject();
 
             assemblyPath = UnitTestManager.GetOutputAssemblyPath(project).FullPath;
         }
@@ -89,7 +90,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                     var documentRange = declaration.GetDocumentRange();
                     if (nameRange.IsValid && documentRange.IsValid())
                     {
-                        var disposition = new UnitTestElementDisposition(testElement, file.ProjectFile,
+                        var disposition = new UnitTestElementDisposition(testElement, file.GetSourceFile().ToProjectFile(),
                             nameRange, documentRange.TextRange);
                         consumer(disposition);
                     }
@@ -106,7 +107,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
-                testElement = new XunitTestElementClass(provider, project, testClass.CLRName, assemblyPath);
+                testElement = new XunitTestElementClass(provider, project, testClass.CLRName, assemblyPath, cacheManager);
                 classes.Add(testClass, testElement);
                 orders.Add(testClass, 0);
             }

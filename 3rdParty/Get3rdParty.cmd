@@ -21,7 +21,7 @@ copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.UnitTestEx
 copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.UnitTestFramework.???" > nul
 copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.ComponentModel.???" > nul
 copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.DocumentModel.???" > nul
-
+copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.Resources.???" > nul
 
 cd ..
 echo Support for ReSharper 6.0 successfully copied.
@@ -47,6 +47,10 @@ copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.Psi.?
 copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.TaskRunnerFramework.???" > nul
 copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.UnitTestExplorer.???" > nul
 copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.UnitTestFramework.???" > nul
+copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.ComponentModel.???" > nul
+copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.DocumentModel.???" > nul
+copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.ReSharper.Resources.???" > nul
+
 cd ..
 echo Support for ReSharper 6.0 successfully copied. [Platform=x64]
 

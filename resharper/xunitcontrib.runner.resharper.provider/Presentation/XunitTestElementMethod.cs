@@ -113,5 +113,13 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 return result;
             }
         }
+
+        public override string Id
+        {
+            get
+            {
+                return (@class.TypeName + "." + methodName);
+            }
+        }
     }
 }

@@ -220,10 +220,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             throw new ArgumentException(String.Format("element is not xUnit: '{0}'", this));
         }
 
-        public string Id
-        {
-            get { return id; }
-        }
+        public abstract string Id { get; }
 
         private static RemoteTask CreateAssemblyTask(string assemblyLocation)
         {

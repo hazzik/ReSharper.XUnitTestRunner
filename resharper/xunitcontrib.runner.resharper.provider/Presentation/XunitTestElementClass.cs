@@ -11,14 +11,14 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     internal class XunitTestElementClass : XunitTestElement
     {
         readonly string assemblyLocation;
+        private readonly CacheManager cacheManager;
 
-        internal XunitTestElementClass(IUnitTestProvider provider,
-                                       IProject project,
-                                       string typeName,
-                                       string assemblyLocation)
+        internal XunitTestElementClass(IUnitTestProvider provider, IProject project, string typeName,
+                                       string assemblyLocation, CacheManager cacheManager)
             : base(provider, null, project, typeName)
         {
             this.assemblyLocation = assemblyLocation;
+            this.cacheManager = cacheManager;
         }
 
         internal string AssemblyLocation
@@ -34,14 +34,18 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             var modules = PsiModuleManager.GetInstance(solution).GetPsiModules(GetProject());
             var projectModule = modules.Count > 0 ? modules[0] : null;
-            var scope = DeclarationsScopeFactory.ModuleScope(projectModule, false);
-            var cache = PsiManager.GetInstance(solution).GetDeclarationsCache(scope, true);
+            var cache = cacheManager.GetDeclarationsCache(projectModule,false,true);
             return cache.GetTypeElementByCLRName(GetTypeClrName());
         }
 
         public override string Kind
         {
             get { return "xUnit.net Test Class"; }
+        }
+
+        public override string Id
+        {
+            get { return TypeName; }
         }
 
         public override string ShortName

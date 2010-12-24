@@ -106,7 +106,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                                     IProject project,
                                     UnitTestElementConsumer consumer)
         {
-            assembly.ProcessExportedTypes(new XunitAssemblyExplorer(this, assembly, project, consumer));
+            assembly.ProcessExportedTypes(new XunitAssemblyExplorer(this, assembly, project, consumer, cacheManager));
         }
 
         public void ExploreAssembly(string assemblyLocation, UnitTestElementConsumer consumer)
@@ -127,7 +127,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             if (psiFile == null)
                 throw new ArgumentNullException("psiFile");
 
-            psiFile.ProcessDescendants(new XunitFileExplorer(this, consumer, psiFile, interrupted));
+            psiFile.ProcessDescendants(new XunitFileExplorer(this, consumer, psiFile, interrupted, cacheManager));
         }
 
         public void ExploreSolution(ISolution solution, UnitTestElementConsumer consumer)

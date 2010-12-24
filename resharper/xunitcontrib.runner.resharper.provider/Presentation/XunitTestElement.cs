@@ -14,7 +14,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     internal abstract class XunitTestElement : UnitTestElement
     {
         readonly IProject project;
-        readonly string typeName;
+        public readonly string TypeName;
 
         protected XunitTestElement(IUnitTestProvider provider,
                                    UnitTestElement parent,
@@ -22,32 +22,29 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                                    string typeName)
             : base(provider, parent)
         {
-            if (project == null && !Shell.Instance.IsTestShell)
+            if (project == null)
                 throw new ArgumentNullException("project");
 
             if (typeName == null)
                 throw new ArgumentNullException("typeName");
 
             this.project = project;
-            this.typeName = typeName;
+            this.TypeName = typeName;
         }
 
         protected ITypeElement GetDeclaredType()
         {
+            IProject project = this.GetProject();
             if (project == null)
+            {
                 return null;
-
-            var solution = project.GetSolution();
-            if (solution == null)
-                return null;
-
-            var psiManager = PsiManager.GetInstance(solution);
-
+            }
+            PsiManager manager = PsiManager.GetInstance(project.GetSolution());
             using (ReadLockCookie.Create())
             {
-                var scope = DeclarationsScopeFactory.ModuleScope(PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project), true);
-                var cache = psiManager.GetDeclarationsCache(scope, true);
-                return cache.GetTypeElementByCLRName(typeName);
+                return CacheManager.GetInstance(manager.Solution)
+                    .GetDeclarationsCache(PsiModuleManager.GetInstance(project.GetSolution()).GetPrimaryPsiModule(project), true, true)
+                    .GetTypeElementByCLRName(TypeName);
             }
         }
 
@@ -61,7 +58,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                             let file = declaration.GetContainingFile()
                             where file != null
                             select
-                                new UnitTestElementLocation(file.ProjectFile, declaration.GetNameDocumentRange().TextRange,
+                                new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(), declaration.GetNameDocumentRange().TextRange,
                                                             declaration.GetDocumentRange().TextRange);
 
             return new UnitTestElementDisposition(locations.ToList(), this);
@@ -69,7 +66,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public override UnitTestNamespace GetNamespace()
         {
-            return new UnitTestNamespace(new CLRTypeName(typeName).NamespaceName);
+            return new UnitTestNamespace(new CLRTypeName(TypeName).NamespaceName);
         }
 
         public override IProject GetProject()
@@ -80,12 +77,16 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public override IList<IProjectFile> GetProjectFiles()
         {
             var type = GetDeclaredType();
-            return type == null ? EmptyArray<IProjectFile>.Instance : type.GetProjectFiles();
+            return type == null
+                       ? EmptyArray<IProjectFile>.Instance
+                       : type.GetSourceFiles()
+                             .Select(x => x.ToProjectFile())
+                             .ToArray();
         }
 
         public override string GetTypeClrName()
         {
-            return typeName;
+            return TypeName;
         }
 
         public override bool Equals(object obj)
@@ -95,7 +96,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 var element = (XunitTestElement)obj;
 
                 if (Equals(element.project, project))
-                    return (element.typeName == typeName);
+                    return (element.TypeName == TypeName);
             }
 
             return false;
@@ -107,7 +108,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 var result = base.GetHashCode();
                 result = (result * 397) ^ (project != null ? project.GetHashCode() : 0);
-                result = (result * 397) ^ (typeName != null ? typeName.GetHashCode() : 0);
+                result = (result * 397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
                 return result;
             }
         }

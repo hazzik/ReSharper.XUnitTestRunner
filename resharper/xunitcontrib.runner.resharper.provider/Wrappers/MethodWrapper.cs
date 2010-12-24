@@ -159,7 +159,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             public override string ToString()
             {
-                var language = new PsiLanguageType("C#");
+                var language = new KnownLanguage();
                 return string.Format("{0} {1}({2})",
                                      method.ReturnType.GetLongPresentableName(language),
                                      method.ShortName,
