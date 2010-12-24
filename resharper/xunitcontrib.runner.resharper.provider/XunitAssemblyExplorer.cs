@@ -2,6 +2,7 @@
 using System.Linq;
 using JetBrains.Metadata.Reader.API;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
 using Xunit.Sdk;
 

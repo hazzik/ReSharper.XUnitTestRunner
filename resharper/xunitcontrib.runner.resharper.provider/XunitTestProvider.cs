@@ -1,30 +1,33 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
+using System.Xml;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.CommonControls;
 using JetBrains.Metadata.Reader.API;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.TaskRunnerFramework;
 using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
-using JetBrains.ReSharper.UnitTestFramework.UI;
 using JetBrains.TreeModels;
 using JetBrains.UI.TreeView;
-using JetBrains.Util;
 using XunitContrib.Runner.ReSharper.RemoteRunner;
 using XunitContrib.Runner.ReSharper.UnitTestProvider.Properties;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     [UnitTestProvider, UsedImplicitly]
-    public class XunitTestProvider : IUnitTestProvider
+    public class XunitTestProvider : IUnitTestProvider, IUnitTestPresenter
     {
         private static readonly XunitBrowserPresenter Presenter = new XunitBrowserPresenter();
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
+        private static readonly UnitTestElementComparer comparer;
+        private readonly ISolution solution;
+        private CacheManager cacheManager;
+        private PsiModuleManager psiModuleManager;
 
         static XunitTestProvider()
         {
@@ -38,6 +41,14 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             // it uses to handle the AppDomain.Resolve event. Since we've got a second assembly to
             // live in the remote process, we need to add this to the list.
             AssemblyLoader.RegisterAssembly(typeof(XunitTaskRunner).Assembly);
+            comparer = new UnitTestElementComparer(new[] { typeof(XunitTestElementMethod), typeof(XunitTestElementClass) });
+        }
+
+        public XunitTestProvider(ISolution solution, CacheManager cacheManager, PsiModuleManager psiModuleManager, UnitTestingCategoriesProvider categoriesProvider)
+        {
+            this.solution = solution;
+            this.cacheManager = cacheManager;
+            this.psiModuleManager = psiModuleManager;
         }
 
         public string ID
@@ -50,37 +61,28 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return "xUnit.net"; }
         }
 
+        public IUnitTestViewElement DeserializeElement(XmlElement parent, IUnitTestViewElement parentElement)
+        {
+            return null;
+        }
+
         public Image Icon
         {
             get { return Resources.xunit; }
         }
 
-        public int CompareUnitTestElements(UnitTestElement x, UnitTestElement y)
+        public ISolution Solution
         {
-            if (Equals(x, y))
-                return 0;
-
-            int compare = StringComparer.CurrentCultureIgnoreCase.Compare(x.GetTypeClrName(), y.GetTypeClrName());
-            if (compare != 0)
-                return compare;
-
-            if (x is XunitTestElementMethod && y is XunitTestElementClass)
-                return -1;
-
-            if (x is XunitTestElementClass && y is XunitTestElementMethod)
-                return 1;
-
-            if (x is XunitTestElementClass && y is XunitTestElementClass)
-                return 0;
-
-            var xe = (XunitTestElementMethod)x;
-            var ye = (XunitTestElementMethod)y;
-            return xe.Order.CompareTo(ye.Order);
+            get { return solution; }
         }
 
-        public UnitTestElement Deserialize(ISolution solution, string elementString)
+        public int CompareUnitTestElements(IUnitTestElement x, IUnitTestElement y)
         {
-            return null;
+            return comparer.Compare(x, y);
+        }
+
+        public void SerializeElement(XmlElement parent, IUnitTestElement element)
+        {
         }
 
         // Provides Reflection-like metadata of a physical assembly, called at startup (if the
@@ -107,9 +109,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             assembly.ProcessExportedTypes(new XunitAssemblyExplorer(this, assembly, project, consumer));
         }
 
-        public ProviderCustomOptionsControl GetCustomOptionsControl(ISolution solution)
+        public void ExploreAssembly(string assemblyLocation, UnitTestElementConsumer consumer)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public void ExploreExternal(UnitTestElementConsumer consumer)
@@ -164,7 +166,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return false;
         }
 
-        public bool IsElementOfKind(UnitTestElement element, UnitTestElementKind elementKind)
+        public bool IsElementOfKind(IUnitTestElement element, UnitTestElementKind elementKind)
         {
             switch (elementKind)
             {
@@ -184,14 +186,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return false;
         }
 
-        public void Present(UnitTestElement element, IPresentableItem presentableItem, TreeModelNode node, PresentationState state)
+        public void Present(IUnitTestViewElement element, IPresentableItem presentableItem, TreeModelNode node, PresentationState state)
         {
             Presenter.UpdateItem(element, node, presentableItem, state);
-        }
-
-        public string Serialize(UnitTestElement element)
-        {
-            return null;
         }
     }
 }
