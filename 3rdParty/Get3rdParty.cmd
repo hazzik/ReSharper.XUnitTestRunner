@@ -2,8 +2,8 @@
 
 if not exist "%ProgramFiles%\JetBrains\Resharper\v6.0\bin" goto CopyResharper_v60_x64
 
-mkdir ReSharper_v6.0
-cd ReSharper_v6.0
+mkdir ReSharper
+cd ReSharper
 copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Annotations.???" > nul
 copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.DocumentManager.???" > nul
 copy "%ProgramFiles%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.IDE.???" > nul
@@ -26,8 +26,8 @@ echo Support for ReSharper 6.0 successfully copied.
 
 if not exist "%ProgramFiles(x86)%\JetBrains\Resharper\v6.0\bin" goto End
 
-mkdir ReSharper_v6.0
-cd ReSharper_v6.0
+mkdir ReSharper
+cd ReSharper
 copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Annotations.???" > nul
 copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.DocumentManager.???" > nul
 copy "%ProgramFiles(x86)%\JetBrains\ReSharper\v6.0\Bin\JetBrains.Platform.ReSharper.IDE.???" > nul
