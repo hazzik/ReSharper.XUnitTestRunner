@@ -1,11 +1,12 @@
 using System;
 using System.Xml;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.TaskRunnerFramework;
 
 namespace XunitContrib.Runner.ReSharper.RemoteRunner
 {
     [Serializable]
-    public class XunitTestClassTask : RemoteTask, ITestContainerRemoteTask, IEquatable<XunitTestClassTask>
+    public class XunitTestClassTask : RemoteTask, IEquatable<XunitTestClassTask>
     {
         private readonly string typeName;
         private readonly bool explicitly;
@@ -33,6 +34,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner
         // That framework retrieves these tasks from devenv/resharper via remoting (hence
         // the SerializableAttribute) but uses this hand rolled xml serialisation to
         // get the tasks into the app domain that will actually run the tests
+        [UsedImplicitly]
         public XunitTestClassTask(XmlElement element) : base(element)
         {
             assemblyLocation = GetXmlAttribute(element, AttributeNames.AssemblyLocation);
