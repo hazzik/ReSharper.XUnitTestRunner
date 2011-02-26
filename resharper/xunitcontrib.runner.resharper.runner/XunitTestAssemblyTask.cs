@@ -51,7 +51,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner
         {
             unchecked
             {
-                return (base.GetHashCode() * 397) ^ (assemblyLocation != null ? assemblyLocation.GetHashCode() : 0);
+                return (397) ^ (assemblyLocation != null ? assemblyLocation.GetHashCode() : 0);
             }
         }
     }
