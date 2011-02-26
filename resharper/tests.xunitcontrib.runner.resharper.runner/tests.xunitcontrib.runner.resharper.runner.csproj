@@ -24,7 +24,8 @@
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -60,17 +61,14 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.5.0.1479, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rdParty\xUnit.net-1.5\xunit.dll</HintPath>
+    <Reference Include="xunit">
+      <HintPath>..\..\3rdParty\xUnit.net-1.6\xunit.dll</HintPath>
     </Reference>
-    <Reference Include="xunit.extensions, Version=1.5.0.1479, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rdParty\xUnit.net-1.5\xunit.extensions.dll</HintPath>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\..\3rdParty\xUnit.net-1.6\xunit.extensions.dll</HintPath>
     </Reference>
-    <Reference Include="xunit.runner.utility, Version=1.5.0.1479, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rdParty\xUnit.net-1.5\xunit.runner.utility.dll</HintPath>
+    <Reference Include="xunit.runner.utility">
+      <HintPath>..\..\3rdParty\xUnit.net-1.6\xunit.runner.utility.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
