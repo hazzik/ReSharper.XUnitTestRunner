@@ -5,7 +5,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
-using JetBrains.Text;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
@@ -48,11 +47,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return Equals(other as object);
         }
 
-        internal int Order
-        {
-            get { return order; }
-        }
-
         public override IDeclaredElement GetDeclaredElement()
         {
             var declaredType = GetDeclaredType();
@@ -80,11 +74,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public override bool Equals(IUnitTestViewElement other)
         {
             return Equals(other as object);
-        }
-
-        public virtual bool Matches(string filter, IdentifierMatcher matcher)
-        {
-            return @class.Matches(filter, matcher) || matcher.Matches(methodName);
         }
 
         public override bool Equals(object obj)

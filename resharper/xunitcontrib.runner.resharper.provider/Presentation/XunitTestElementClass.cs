@@ -4,7 +4,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
-using JetBrains.Text;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
@@ -66,11 +65,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public override bool Equals(IUnitTestViewElement other)
         {
             return Equals(other as object);
-        }
-
-        public virtual bool Matches(string filter, IdentifierMatcher matcher)
-        {
-            return matcher.Matches(GetTypeClrName());
         }
     }
 }

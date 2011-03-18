@@ -15,12 +15,10 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     public abstract class UnitTestElement : IUnitTestElement, IUnitTestViewElement
     {
         // Fields
-        private IEnumerable<UnitTestElementCategory> myCategories = UnitTestElementCategory.Uncategorized;
+        private readonly IEnumerable<UnitTestElementCategory> myCategories = UnitTestElementCategory.Uncategorized;
 
         private IList<IUnitTestElement> myChildren;
         private UnitTestElement myParent;
-        private bool myValid = true;
-        private string id;
 
         // Methods
         protected UnitTestElement(IUnitTestProvider provider, UnitTestElement parent)
@@ -31,29 +29,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             Parent = parent;
         }
 
-        public virtual bool Trackable
-        {
-            get
-            {
-                if (myChildren != null)
-                {
-                    return (myChildren.Count == 0);
-                }
-                return true;
-            }
-        }
-
-        public bool Valid
-        {
-            get { return myValid; }
-        }
-
         #region IUnitTestElement Members
-
-        public void Invalidate()
-        {
-            myValid = false;
-        }
 
         public ICollection<IUnitTestElement> Children
         {
@@ -65,7 +41,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return (ExplicitReason != null); }
         }
 
-        public string ExplicitReason { get; set; }
+        public string ExplicitReason { get; private set; }
 
         public UnitTestElementState State { get; set; }
 
@@ -110,9 +86,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public abstract UnitTestElementDisposition GetDisposition();
 
         public abstract string Kind { get; }
+        
         public abstract UnitTestNamespace GetNamespace();
 
         public abstract IProject GetProject();
+
+        public abstract IProjectModelElementPointer GetProjectPointer();
 
         [NotNull]
         public abstract string GetTitle();
@@ -141,10 +120,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return Provider.ID.GetHashCode();
         }
 
-        public abstract IList<IProjectFile> GetProjectFiles();
-
         [CanBeNull]
-        public ISolution GetSolution()
+        protected ISolution GetSolution()
         {
             IProject project = GetProject();
             if (project != null)
@@ -153,8 +130,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
             return null;
         }
-
-        public abstract string GetTypeClrName();
 
         private void RemoveChild(UnitTestElement element)
         {

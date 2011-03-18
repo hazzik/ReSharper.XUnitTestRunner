@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Application;
 using JetBrains.ProjectModel;
@@ -7,7 +6,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.UnitTestFramework;
-using JetBrains.Util;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
@@ -15,6 +13,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     {
         readonly IProject project;
         public readonly string TypeName;
+        private readonly IProjectModelElementPointer projectPointer;
 
         protected XunitTestElement(IUnitTestProvider provider,
                                    UnitTestElement parent,
@@ -30,6 +29,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             this.project = project;
             this.TypeName = typeName;
+            projectPointer = project.CreatePointer();
         }
 
         protected ITypeElement GetDeclaredType()
@@ -74,17 +74,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return project;
         }
 
-        public override IList<IProjectFile> GetProjectFiles()
+        public override IProjectModelElementPointer GetProjectPointer()
         {
-            var type = GetDeclaredType();
-            return type == null
-                       ? EmptyArray<IProjectFile>.Instance
-                       : type.GetSourceFiles()
-                             .Select(x => x.ToProjectFile())
-                             .ToArray();
+            return projectPointer;
         }
 
-        public override string GetTypeClrName()
+        public string GetTypeClrName()
         {
             return TypeName;
         }
