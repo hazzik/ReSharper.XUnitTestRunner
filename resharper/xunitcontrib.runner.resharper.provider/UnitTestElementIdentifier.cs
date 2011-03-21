@@ -8,7 +8,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     internal static class UnitTestElementIdentifier
     {
-        private static readonly CLRTypeName propertyDataAttributeName = new CLRTypeName("Xunit.Extensions.PropertyDataAttribute");
+        private static readonly ClrTypeName propertyDataAttributeName = new ClrTypeName("Xunit.Extensions.PropertyDataAttribute");
 
         public static bool IsAnyUnitTestElement(IDeclaredElement element)
         {

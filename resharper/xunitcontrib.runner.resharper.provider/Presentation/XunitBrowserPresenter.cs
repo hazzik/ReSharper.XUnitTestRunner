@@ -10,74 +10,78 @@ using JetBrains.UI.TreeView;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    internal class XunitBrowserPresenter : TreeModelBrowserPresenter
-    {
-        internal XunitBrowserPresenter()
-        {
-            Present<XunitTestElementClass>(PresentTestFixture);
-            Present<XunitTestElementMethod>(PresentTest);
-        }
+	internal class XunitBrowserPresenter : TreeModelBrowserPresenter
+	{
+		internal XunitBrowserPresenter()
+		{
+			Present<XunitTestElementClass>(PresentTestFixture);
+			Present<XunitTestElementMethod>(PresentTest);
+		}
 
-        protected override bool IsNaturalParent(object parentValue,
-                                                object childValue)
-        {
-            var @namespace = parentValue as UnitTestNamespace;
-            var test = childValue as XunitTestElementClass;
+		protected override bool IsNaturalParent(object parentValue,
+		                                        object childValue)
+		{
+			var @namespace = parentValue as UnitTestNamespace;
+			var test = childValue as XunitTestElementClass;
 
-            if (test != null && @namespace != null)
-                return @namespace.Equals(test.GetNamespace());
+			if(test != null && @namespace != null)
+				return @namespace.Equals(test.GetNamespace());
 
-            return base.IsNaturalParent(parentValue, childValue);
-        }
+			return base.IsNaturalParent(parentValue, childValue);
+		}
 
-        private static void PresentTest(XunitTestElementMethod value,
-                                        IPresentableItem item,
-                                        TreeModelNode modelNode,
-                                        PresentationState state)
-        {
-            item.RichText = value.Class.GetTypeClrName() != value.GetTypeClrName() ? string.Format("{0}.{1}", new CLRTypeName(value.GetTypeClrName()).ShortName, value.MethodName) : value.MethodName;
+		private static void PresentTest(XunitTestElementMethod value,
+		                                IPresentableItem item,
+		                                TreeModelNode modelNode,
+		                                PresentationState state)
+		{
+			item.RichText = value.Class.GetTypeClrName() != value.GetTypeClrName()
+			                	? string.Format("{0}.{1}", new ClrTypeName(value.GetTypeClrName()).ShortName, value.MethodName)
+			                	: value.MethodName;
 
-            if (value.Explicit)
-                item.RichText.SetForeColor(SystemColors.GrayText);
+			if(value.Explicit)
+				item.RichText.SetForeColor(SystemColors.GrayText);
 
-            var stateImage = UnitTestIconManager.GetStateImage(state);
-            var typeImage = UnitTestIconManager.GetStandardImage(UnitTestElementImage.Test);
+			var stateImage = UnitTestIconManager.GetStateImage(state);
+			var typeImage = UnitTestIconManager.GetStandardImage(UnitTestElementImage.Test);
 
-            if (stateImage != null)
-                item.Images.Add(stateImage);
-            else if (typeImage != null)
-                item.Images.Add(typeImage);
-        }
+			if(stateImage != null)
+				item.Images.Add(stateImage);
+			else if(typeImage != null)
+				item.Images.Add(typeImage);
+		}
 
-        private void PresentTestFixture(XunitTestElementClass value,
-                                        IPresentableItem item,
-                                        TreeModelNode modelNode,
-                                        PresentationState state)
-        {
-            var name = new CLRTypeName(value.GetTypeClrName());
+		private void PresentTestFixture(XunitTestElementClass value,
+		                                IPresentableItem item,
+		                                TreeModelNode modelNode,
+		                                PresentationState state)
+		{
+			var name = new ClrTypeName(value.GetTypeClrName());
 
-            if (IsNodeParentNatural(modelNode, value))
-                item.RichText = name.ShortName;
-            else
-                item.RichText = string.IsNullOrEmpty(name.NamespaceName) ? name.ShortName : string.Format("{0}.{1}", name.NamespaceName, name.ShortName);
+			if(IsNodeParentNatural(modelNode, value))
+				item.RichText = name.ShortName;
+			else
+				item.RichText = string.IsNullOrEmpty(name.GetNamespaceName())
+				                	? name.ShortName
+				                	: string.Format("{0}.{1}", name.GetNamespaceName(), name.ShortName);
 
-            var stateImage = UnitTestIconManager.GetStateImage(state);
-            var typeImage = UnitTestIconManager.GetStandardImage(UnitTestElementImage.TestContainer);
+			var stateImage = UnitTestIconManager.GetStateImage(state);
+			var typeImage = UnitTestIconManager.GetStandardImage(UnitTestElementImage.TestContainer);
 
-            if (stateImage != null)
-                item.Images.Add(stateImage);
-            else if (typeImage != null)
-                item.Images.Add(typeImage);
+			if(stateImage != null)
+				item.Images.Add(stateImage);
+			else if(typeImage != null)
+				item.Images.Add(typeImage);
 
-            AppendOccurencesCount(item, modelNode, "test");
-        }
+			AppendOccurencesCount(item, modelNode, "test");
+		}
 
-        protected override object Unwrap(object value)
-        {
-            if (value is XunitTestElementMethod || value is XunitTestElementClass)
-                value = ((XunitTestElement) value).GetDeclaredElement();
+		protected override object Unwrap(object value)
+		{
+			if(value is XunitTestElementMethod || value is XunitTestElementClass)
+				value = ((XunitTestElement) value).GetDeclaredElement();
 
-            return base.Unwrap(value);
-        }
-    }
+			return base.Unwrap(value);
+		}
+	}
 }

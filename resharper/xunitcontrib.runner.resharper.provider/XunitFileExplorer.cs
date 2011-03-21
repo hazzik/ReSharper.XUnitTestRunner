@@ -107,7 +107,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
-                testElement = new XunitTestElementClass(provider, project, testClass.CLRName, assemblyPath, cacheManager);
+                testElement = new XunitTestElementClass(provider, project, testClass.GetClrName().FullName, assemblyPath, cacheManager);
                 classes.Add(testClass, testElement);
                 orders.Add(testClass, 0);
             }
@@ -144,7 +144,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 var order = orders[type] + 1;
                 orders[type] = order;
-                return new XunitTestElementMethod(provider, fixtureElementClass, project, type.CLRName, method.ShortName, order);
+                return new XunitTestElementMethod(provider, fixtureElementClass, project, type.GetClrName().FullName, method.ShortName, order);
             }
 
             return null;

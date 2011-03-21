@@ -9,103 +9,104 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    internal abstract class XunitTestElement : UnitTestElement
-    {
-        readonly IProject project;
-        public readonly string TypeName;
-        private readonly IProjectModelElementPointer projectPointer;
+	internal abstract class XunitTestElement : UnitTestElement
+	{
+		public readonly string TypeName;
+		private readonly IProject project;
+		private readonly IProjectModelElementPointer projectPointer;
 
-        protected XunitTestElement(IUnitTestProvider provider,
-                                   UnitTestElement parent,
-                                   IProject project,
-                                   string typeName)
-            : base(provider, parent)
-        {
-            if (project == null)
-                throw new ArgumentNullException("project");
+		protected XunitTestElement(IUnitTestProvider provider,
+		                           UnitTestElement parent,
+		                           IProject project,
+		                           string typeName)
+			: base(provider, parent)
+		{
+			if(project == null)
+				throw new ArgumentNullException("project");
 
-            if (typeName == null)
-                throw new ArgumentNullException("typeName");
+			if(typeName == null)
+				throw new ArgumentNullException("typeName");
 
-            this.project = project;
-            this.TypeName = typeName;
-            projectPointer = project.CreatePointer();
-        }
+			this.project = project;
+			TypeName = typeName;
+			projectPointer = project.CreatePointer();
+		}
 
-        protected ITypeElement GetDeclaredType()
-        {
-            IProject project = this.GetProject();
-            if (project == null)
-            {
-                return null;
-            }
-            PsiManager manager = PsiManager.GetInstance(project.GetSolution());
-            using (ReadLockCookie.Create())
-            {
-                return CacheManager.GetInstance(manager.Solution)
-                    .GetDeclarationsCache(PsiModuleManager.GetInstance(project.GetSolution()).GetPrimaryPsiModule(project), true, true)
-                    .GetTypeElementByCLRName(TypeName);
-            }
-        }
+		protected ITypeElement GetDeclaredType()
+		{
+			IProject project = GetProject();
+			if(project == null)
+			{
+				return null;
+			}
+			PsiManager manager = PsiManager.GetInstance(project.GetSolution());
+			using (ReadLockCookie.Create())
+			{
+				return CacheManager.GetInstance(manager.Solution)
+					.GetDeclarationsCache(PsiModuleManager.GetInstance(project.GetSolution()).GetPrimaryPsiModule(project), true, true)
+					.GetTypeElementByCLRName(TypeName);
+			}
+		}
 
-        public override UnitTestElementDisposition GetDisposition()
-        {
-            var element = GetDeclaredElement();
-            if (element == null || !element.IsValid())
-                return UnitTestElementDisposition.InvalidDisposition;
+		public override UnitTestElementDisposition GetDisposition()
+		{
+			var element = GetDeclaredElement();
+			if(element == null || !element.IsValid())
+				return UnitTestElementDisposition.InvalidDisposition;
 
-            var locations = from declaration in element.GetDeclarations()
-                            let file = declaration.GetContainingFile()
-                            where file != null
-                            select
-                                new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(), declaration.GetNameDocumentRange().TextRange,
-                                                            declaration.GetDocumentRange().TextRange);
+			var locations = from declaration in element.GetDeclarations()
+			                let file = declaration.GetContainingFile()
+			                where file != null
+			                select
+			                	new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
+			                	                            declaration.GetNameDocumentRange().TextRange,
+			                	                            declaration.GetDocumentRange().TextRange);
 
-            return new UnitTestElementDisposition(locations.ToList(), this);
-        }
+			return new UnitTestElementDisposition(locations.ToList(), this);
+		}
 
-        public override UnitTestNamespace GetNamespace()
-        {
-            return new UnitTestNamespace(new CLRTypeName(TypeName).NamespaceName);
-        }
+		public override UnitTestNamespace GetNamespace()
+		{
+			return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
+		}
 
-        public override IProject GetProject()
-        {
-            return project;
-        }
+		public override IProject GetProject()
+		{
+			return project;
+		}
 
-        public override IProjectModelElementPointer GetProjectPointer()
-        {
-            return projectPointer;
-        }
+		public override IProjectModelElementPointer GetProjectPointer()
+		{
+			return projectPointer;
+		}
 
-        public string GetTypeClrName()
-        {
-            return TypeName;
-        }
+		public string GetTypeClrName()
+		{
+			return TypeName;
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (base.Equals(obj))
-            {
-                var element = (XunitTestElement)obj;
+		public override bool Equals(object obj)
+		{
+			if(base.Equals(obj))
+			{
+				var element = (XunitTestElement) obj;
 
-                if (Equals(element.project, project))
-                    return (element.TypeName == TypeName);
-            }
+				if(Equals(element.project, project))
+					return (element.TypeName == TypeName);
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var result = base.GetHashCode();
-                result = (result * 397) ^ (project != null ? project.GetHashCode() : 0);
-                result = (result * 397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
-                return result;
-            }
-        }
-    }
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				var result = base.GetHashCode();
+				result = (result*397) ^ (project != null ? project.GetHashCode() : 0);
+				result = (result*397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
+				return result;
+			}
+		}
+	}
 }

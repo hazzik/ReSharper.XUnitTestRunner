@@ -89,7 +89,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             public override string ToString()
             {
-                return psiType.CLRName;
+                return psiType.GetClrName().FullName;
             }
         }
 
