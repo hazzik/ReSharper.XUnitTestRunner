@@ -7,8 +7,10 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
+    using System.Collections.Generic;
     using System.Linq;
     using JetBrains.ReSharper.Psi.Tree;
+    using JetBrains.Util;
 
     internal class XunitTestElementClass : XunitTestElement, IUnitTestViewElement
     {
@@ -89,5 +91,13 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 	        return new UnitTestElementDisposition(locations.ToList(), this);
 	    }
-	}
+
+        public override IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        {
+            // We don't have to do anything explicit for a test class, because when a class is run
+            // we get called for each method, and each method already adds everything we need (loading
+            // the assembly and the class)
+            return EmptyArray<UnitTestTask>.Instance;
+        }
+    }
 }

@@ -95,30 +95,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         /// of the nodes (e.g. the classes + methods) to get executed (by serializing the nodes, containing
         /// the remote tasks from these lists, over into the new app domain). This is the default way the
         /// nunit and mstest providers work.
-        public IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
-        {
-            var testMethod = this as XunitTestElementMethod;
-            if (testMethod != null)
-            {
-                XunitTestElementClass testClass = testMethod.Class;
-                var result = new List<UnitTestTask>
-                                 {
-                                     new UnitTestTask(null, CreateAssemblyTask(testClass.AssemblyLocation)),
-                                     new UnitTestTask(testClass, CreateClassTask(testClass, explicitElements)),
-                                     new UnitTestTask(testMethod, CreateMethodTask(testMethod, explicitElements))
-                                 };
-
-                return result;
-            }
-
-            // We don't have to do anything explicit for a test class, because when a class is run
-            // we get called for each method, and each method already adds everything we need (loading
-            // the assembly and the class)
-            if (this is XunitTestElementClass)
-                return EmptyArray<UnitTestTask>.Instance;
-
-            throw new ArgumentException(String.Format("element is not xUnit: '{0}'", this));
-        }
+        public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements);
 
         #endregion
 
@@ -137,21 +114,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 throw new InvalidOperationException("No such element");
             }
-        }
-
-        private static RemoteTask CreateAssemblyTask(string assemblyLocation)
-        {
-            return new XunitTestAssemblyTask(assemblyLocation);
-        }
-
-        private static RemoteTask CreateClassTask(XunitTestElementClass testClass, IEnumerable<IUnitTestElement> explicitElements)
-        {
-            return new XunitTestClassTask(testClass.AssemblyLocation, testClass.GetTypeClrName(), explicitElements.Contains(testClass));
-        }
-
-        private static RemoteTask CreateMethodTask(XunitTestElementMethod testMethod, IEnumerable<IUnitTestElement> explicitElements)
-        {
-            return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.GetTypeClrName(), testMethod.MethodName, explicitElements.Contains(testMethod));
         }
     }
 }

@@ -8,7 +8,11 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
+    using System.Collections.Generic;
     using JetBrains.ReSharper.Psi.Tree;
+    using JetBrains.ReSharper.TaskRunnerFramework;
+    using JetBrains.Util;
+    using RemoteRunner;
 
     internal class XunitTestElementMethod : XunitTestElement, IUnitTestViewElement
     {
@@ -128,6 +132,33 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                                                             declaration.GetDocumentRange().TextRange);
 
             return new UnitTestElementDisposition(locations.ToList(), this);
+        }
+
+        public override IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        {
+            XunitTestElementClass testClass = Class;
+
+            return new List<UnitTestTask>
+                       {
+                           new UnitTestTask(null, CreateAssemblyTask(testClass.AssemblyLocation)),
+                           new UnitTestTask(testClass, CreateClassTask(testClass, explicitElements)),
+                           new UnitTestTask(this, CreateMethodTask(this, explicitElements))
+                       };
+        }
+
+        private static RemoteTask CreateAssemblyTask(string assemblyLocation)
+        {
+            return new XunitTestAssemblyTask(assemblyLocation);
+        }
+
+        private static RemoteTask CreateClassTask(XunitTestElementClass testClass, IEnumerable<IUnitTestElement> explicitElements)
+        {
+            return new XunitTestClassTask(testClass.AssemblyLocation, testClass.GetTypeClrName(), explicitElements.Contains(testClass));
+        }
+
+        private static RemoteTask CreateMethodTask(XunitTestElementMethod testMethod, IEnumerable<IUnitTestElement> explicitElements)
+        {
+            return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.GetTypeClrName(), testMethod.MethodName, explicitElements.Contains(testMethod));
         }
     }
 }
