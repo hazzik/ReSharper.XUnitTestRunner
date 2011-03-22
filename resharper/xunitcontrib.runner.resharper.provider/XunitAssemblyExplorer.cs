@@ -57,8 +57,10 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             var methodUnitTestElement = new XunitTestElementMethod(unitTestProvider,
                                                                    classUnitTestElement, project,
                                                                    method.TypeName, method.Name,
-                                                                   order);
-            methodUnitTestElement.SetExplicit(MethodUtility.GetSkipReason(method));
+                                                                   order)
+                                            {
+                                                ExplicitReason = MethodUtility.GetSkipReason(method)
+                                            };
             // TODO: Categories?
             consumer(methodUnitTestElement);
         }
