@@ -42,7 +42,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         private void ProcessTestClass(string typeName, IEnumerable<IMethodInfo> methods)
         {
-            var classUnitTestElement = new XunitTestElementClass(unitTestProvider, project, typeName, assembly.Location.FullPath, cacheManager);
+            var classUnitTestElement = new XUnitTestClassElement(unitTestProvider, project, typeName, assembly.Location.FullPath);
             consumer(classUnitTestElement);
 
             var order = 1;
@@ -52,7 +52,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
         }
 
-        private void ProcessTestMethod(XunitTestElementClass classUnitTestElement, IMethodInfo method, int order)
+        private void ProcessTestMethod(XUnitTestClassElement classUnitTestElement, IMethodInfo method, int order)
         {
             var methodUnitTestElement = new XunitTestElementMethod(unitTestProvider,
                                                                    classUnitTestElement, project,

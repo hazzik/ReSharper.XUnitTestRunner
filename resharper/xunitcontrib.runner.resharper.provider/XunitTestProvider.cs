@@ -41,7 +41,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             // it uses to handle the AppDomain.Resolve event. Since we've got a second assembly to
             // live in the remote process, we need to add this to the list.
             AssemblyLoader.RegisterAssembly(typeof(XunitTaskRunner).Assembly);
-            comparer = new UnitTestElementComparer(new[] { typeof(XunitTestElementMethod), typeof(XunitTestElementClass) });
+            comparer = new UnitTestElementComparer(new[] { typeof(XunitTestElementMethod), typeof(XUnitTestClassElement) });
         }
 
         public XunitTestProvider(ISolution solution, CacheManager cacheManager, PsiModuleManager psiModuleManager, UnitTestingCategoriesProvider categoriesProvider)
@@ -177,7 +177,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                     return element is XunitTestElementMethod;
 
                 case UnitTestElementKind.TestContainer:
-                    return element is XunitTestElementClass;
+                    return element is XUnitTestClassElement;
 
                 case UnitTestElementKind.TestStuff:
                     return element is XUnitTestElementBase;

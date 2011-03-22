@@ -17,12 +17,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
     internal class XunitTestElementMethod : XUnitTestElementBase, IUnitTestViewElement
     {
-        readonly XunitTestElementClass @class;
+        readonly XUnitTestClassElement @class;
         readonly string methodName;
         readonly int order;
 
         internal XunitTestElementMethod(IUnitTestRunnerProvider provider,
-                                        XunitTestElementClass @class,
+                                        XUnitTestClassElement @class,
                                         IProject project,
                                         string declaringTypeName,
                                         string methodName,
@@ -34,7 +34,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             this.order = order;
         }
 
-        internal XunitTestElementClass Class
+        internal XUnitTestClassElement Class
         {
             get { return @class; }
         }
@@ -137,7 +137,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public override IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            XunitTestElementClass testClass = Class;
+            XUnitTestClassElement testClass = Class;
 
             return new List<UnitTestTask>
                        {
@@ -152,14 +152,14 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new XunitTestAssemblyTask(assemblyLocation);
         }
 
-        private static RemoteTask CreateClassTask(XunitTestElementClass testClass, IEnumerable<IUnitTestElement> explicitElements)
+        private static RemoteTask CreateClassTask(XUnitTestClassElement testClass, IEnumerable<IUnitTestElement> explicitElements)
         {
-            return new XunitTestClassTask(testClass.AssemblyLocation, testClass.GetTypeClrName(), explicitElements.Contains(testClass));
+            return new XunitTestClassTask(testClass.AssemblyLocation, testClass.TypeName, explicitElements.Contains(testClass));
         }
 
         private static RemoteTask CreateMethodTask(XunitTestElementMethod testMethod, IEnumerable<IUnitTestElement> explicitElements)
         {
-            return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.GetTypeClrName(), testMethod.MethodName, explicitElements.Contains(testMethod));
+            return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.TypeName, testMethod.MethodName, explicitElements.Contains(testMethod));
         }
 
         public virtual IProject GetProject()

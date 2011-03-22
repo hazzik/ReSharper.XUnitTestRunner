@@ -2,6 +2,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System;
     using System.Collections.Generic;
+    using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.Util;
 
@@ -23,6 +24,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         {
             get
             {
+//                return new ClrTypeName(TypeName).ShortName;
                 string[] splitted = TypeName.Split('.');
                 return splitted[splitted.Length - 1];
             }

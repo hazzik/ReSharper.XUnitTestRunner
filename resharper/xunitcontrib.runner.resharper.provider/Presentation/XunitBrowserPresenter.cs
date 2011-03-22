@@ -14,7 +14,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 	{
 		internal XunitBrowserPresenter()
 		{
-			Present<XunitTestElementClass>(PresentTestFixture);
+			Present<XUnitTestClassElement>(PresentTestFixture);
 			Present<XunitTestElementMethod>(PresentTest);
 		}
 
@@ -22,7 +22,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 		                                        object childValue)
 		{
 			var @namespace = parentValue as UnitTestNamespace;
-			var test = childValue as XunitTestElementClass;
+			var test = childValue as XUnitTestClassElement;
 
 			if(test != null && @namespace != null)
 				return @namespace.Equals(test.GetNamespace());
@@ -35,7 +35,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 		                                TreeModelNode modelNode,
 		                                PresentationState state)
 		{
-			item.RichText = value.Class.GetTypeClrName() != value.GetTypeClrName()
+			item.RichText = value.Class.TypeName != value.GetTypeClrName()
 			                	? string.Format("{0}.{1}", new ClrTypeName(value.GetTypeClrName()).ShortName, value.MethodName)
 			                	: value.MethodName;
 
@@ -51,12 +51,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 				item.Images.Add(typeImage);
 		}
 
-		private void PresentTestFixture(XunitTestElementClass value,
+		private void PresentTestFixture(XUnitTestClassElement value,
 		                                IPresentableItem item,
 		                                TreeModelNode modelNode,
 		                                PresentationState state)
 		{
-			var name = new ClrTypeName(value.GetTypeClrName());
+			var name = new ClrTypeName(value.TypeName);
 
 			if(IsNodeParentNatural(modelNode, value))
 				item.RichText = name.ShortName;
@@ -78,7 +78,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 		protected override object Unwrap(object value)
 		{
-			if(value is XunitTestElementMethod || value is XunitTestElementClass)
+			if(value is XunitTestElementMethod || value is XUnitTestClassElement)
 				value = ((IUnitTestViewElement) value).GetDeclaredElement();
 
 			return base.Unwrap(value);
