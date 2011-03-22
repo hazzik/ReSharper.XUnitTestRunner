@@ -8,13 +8,15 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    internal class XunitTestElementMethod : XunitTestElement
+    using JetBrains.ReSharper.Psi.Tree;
+
+    internal class XunitTestElementMethod : XunitTestElement, IUnitTestViewElement
     {
         readonly XunitTestElementClass @class;
         readonly string methodName;
         readonly int order;
 
-        internal XunitTestElementMethod(IUnitTestProvider provider,
+        internal XunitTestElementMethod(IUnitTestRunnerProvider provider,
                                         XunitTestElementClass @class,
                                         IProject project,
                                         string declaringTypeName,
@@ -61,17 +63,17 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return null;
         }
 
-        public override string Kind
+        public virtual string Kind
         {
             get { return "xUnit.net Test"; }
         }
 
-        public override string GetTitle()
+        public virtual string GetTitle()
         {
             return string.Format("{0}.{1}", @class.GetTitle(), methodName);
         }
 
-        public override bool Equals(IUnitTestViewElement other)
+        public virtual bool Equals(IUnitTestViewElement other)
         {
             return Equals(other as object);
         }
@@ -109,6 +111,23 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 return (@class.TypeName + "." + methodName);
             }
+        }
+
+        public virtual UnitTestElementDisposition GetDisposition()
+        {
+            var element = GetDeclaredElement();
+            if(element == null || !element.IsValid())
+                return UnitTestElementDisposition.InvalidDisposition;
+
+            var locations = from declaration in element.GetDeclarations()
+                            let file = declaration.GetContainingFile()
+                            where file != null
+                            select
+                                new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
+                                                            declaration.GetNameDocumentRange().TextRange,
+                                                            declaration.GetDocumentRange().TextRange);
+
+            return new UnitTestElementDisposition(locations.ToList(), this);
         }
     }
 }

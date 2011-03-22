@@ -7,8 +7,11 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-	internal class XunitTestElementClass : XunitTestElement
-	{
+    using System.Linq;
+    using JetBrains.ReSharper.Psi.Tree;
+
+    internal class XunitTestElementClass : XunitTestElement, IUnitTestViewElement
+    {
 		private readonly string assemblyLocation;
 		private readonly CacheManager cacheManager;
 
@@ -28,7 +31,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			get { return assemblyLocation; }
 		}
 
-		public override string Kind
+		public virtual string Kind
 		{
 			get { return "xUnit.net Test Class"; }
 		}
@@ -60,14 +63,31 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			return Equals(other as object);
 		}
 
-		public override string GetTitle()
+		public virtual string GetTitle()
 		{
 			return new ClrTypeName(GetTypeClrName()).ShortName;
 		}
 
-		public override bool Equals(IUnitTestViewElement other)
+		public virtual bool Equals(IUnitTestViewElement other)
 		{
 			return Equals(other as object);
 		}
+
+	    public virtual UnitTestElementDisposition GetDisposition()
+	    {
+	        var element = GetDeclaredElement();
+	        if(element == null || !element.IsValid())
+	            return UnitTestElementDisposition.InvalidDisposition;
+
+	        var locations = from declaration in element.GetDeclarations()
+	                        let file = declaration.GetContainingFile()
+	                        where file != null
+	                        select
+	                            new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
+	                                                        declaration.GetNameDocumentRange().TextRange,
+	                                                        declaration.GetDocumentRange().TextRange);
+
+	        return new UnitTestElementDisposition(locations.ToList(), this);
+	    }
 	}
 }

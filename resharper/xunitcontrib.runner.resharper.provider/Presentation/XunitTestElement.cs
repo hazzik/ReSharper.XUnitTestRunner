@@ -1,10 +1,8 @@
 using System;
-using System.Linq;
 using JetBrains.Application;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
-using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
@@ -12,7 +10,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using JetBrains.Annotations;
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 
-    internal abstract class XunitTestElement : XUnitTestElementBase, IUnitTestViewElement
+    internal abstract class XunitTestElement : XUnitTestElementBase
 	{
 		public readonly string TypeName;
 		private readonly IProject project;
@@ -35,9 +33,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			projectPointer = project.CreatePointer();
 		}
 
-	    public abstract string Kind { get; }
-
-	    protected ITypeElement GetDeclaredType()
+        protected ITypeElement GetDeclaredType()
 		{
 			IProject project = GetProject();
 			if(project == null)
@@ -53,24 +49,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			}
 		}
 
-		public virtual UnitTestElementDisposition GetDisposition()
-		{
-			var element = GetDeclaredElement();
-			if(element == null || !element.IsValid())
-				return UnitTestElementDisposition.InvalidDisposition;
-
-			var locations = from declaration in element.GetDeclarations()
-			                let file = declaration.GetContainingFile()
-			                where file != null
-			                select
-			                	new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
-			                	                            declaration.GetNameDocumentRange().TextRange,
-			                	                            declaration.GetDocumentRange().TextRange);
-
-			return new UnitTestElementDisposition(locations.ToList(), this);
-		}
-
-		public virtual UnitTestNamespace GetNamespace()
+        public virtual UnitTestNamespace GetNamespace()
 		{
 			return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
 		}
@@ -116,9 +95,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 	    public abstract IDeclaredElement GetDeclaredElement();
 
-	    [NotNull]
-	    public abstract string GetTitle();
-
         [CanBeNull]
         protected ISolution GetSolution()
         {
@@ -129,8 +105,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
             return null;
         }
-
-        public abstract bool Equals(IUnitTestViewElement other);
 
 //        public override bool Equals(object obj)
 //        {

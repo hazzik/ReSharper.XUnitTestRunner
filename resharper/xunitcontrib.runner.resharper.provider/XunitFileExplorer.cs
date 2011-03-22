@@ -21,7 +21,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         private readonly IProject project;
         private readonly string assemblyPath;
 
-        private readonly Dictionary<ITypeElement, XunitTestElementClass> classes = new Dictionary<ITypeElement, XunitTestElementClass>();
+        private readonly Dictionary<ITypeElement, IUnitTestViewElement> classes = new Dictionary<ITypeElement, IUnitTestViewElement>();
         private readonly Dictionary<IDeclaredElement, int> orders = new Dictionary<IDeclaredElement, int>();
 
         public XunitFileExplorer(IUnitTestProvider provider, UnitTestElementLocationConsumer consumer, IFile file,
@@ -72,7 +72,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             if (declaration != null)
             {
-                XunitTestElement testElement = null;
+                IUnitTestViewElement testElement = null;
                 var declaredElement = declaration.DeclaredElement;
 
                 var testClass = declaredElement as IClass;
@@ -98,12 +98,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
         }
 
-        private XunitTestElement ProcessTestClass(IClass testClass)
+        private IUnitTestViewElement ProcessTestClass(IClass testClass)
         {
             if (!IsValidTestClass(testClass))
                 return null;
 
-            XunitTestElementClass testElement;
+            IUnitTestViewElement testElement;
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
@@ -125,7 +125,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return TypeUtility.HasRunWith(typeInfo);
         }
 
-        private XunitTestElement ProcessTestMethod(IMethod method)
+        private IUnitTestViewElement ProcessTestMethod(IMethod method)
         {
             var type = method.GetContainingType();
             var @class = type as IClass;
@@ -144,7 +144,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 var order = orders[type] + 1;
                 orders[type] = order;
-                return new XunitTestElementMethod(provider, fixtureElementClass, project, type.GetClrName().FullName, method.ShortName, order);
+                return new XunitTestElementMethod(provider, (XunitTestElementClass) fixtureElementClass, project, type.GetClrName().FullName, method.ShortName, order);
             }
 
             return null;
