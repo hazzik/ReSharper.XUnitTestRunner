@@ -15,7 +15,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 		internal XunitBrowserPresenter()
 		{
 			Present<XUnitTestClassElement>(PresentTestFixture);
-			Present<XunitTestElementMethod>(PresentTest);
+			Present<XUnitTestMethodElement>(PresentTest);
 		}
 
 		protected override bool IsNaturalParent(object parentValue,
@@ -30,7 +30,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			return base.IsNaturalParent(parentValue, childValue);
 		}
 
-		private static void PresentTest(XunitTestElementMethod value,
+		private static void PresentTest(XUnitTestMethodElement value,
 		                                IPresentableItem item,
 		                                TreeModelNode modelNode,
 		                                PresentationState state)
@@ -78,7 +78,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 		protected override object Unwrap(object value)
 		{
-			if(value is XunitTestElementMethod || value is XUnitTestClassElement)
+			if(value is XUnitTestMethodElement || value is XUnitTestClassElement)
 				value = ((IUnitTestViewElement) value).GetDeclaredElement();
 
 			return base.Unwrap(value);

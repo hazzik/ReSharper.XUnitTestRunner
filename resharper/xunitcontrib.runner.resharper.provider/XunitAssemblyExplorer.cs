@@ -54,7 +54,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         private void ProcessTestMethod(XUnitTestClassElement classUnitTestElement, IMethodInfo method, int order)
         {
-            var methodUnitTestElement = new XunitTestElementMethod(unitTestProvider,
+            var methodUnitTestElement = new XUnitTestMethodElement(unitTestProvider,
                                                                    classUnitTestElement, project,
                                                                    method.TypeName, method.Name,
                                                                    order)
