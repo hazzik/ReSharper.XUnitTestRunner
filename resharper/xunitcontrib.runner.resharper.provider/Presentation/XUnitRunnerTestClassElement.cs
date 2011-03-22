@@ -2,13 +2,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System;
     using System.Collections.Generic;
-    using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.Util;
 
     internal class XUnitRunnerTestClassElement : XUnitTestElementBase, IEquatable<XUnitRunnerTestClassElement>
     {
-        protected XUnitRunnerTestClassElement(IUnitTestRunnerProvider provider, string typeName, string assemblyLocation)
+        public XUnitRunnerTestClassElement(IUnitTestRunnerProvider provider, string typeName, string assemblyLocation)
             : base(provider, null)
         {
             TypeName = typeName;
@@ -39,22 +38,22 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return ((other != null) && Equals(TypeName, other.TypeName));
         }
 
-        public override bool Equals(IUnitTestElement other)
+        public override sealed bool Equals(IUnitTestElement other)
         {
             return Equals(other as XUnitRunnerTestClassElement);
         }
 
-        public override bool Equals(object obj)
+        public override sealed bool Equals(object obj)
         {
             return Equals(obj as XUnitRunnerTestClassElement);
         }
 
-        public override int GetHashCode()
+        public override sealed int GetHashCode()
         {
             return TypeName.GetHashCode();
         }
 
-        public override IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
             // We don't have to do anything explicit for a test class, because when a class is run
             // we get called for each method, and each method already adds everything we need (loading

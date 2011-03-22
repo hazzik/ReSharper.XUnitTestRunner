@@ -35,8 +35,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 		                                TreeModelNode modelNode,
 		                                PresentationState state)
 		{
-			item.RichText = value.Class.TypeName != value.GetTypeClrName()
-			                	? string.Format("{0}.{1}", new ClrTypeName(value.GetTypeClrName()).ShortName, value.MethodName)
+			item.RichText = value.Class.TypeName != value.TypeName
+			                	? string.Format("{0}.{1}", new ClrTypeName(value.TypeName).ShortName, value.MethodName)
 			                	: value.MethodName;
 
 			if(value.Explicit)

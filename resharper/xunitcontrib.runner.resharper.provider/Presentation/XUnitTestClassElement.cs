@@ -13,10 +13,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     internal class XUnitTestClassElement : XUnitRunnerTestClassElement, IUnitTestViewElement, IEquatable<XUnitTestClassElement>
     {
         private readonly IProject project;
-
         private readonly IProjectModelElementPointer projectPointer;
 
-        internal XUnitTestClassElement(IUnitTestRunnerProvider provider,
+        public XUnitTestClassElement(IUnitTestRunnerProvider provider,
                                        IProject project,
                                        string typeName,
                                        string assemblyLocation)
@@ -39,7 +38,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return Equals(other as XUnitRunnerTestClassElement);
         }
 
-        public virtual IDeclaredElement GetDeclaredElement()
+        public IDeclaredElement GetDeclaredElement()
         {
             IProject project = GetProject();
             ISolution solution = project
@@ -54,7 +53,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 .GetTypeElementByCLRName(TypeName);
         }
 
-        public virtual UnitTestElementDisposition GetDisposition()
+        public UnitTestElementDisposition GetDisposition()
         {
             IDeclaredElement element = GetDeclaredElement();
             if (element == null || !element.IsValid())
@@ -71,23 +70,23 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new UnitTestElementDisposition(locations.ToList(), this);
         }
 
-        public virtual UnitTestNamespace GetNamespace()
+        public UnitTestNamespace GetNamespace()
         {
             return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
         }
 
-        public virtual IProject GetProject()
+        public IProject GetProject()
         {
             //return projectPointer.GetValidProjectElement(((XunitTestProvider)Provider).Solution) as IProject;
             return project;
         }
 
-        public virtual IProjectModelElementPointer GetProjectPointer()
+        public IProjectModelElementPointer GetProjectPointer()
         {
             return projectPointer;
         }
 
-        public virtual string GetTitle()
+        public string GetTitle()
         {
             return ShortName;
         }
@@ -102,7 +101,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return ExplicitReason; }
         }
 
-        public virtual string Kind
+        public string Kind
         {
             get { return "xUnit.net Test Class"; }
         }

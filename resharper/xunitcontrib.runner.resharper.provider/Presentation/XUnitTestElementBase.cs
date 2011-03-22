@@ -27,8 +27,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return myCategories; }
         }
 
-        #region IUnitTestElement Members
-
         public ICollection<IUnitTestElement> Children
         {
             get { return (myChildren ?? EmptyArray<IUnitTestElement>.Instance); }
@@ -93,8 +91,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         /// the remote tasks from these lists, over into the new app domain). This is the default way the
         /// nunit and mstest providers work.
         public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements);
-
-        #endregion
 
         private void AppendChild(IUnitTestElement element)
         {
