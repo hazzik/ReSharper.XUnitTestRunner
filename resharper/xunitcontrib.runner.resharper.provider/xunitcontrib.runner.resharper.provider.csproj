@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Presentation\XUnitRunnerTestClassElement.cs" />
+    <Compile Include="Presentation\XUnitRunnerTestMethodElement.cs" />
     <Compile Include="Presentation\XUnitTestElementBase.cs" />
     <Compile Include="UnitTestElementIdentifier.cs" />
     <Compile Include="IMetadataTypeProcessor.cs" />
