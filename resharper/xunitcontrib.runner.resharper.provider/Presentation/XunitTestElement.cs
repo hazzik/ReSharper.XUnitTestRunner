@@ -9,7 +9,7 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-	internal abstract class XunitTestElement : UnitTestElement
+	internal abstract class XunitTestElement : UnitTestElement, IUnitTestViewElement
 	{
 		public readonly string TypeName;
 		private readonly IProject project;
@@ -48,7 +48,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			}
 		}
 
-		public override UnitTestElementDisposition GetDisposition()
+		public virtual UnitTestElementDisposition GetDisposition()
 		{
 			var element = GetDeclaredElement();
 			if(element == null || !element.IsValid())
@@ -65,7 +65,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			return new UnitTestElementDisposition(locations.ToList(), this);
 		}
 
-		public override UnitTestNamespace GetNamespace()
+		public virtual UnitTestNamespace GetNamespace()
 		{
 			return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
 		}
@@ -75,7 +75,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			return project;
 		}
 
-		public override IProjectModelElementPointer GetProjectPointer()
+		public virtual IProjectModelElementPointer GetProjectPointer()
 		{
 			return projectPointer;
 		}
