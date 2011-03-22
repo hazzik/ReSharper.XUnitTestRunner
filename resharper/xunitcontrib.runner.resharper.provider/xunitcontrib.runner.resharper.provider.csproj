@@ -129,7 +129,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Presentation\UnitTestElement.cs" />
     <Compile Include="Presentation\XUnitTestElementBase.cs" />
     <Compile Include="UnitTestElementIdentifier.cs" />
     <Compile Include="IMetadataTypeProcessor.cs" />
