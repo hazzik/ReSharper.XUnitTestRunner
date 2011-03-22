@@ -7,49 +7,40 @@ using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    using System.Collections.Generic;
     using System.Linq;
     using JetBrains.Annotations;
     using JetBrains.ReSharper.Psi.Tree;
-    using JetBrains.Util;
 
-    internal class XunitTestElementClass : XUnitTestElementBase, IUnitTestViewElement
+    internal class XunitTestElementClass : XUnitRunnerTestClassElement, IUnitTestViewElement
     {
-		private readonly string assemblyLocation;
-		private readonly CacheManager cacheManager;
+        private readonly CacheManager cacheManager;
 
         internal XunitTestElementClass(IUnitTestRunnerProvider provider,
 		                               IProject project,
 		                               string typeName,
 		                               string assemblyLocation,
 		                               CacheManager cacheManager)
-			: this(provider, null, project, typeName)
+            : this(provider, typeName, assemblyLocation)
 		{
-			this.assemblyLocation = assemblyLocation;
-			this.cacheManager = cacheManager;
+            if (project == null)
+                throw new ArgumentNullException("project");
+
+            this.project = project;
+            projectPointer = project.CreatePointer();
+            this.cacheManager = cacheManager;
 		}
 
-		internal string AssemblyLocation
-		{
-			get { return assemblyLocation; }
-		}
+        private XunitTestElementClass(IUnitTestRunnerProvider provider, string typeName, string assemblyLocation)
+            : base(provider, typeName, assemblyLocation)
+        {
+        }
 
-		public virtual string Kind
+        public virtual string Kind
 		{
 			get { return "xUnit.net Test Class"; }
 		}
 
-		public override string Id
-		{
-			get { return TypeName; }
-		}
-
-		public override string ShortName
-		{
-			get { return GetTitle(); }
-		}
-
-		public virtual IDeclaredElement GetDeclaredElement()
+        public virtual IDeclaredElement GetDeclaredElement()
 		{
 			var solution = GetSolution();
 			if(solution == null)
@@ -61,22 +52,17 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			return cache.GetTypeElementByCLRName(GetTypeClrName());
 		}
 
-		public override bool Equals(IUnitTestElement other)
-		{
-			return Equals(other as object);
-		}
-
-		public virtual string GetTitle()
+        public virtual string GetTitle()
 		{
 			return new ClrTypeName(GetTypeClrName()).ShortName;
 		}
 
-		public virtual bool Equals(IUnitTestViewElement other)
+        public virtual bool Equals(IUnitTestViewElement other)
 		{
 			return Equals(other as object);
 		}
 
-	    public virtual UnitTestElementDisposition GetDisposition()
+        public virtual UnitTestElementDisposition GetDisposition()
 	    {
 	        var element = GetDeclaredElement();
 	        if(element == null || !element.IsValid())
@@ -92,14 +78,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 	        return new UnitTestElementDisposition(locations.ToList(), this);
 	    }
-
-        public override IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
-        {
-            // We don't have to do anything explicit for a test class, because when a class is run
-            // we get called for each method, and each method already adds everything we need (loading
-            // the assembly and the class)
-            return EmptyArray<UnitTestTask>.Instance;
-        }
 
         public virtual IProject GetProject()
         {
@@ -132,26 +110,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
         }
 
-                public string TypeName { get; private set; }
         private readonly IProject project;
+
         private readonly IProjectModelElementPointer projectPointer;
-
-        private XunitTestElementClass(IUnitTestRunnerProvider provider,
-		                           XUnitTestElementBase parent,
-		                           IProject project,
-		                           string typeName)
-			: base(provider, parent)
-		{
-			if(project == null)
-				throw new ArgumentNullException("project");
-
-			if(typeName == null)
-				throw new ArgumentNullException("typeName");
-
-			this.project = project;
-			TypeName = typeName;
-			projectPointer = project.CreatePointer();
-		}
 
 //        public override bool Equals(object obj)
 //		{
