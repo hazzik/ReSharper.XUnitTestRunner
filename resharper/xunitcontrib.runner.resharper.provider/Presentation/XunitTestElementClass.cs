@@ -9,20 +9,21 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System.Collections.Generic;
     using System.Linq;
+    using JetBrains.Annotations;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.Util;
 
-    internal class XunitTestElementClass : XunitTestElement, IUnitTestViewElement
+    internal class XunitTestElementClass : XUnitTestElementBase, IUnitTestViewElement
     {
 		private readonly string assemblyLocation;
 		private readonly CacheManager cacheManager;
 
-		internal XunitTestElementClass(IUnitTestProvider provider,
+        internal XunitTestElementClass(IUnitTestRunnerProvider provider,
 		                               IProject project,
 		                               string typeName,
 		                               string assemblyLocation,
 		                               CacheManager cacheManager)
-			: base(provider, null, project, typeName)
+			: this(provider, null, project, typeName)
 		{
 			this.assemblyLocation = assemblyLocation;
 			this.cacheManager = cacheManager;
@@ -48,7 +49,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			get { return GetTitle(); }
 		}
 
-		public override IDeclaredElement GetDeclaredElement()
+		public virtual IDeclaredElement GetDeclaredElement()
 		{
 			var solution = GetSolution();
 			if(solution == null)
@@ -99,5 +100,93 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             // the assembly and the class)
             return EmptyArray<UnitTestTask>.Instance;
         }
+
+        public virtual IProject GetProject()
+        {
+            return project;
+        }
+
+        public virtual IProjectModelElementPointer GetProjectPointer()
+        {
+            return projectPointer;
+        }
+
+        public virtual string GetTypeClrName()
+        {
+            return TypeName;
+        }
+
+        [CanBeNull]
+        protected virtual ISolution GetSolution()
+        {
+            IProject project = GetProject();
+            if (project != null)
+            {
+                return project.GetSolution();
+            }
+            return null;
+        }
+
+        public virtual UnitTestNamespace GetNamespace()
+        {
+            return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
+        }
+
+                public string TypeName { get; private set; }
+        private readonly IProject project;
+        private readonly IProjectModelElementPointer projectPointer;
+
+        private XunitTestElementClass(IUnitTestRunnerProvider provider,
+		                           XUnitTestElementBase parent,
+		                           IProject project,
+		                           string typeName)
+			: base(provider, parent)
+		{
+			if(project == null)
+				throw new ArgumentNullException("project");
+
+			if(typeName == null)
+				throw new ArgumentNullException("typeName");
+
+			this.project = project;
+			TypeName = typeName;
+			projectPointer = project.CreatePointer();
+		}
+
+//        public override bool Equals(object obj)
+//		{
+//			if(base.Equals(obj))
+//			{
+//				var element = (XunitTestElement) obj;
+//
+//				if(Equals(element.project, project))
+//					return (element.TypeName == TypeName);
+//			}
+//
+//			return false;
+//		}
+//
+//		public override int GetHashCode()
+//		{
+//			unchecked
+//			{
+//				var result = base.GetHashCode();
+//				result = (result*397) ^ (project != null ? project.GetHashCode() : 0);
+//				result = (result*397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
+//				return result;
+//			}
+//		}
+
+//        public override bool Equals(object obj)
+//        {
+//            return (ReferenceEquals(this, obj) ||
+//                    ((obj.GetType() == GetType()) && (Provider == ((UnitTestElement) obj).Provider)));
+//        }
+
+//        public override int GetHashCode()
+//        {
+//            return Provider.ID.GetHashCode();
+//        }
+
     }
 }

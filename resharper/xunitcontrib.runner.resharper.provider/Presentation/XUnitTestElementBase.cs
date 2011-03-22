@@ -2,12 +2,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using JetBrains.Annotations;
-    using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.Util;
-    using RemoteRunner;
 
     public abstract class XUnitTestElementBase : IUnitTestElement
     {

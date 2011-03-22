@@ -171,7 +171,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             switch (elementKind)
             {
                 case UnitTestElementKind.Unknown:
-                    return !(element is XunitTestElement);
+                    return !(element is XUnitTestElementBase);
 
                 case UnitTestElementKind.Test:
                     return element is XunitTestElementMethod;
@@ -180,7 +180,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                     return element is XunitTestElementClass;
 
                 case UnitTestElementKind.TestStuff:
-                    return element is XunitTestElement;
+                    return element is XUnitTestElementBase;
             }
 
             return false;

@@ -134,7 +134,6 @@
     <Compile Include="IMetadataTypeProcessor.cs" />
     <Compile Include="MetadataAssemblyExtensions.cs" />
     <Compile Include="Presentation\XunitBrowserPresenter.cs" />
-    <Compile Include="Presentation\XunitTestElement.cs" />
     <Compile Include="Presentation\XunitTestElementClass.cs" />
     <Compile Include="Presentation\XunitTestElementMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -9,12 +9,13 @@ using JetBrains.ReSharper.UnitTestFramework;
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System.Collections.Generic;
+    using JetBrains.Application;
+    using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.TaskRunnerFramework;
-    using JetBrains.Util;
     using RemoteRunner;
 
-    internal class XunitTestElementMethod : XunitTestElement, IUnitTestViewElement
+    internal class XunitTestElementMethod : XUnitTestElementBase, IUnitTestViewElement
     {
         readonly XunitTestElementClass @class;
         readonly string methodName;
@@ -26,7 +27,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                                         string declaringTypeName,
                                         string methodName,
                                         int order)
-            : base(provider, @class, project, declaringTypeName)
+            : this(provider, @class, project, declaringTypeName)
         {
             this.@class = @class;
             this.methodName = methodName;
@@ -53,7 +54,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return Equals(other as object);
         }
 
-        public override IDeclaredElement GetDeclaredElement()
+        public virtual IDeclaredElement GetDeclaredElement()
         {
             var declaredType = GetDeclaredType();
             if (declaredType != null)
@@ -160,5 +161,97 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         {
             return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.GetTypeClrName(), testMethod.MethodName, explicitElements.Contains(testMethod));
         }
+
+        public virtual IProject GetProject()
+        {
+            return project;
+        }
+
+        public virtual IProjectModelElementPointer GetProjectPointer()
+        {
+            return projectPointer;
+        }
+
+        public virtual string GetTypeClrName()
+        {
+            return TypeName;
+        }
+
+        protected virtual ITypeElement GetDeclaredType()
+        {
+            IProject project = GetProject();
+            if(project == null)
+            {
+                return null;
+            }
+            PsiManager manager = PsiManager.GetInstance(project.GetSolution());
+            using (ReadLockCookie.Create())
+            {
+                return CacheManager.GetInstance(manager.Solution)
+                    .GetDeclarationsCache(PsiModuleManager.GetInstance(project.GetSolution()).GetPrimaryPsiModule(project), true, true)
+                    .GetTypeElementByCLRName(TypeName);
+            }
+        }
+
+        public virtual UnitTestNamespace GetNamespace()
+        {
+            return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
+        }
+
+        private string TypeName { get; set; }
+        private readonly IProject project;
+        private readonly IProjectModelElementPointer projectPointer;
+
+        private XunitTestElementMethod(IUnitTestRunnerProvider provider,
+		                           XUnitTestElementBase parent,
+		                           IProject project,
+		                           string typeName)
+			: base(provider, parent)
+		{
+			if(project == null)
+				throw new ArgumentNullException("project");
+
+			if(typeName == null)
+				throw new ArgumentNullException("typeName");
+
+			this.project = project;
+			TypeName = typeName;
+			projectPointer = project.CreatePointer();
+		}
+
+//        public override bool Equals(object obj)
+//		{
+//			if(base.Equals(obj))
+//			{
+//				var element = (XunitTestElement) obj;
+//
+//				if(Equals(element.project, project))
+//					return (element.TypeName == TypeName);
+//			}
+//
+//			return false;
+//		}
+//
+//		public override int GetHashCode()
+//		{
+//			unchecked
+//			{
+//				var result = base.GetHashCode();
+//				result = (result*397) ^ (project != null ? project.GetHashCode() : 0);
+//				result = (result*397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
+//				return result;
+//			}
+//		}
+
+//        public override bool Equals(object obj)
+//        {
+//            return (ReferenceEquals(this, obj) ||
+//                    ((obj.GetType() == GetType()) && (Provider == ((UnitTestElement) obj).Provider)));
+//        }
+
+//        public override int GetHashCode()
+//        {
+//            return Provider.ID.GetHashCode();
+//        }
     }
 }

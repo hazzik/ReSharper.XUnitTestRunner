@@ -79,7 +79,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 		protected override object Unwrap(object value)
 		{
 			if(value is XunitTestElementMethod || value is XunitTestElementClass)
-				value = ((XunitTestElement) value).GetDeclaredElement();
+				value = ((IUnitTestViewElement) value).GetDeclaredElement();
 
 			return base.Unwrap(value);
 		}
