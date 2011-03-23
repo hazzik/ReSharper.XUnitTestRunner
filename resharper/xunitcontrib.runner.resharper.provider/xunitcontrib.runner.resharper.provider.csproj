@@ -152,6 +152,7 @@
     <Compile Include="XunitAssemblyExplorer.cs" />
     <Compile Include="XunitFileExplorer.cs" />
     <Compile Include="XunitTestProvider.cs" />
+    <Compile Include="XUnitTestRunnerProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

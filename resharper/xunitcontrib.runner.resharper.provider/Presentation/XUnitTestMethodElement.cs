@@ -87,7 +87,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public string GetTitle()
         {
-            return string.Format("{0}.{1}", Class.GetTitle(), MethodName);
+            return string.Format("{0}.{1}", Class.ShortName, MethodName);
         }
 
         IEnumerable<UnitTestElementCategory> IUnitTestViewElement.Categories

@@ -10,7 +10,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     internal class XUnitRunnerTestMethodElement : XUnitTestElementBase, IEquatable<XUnitRunnerTestMethodElement>
     {
         public XUnitRunnerTestMethodElement(IUnitTestRunnerProvider provider,
-                                            XUnitTestClassElement @class,
+                                            XUnitRunnerTestClassElement @class,
                                             string typeName,
                                             string methodName)
             : base(provider, @class)
@@ -20,7 +20,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             MethodName = methodName;
         }
 
-        public XUnitTestClassElement Class { get; private set; }
+        public XUnitRunnerTestClassElement Class { get; private set; }
 
         public string MethodName { get; private set; }
 
@@ -60,7 +60,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            XUnitTestClassElement testClass = Class;
+            XUnitRunnerTestClassElement testClass = Class;
 
             return new List<UnitTestTask>
                        {
