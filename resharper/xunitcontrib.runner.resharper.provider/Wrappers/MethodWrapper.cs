@@ -159,7 +159,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 			public override string ToString()
 			{
-				var language = new KnownLanguage();
+				var language = KnownLanguage.ANY;
+
 				return string.Format("{0} {1}({2})",
 				                     method.ReturnType.GetLongPresentableName(language),
 				                     method.ShortName,
