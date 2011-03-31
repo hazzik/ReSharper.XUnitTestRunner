@@ -129,6 +129,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Presentation\XUnitRunnerTestClassElement.cs" />
     <Compile Include="Presentation\XUnitRunnerTestMethodElement.cs" />
     <Compile Include="Presentation\XUnitTestElementBase.cs" />
