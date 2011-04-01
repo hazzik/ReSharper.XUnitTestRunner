@@ -1,28 +1,28 @@
-using System.Drawing;
-using JetBrains.CommonControls;
-using JetBrains.ReSharper.Features.Common.TreePsiBrowser;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.UnitTestExplorer;
-using JetBrains.ReSharper.UnitTestFramework;
-using JetBrains.ReSharper.UnitTestFramework.UI;
-using JetBrains.TreeModels;
-using JetBrains.UI.TreeView;
-
-namespace XunitContrib.Runner.ReSharper.UnitTestProvider
+namespace XunitContrib.Runner.ReSharper.UnitTestProvider.Presentation
 {
-	internal class XunitBrowserPresenter : TreeModelBrowserPresenter
+    using System.Drawing;
+    using JetBrains.CommonControls;
+    using JetBrains.ReSharper.Features.Common.TreePsiBrowser;
+    using JetBrains.ReSharper.Psi;
+    using JetBrains.ReSharper.UnitTestExplorer;
+    using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.ReSharper.UnitTestFramework.UI;
+    using JetBrains.TreeModels;
+    using JetBrains.UI.TreeView;
+
+    internal class XunitBrowserPresenter : TreeModelBrowserPresenter
 	{
 		internal XunitBrowserPresenter()
 		{
-			Present<XUnitTestClassElement>(PresentTestFixture);
-			Present<XUnitTestMethodElement>(PresentTest);
+			Present<XunitTestClassElement>(PresentTestFixture);
+			Present<XunitTestMethodElement>(PresentTest);
 		}
 
 		protected override bool IsNaturalParent(object parentValue,
 		                                        object childValue)
 		{
 			var @namespace = parentValue as UnitTestNamespace;
-			var test = childValue as XUnitTestClassElement;
+			var test = childValue as XunitTestClassElement;
 
 			if(test != null && @namespace != null)
 				return @namespace.Equals(test.GetNamespace());
@@ -30,7 +30,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 			return base.IsNaturalParent(parentValue, childValue);
 		}
 
-		private static void PresentTest(XUnitTestMethodElement value,
+		private static void PresentTest(XunitTestMethodElement value,
 		                                IPresentableItem item,
 		                                TreeModelNode modelNode,
 		                                PresentationState state)
@@ -51,7 +51,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 				item.Images.Add(typeImage);
 		}
 
-		private void PresentTestFixture(XUnitTestClassElement value,
+		private void PresentTestFixture(XunitTestClassElement value,
 		                                IPresentableItem item,
 		                                TreeModelNode modelNode,
 		                                PresentationState state)
@@ -78,7 +78,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
 		protected override object Unwrap(object value)
 		{
-			if(value is XUnitTestMethodElement || value is XUnitTestClassElement)
+			if(value is XunitTestMethodElement || value is XunitTestClassElement)
 				value = ((IUnitTestViewElement) value).GetDeclaredElement();
 
 			return base.Unwrap(value);

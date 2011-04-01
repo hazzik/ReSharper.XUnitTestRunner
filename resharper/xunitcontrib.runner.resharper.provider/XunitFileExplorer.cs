@@ -13,7 +13,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     class XunitFileExplorer : IRecursiveElementProcessor
     {
-        private readonly IUnitTestProvider provider;
+        private readonly XunitTestProvider provider;
         private readonly UnitTestElementLocationConsumer consumer;
         private readonly IFile file;
         private readonly CheckForInterrupt interrupted;
@@ -24,7 +24,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         private readonly Dictionary<ITypeElement, IUnitTestViewElement> classes = new Dictionary<ITypeElement, IUnitTestViewElement>();
         private readonly Dictionary<IDeclaredElement, int> orders = new Dictionary<IDeclaredElement, int>();
 
-        public XunitFileExplorer(IUnitTestProvider provider, UnitTestElementLocationConsumer consumer, IFile file,
+        public XunitFileExplorer(XunitTestProvider provider, UnitTestElementLocationConsumer consumer, IFile file,
                                  CheckForInterrupt interrupted, CacheManager cacheManager)
         {
             if (file == null)
@@ -107,7 +107,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
-                testElement = new XUnitTestClassElement(provider, project, testClass.GetClrName().FullName, assemblyPath);
+                testElement = provider.GetOrCreateClassElement(testClass.GetClrName().FullName, project);
                 classes.Add(testClass, testElement);
                 orders.Add(testClass, 0);
             }
@@ -144,7 +144,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 var order = orders[type] + 1;
                 orders[type] = order;
-                return new XUnitTestMethodElement(provider, (XUnitTestClassElement) fixtureElementClass, project, type.GetClrName().FullName, method.ShortName, order);
+                return provider.GetOrCreateMethodElement(type.GetClrName().FullName + "." + method.ShortName, project, (XunitRunnerTestClassElement) fixtureElementClass);
             }
 
             return null;

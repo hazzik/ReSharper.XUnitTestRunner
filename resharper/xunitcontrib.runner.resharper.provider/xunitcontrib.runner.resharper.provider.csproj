@@ -132,15 +132,20 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Presentation\XUnitRunnerTestClassElement.cs" />
-    <Compile Include="Presentation\XUnitRunnerTestMethodElement.cs" />
-    <Compile Include="Presentation\XUnitTestElementBase.cs" />
     <Compile Include="UnitTestElementIdentifier.cs" />
-    <Compile Include="IMetadataTypeProcessor.cs" />
-    <Compile Include="MetadataAssemblyExtensions.cs" />
+    <Compile Include="Wrappers\AttributeWrapper.cs" />
+    <Compile Include="Wrappers\MethodWrapper.cs" />
+    <Compile Include="Wrappers\TypeExtensions.cs" />
+    <Compile Include="Wrappers\TypeWrapper.cs" />
+    <Compile Include="Presentation\XunitTestElementBase.cs" />
+    <Compile Include="XUnitMetadataExplorer.cs" />
+    <Compile Include="XunitRunnerMetadataExplorer.cs" />
+    <Compile Include="Presentation\XunitRunnerTestClassElement.cs" />
+    <Compile Include="Presentation\XunitRunnerTestMethodElement.cs" />
+    <Compile Include="XUnitTestMetadataExplorer.cs" />
     <Compile Include="Presentation\XunitBrowserPresenter.cs" />
-    <Compile Include="Presentation\XUnitTestClassElement.cs" />
-    <Compile Include="Presentation\XUnitTestMethodElement.cs" />
+    <Compile Include="Presentation\XunitTestClassElement.cs" />
+    <Compile Include="Presentation\XunitTestMethodElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -148,14 +153,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SuppressUnusedXunitTestElements.cs" />
-    <Compile Include="Wrappers\AttributeWrapper.cs" />
-    <Compile Include="Wrappers\MethodWrapper.cs" />
-    <Compile Include="Wrappers\TypeExtensions.cs" />
-    <Compile Include="Wrappers\TypeWrapper.cs" />
-    <Compile Include="XunitAssemblyExplorer.cs" />
     <Compile Include="XunitFileExplorer.cs" />
     <Compile Include="XunitTestProvider.cs" />
-    <Compile Include="XUnitTestRunnerProvider.cs" />
+    <Compile Include="XunitTestRunnerProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -172,6 +172,7 @@
       <Name>xunitcontrib.runner.resharper.runner</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

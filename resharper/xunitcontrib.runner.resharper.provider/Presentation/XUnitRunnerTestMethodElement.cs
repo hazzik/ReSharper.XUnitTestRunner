@@ -1,3 +1,5 @@
+using XunitContrib.Runner.ReSharper.RemoteRunner;
+
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System;
@@ -5,12 +7,11 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using System.Linq;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
-    using RemoteRunner;
 
-    internal class XUnitRunnerTestMethodElement : XUnitTestElementBase, IEquatable<XUnitRunnerTestMethodElement>
+    public class XunitRunnerTestMethodElement : XunitTestElementBase, IEquatable<XunitRunnerTestMethodElement>
     {
-        public XUnitRunnerTestMethodElement(IUnitTestRunnerProvider provider,
-                                            XUnitRunnerTestClassElement @class,
+        public XunitRunnerTestMethodElement(IUnitTestRunnerProvider provider,
+                                            XunitRunnerTestClassElement @class,
                                             string typeName,
                                             string methodName)
             : base(provider, @class)
@@ -20,7 +21,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             MethodName = methodName;
         }
 
-        public XUnitRunnerTestClassElement Class { get; private set; }
+        public XunitRunnerTestClassElement Class { get; private set; }
 
         public string MethodName { get; private set; }
 
@@ -36,19 +37,19 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public string TypeName { get; private set; }
 
-        public bool Equals(XUnitRunnerTestMethodElement other)
+        public bool Equals(XunitRunnerTestMethodElement other)
         {
             return (other != null && Equals(MethodName, other.MethodName)) && Equals(TypeName, other.TypeName);
         }
 
         public override sealed bool Equals(object obj)
         {
-            return Equals(obj as XUnitRunnerTestMethodElement);
+            return Equals(obj as XunitRunnerTestMethodElement);
         }
 
         public override sealed bool Equals(IUnitTestElement other)
         {
-            return Equals(other as XUnitRunnerTestMethodElement);
+            return Equals(other as XunitRunnerTestMethodElement);
         }
 
         public override sealed int GetHashCode()
@@ -60,7 +61,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            XUnitRunnerTestClassElement testClass = Class;
+            XunitRunnerTestClassElement testClass = Class;
 
             return new List<UnitTestTask>
                        {
@@ -75,12 +76,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new XunitTestAssemblyTask(assemblyLocation);
         }
 
-        private static RemoteTask CreateClassTask(XUnitRunnerTestClassElement testClass, IEnumerable<IUnitTestElement> explicitElements)
+        private static RemoteTask CreateClassTask(XunitRunnerTestClassElement testClass, IEnumerable<IUnitTestElement> explicitElements)
         {
             return new XunitTestClassTask(testClass.AssemblyLocation, testClass.TypeName, explicitElements.Contains(testClass));
         }
 
-        private static RemoteTask CreateMethodTask(XUnitRunnerTestMethodElement testMethod, IEnumerable<IUnitTestElement> explicitElements)
+        private static RemoteTask CreateMethodTask(XunitRunnerTestMethodElement testMethod, IEnumerable<IUnitTestElement> explicitElements)
         {
             return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.TypeName, testMethod.MethodName, explicitElements.Contains(testMethod));
         }

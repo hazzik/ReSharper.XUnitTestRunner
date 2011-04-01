@@ -1,13 +1,13 @@
+using XunitContrib.Runner.ReSharper.RemoteRunner;
+
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using JetBrains.Metadata.Reader.API;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.Util;
-    
-    using RemoteRunner;
 
-    public class XUnitTestRunnerProvider : IUnitTestRunnerProvider
+    public class XunitTestRunnerProvider : IUnitTestRunnerProvider
     {
         public string ID
         {
@@ -38,11 +38,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         /// just explore all the types
         public void ExploreAssembly(string assemblyLocation, UnitTestElementConsumer consumer)
         {
-            var path = new FileSystemPath(assemblyLocation);
-            var resolver = new DefaultAssemblyResolver(path.Directory);
-            IMetadataAssembly assembly = new MetadataLoader(resolver).LoadFrom(path, Predicate.True);
-            assembly.ProcessExportedTypes(new XunitAssemblyExplorer(this, assembly, consumer));
-        }
+			var resolver = new DefaultAssemblyResolver(new FileSystemPath[0]);
+			resolver.AddPath(new FileSystemPath(assemblyLocation).Directory);
+			IMetadataAssembly assembly = new MetadataLoader(resolver).LoadFrom(new FileSystemPath(assemblyLocation), Predicate.True);
+            //new XunitRunnerMetadataExplorer(this, consumer).ExploreAssembly(assembly);
+            new XunitRunnerMetadataExplorer(this, consumer).ExploreAssembly(assembly);
+		}
 
         public RemoteTaskRunnerInfo GetTaskRunnerInfo()
         {

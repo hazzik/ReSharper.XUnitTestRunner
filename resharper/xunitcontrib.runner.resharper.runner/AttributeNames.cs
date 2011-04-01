@@ -1,3 +1,5 @@
+using System;
+
 namespace XunitContrib.Runner.ReSharper.RemoteRunner
 {
     internal static class AttributeNames

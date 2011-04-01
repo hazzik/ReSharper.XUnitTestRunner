@@ -12,31 +12,30 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.ReSharper.UnitTestFramework;
 
-    internal class XUnitTestMethodElement : XUnitRunnerTestMethodElement, IUnitTestViewElement, IEquatable<XUnitTestMethodElement>
+    public class XunitTestMethodElement : XunitRunnerTestMethodElement, IUnitTestViewElement, IEquatable<XunitTestMethodElement>
     {
         private readonly IProject project;
         private readonly IProjectModelElementPointer projectPointer;
 
-        internal XUnitTestMethodElement(IUnitTestRunnerProvider provider,
-                                        XUnitTestClassElement @class,
+        internal XunitTestMethodElement(IUnitTestRunnerProvider provider,
+                                        XunitRunnerTestClassElement @class,
                                         IProject project,
                                         string declaringTypeName,
-                                        string methodName,
-                                        int order)
+                                        string methodName)
             : base(provider, @class, declaringTypeName, methodName)
         {
             this.project = project;
             projectPointer = project.CreatePointer();
         }
 
-        public bool Equals(XUnitTestMethodElement other)
+        public bool Equals(XunitTestMethodElement other)
         {
-            return Equals(other as XUnitRunnerTestMethodElement);
+            return Equals(other as XunitRunnerTestMethodElement);
         }
 
         public bool Equals(IUnitTestViewElement other)
         {
-            return Equals(other as XUnitRunnerTestMethodElement);
+            return Equals(other as XunitRunnerTestMethodElement);
         }
 
         public IDeclaredElement GetDeclaredElement()

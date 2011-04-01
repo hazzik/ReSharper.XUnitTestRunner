@@ -5,9 +5,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.Util;
 
-    internal class XUnitRunnerTestClassElement : XUnitTestElementBase, IEquatable<XUnitRunnerTestClassElement>
+    public class XunitRunnerTestClassElement : XunitTestElementBase, IEquatable<XunitRunnerTestClassElement>
     {
-        public XUnitRunnerTestClassElement(IUnitTestRunnerProvider provider, string typeName, string assemblyLocation)
+        public XunitRunnerTestClassElement(IUnitTestRunnerProvider provider, string typeName, string assemblyLocation)
             : base(provider, null)
         {
             TypeName = typeName;
@@ -33,19 +33,19 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public string AssemblyLocation { get; private set; }
 
-        public bool Equals(XUnitRunnerTestClassElement other)
+        public bool Equals(XunitRunnerTestClassElement other)
         {
             return ((other != null) && Equals(TypeName, other.TypeName));
         }
 
         public override sealed bool Equals(IUnitTestElement other)
         {
-            return Equals(other as XUnitRunnerTestClassElement);
+            return Equals(other as XunitRunnerTestClassElement);
         }
 
         public override sealed bool Equals(object obj)
         {
-            return Equals(obj as XUnitRunnerTestClassElement);
+            return Equals(obj as XunitRunnerTestClassElement);
         }
 
         public override sealed int GetHashCode()
