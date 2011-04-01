@@ -5,7 +5,6 @@ using System.Linq;
 using System.Xml;
 using JetBrains.Annotations;
 using JetBrains.Application;
-using JetBrains.CommonControls;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
@@ -13,19 +12,15 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.TaskRunnerFramework;
 using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
-using JetBrains.TreeModels;
-using JetBrains.UI.TreeView;
 using XunitContrib.Runner.ReSharper.RemoteRunner;
-using XunitContrib.Runner.ReSharper.UnitTestProvider.Presentation;
 using XunitContrib.Runner.ReSharper.UnitTestProvider.Properties;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     [UnitTestProvider]
     [UsedImplicitly]
-    public class XunitTestProvider : XunitTestRunnerProvider, IUnitTestProvider, IUnitTestPresenter
+    public class XunitTestProvider : XunitTestRunnerProvider, IUnitTestProvider
     {
-        private static readonly XunitBrowserPresenter Presenter = new XunitBrowserPresenter();
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
         private static readonly UnitTestElementComparer comparer;
         private readonly CacheManager cacheManager;
@@ -54,15 +49,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             this.solution = solution;
             this.cacheManager = cacheManager;
         }
-
-        #region IUnitTestPresenter Members
-
-        public void Present(IUnitTestViewElement element, IPresentableItem presentableItem, TreeModelNode node, PresentationState state)
-        {
-            Presenter.UpdateItem(element, node, presentableItem, state);
-        }
-
-        #endregion
 
         #region IUnitTestProvider Members
 
