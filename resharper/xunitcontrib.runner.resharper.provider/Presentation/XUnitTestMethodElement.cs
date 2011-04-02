@@ -45,7 +45,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 return (from member in declaredType.EnumerateMembers(MethodName, true)
                         let method = member as IMethod
-                        where method != null && !method.IsAbstract && method.TypeParameters.Length <= 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC
+                        where method != null && !method.IsAbstract && method.TypeParameters.Count <= 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC
                         select member).FirstOrDefault();
             }
 
