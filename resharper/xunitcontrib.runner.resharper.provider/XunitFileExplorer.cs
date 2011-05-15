@@ -21,7 +21,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         private readonly IProject project;
         private readonly string assemblyPath;
 
-        private readonly Dictionary<ITypeElement, IUnitTestViewElement> classes = new Dictionary<ITypeElement, IUnitTestViewElement>();
+        private readonly Dictionary<ITypeElement, IUnitTestElement> classes = new Dictionary<ITypeElement, IUnitTestElement>();
         private readonly Dictionary<IDeclaredElement, int> orders = new Dictionary<IDeclaredElement, int>();
 
         public XunitFileExplorer(XunitTestProvider provider, UnitTestElementLocationConsumer consumer, IFile file,
@@ -72,7 +72,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
             if (declaration != null)
             {
-                IUnitTestViewElement testElement = null;
+                IUnitTestElement testElement = null;
                 var declaredElement = declaration.DeclaredElement;
 
                 var testClass = declaredElement as IClass;
@@ -98,12 +98,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
         }
 
-        private IUnitTestViewElement ProcessTestClass(IClass testClass)
+        private IUnitTestElement ProcessTestClass(IClass testClass)
         {
             if (!IsValidTestClass(testClass))
                 return null;
 
-            IUnitTestViewElement testElement;
+            IUnitTestElement testElement;
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
@@ -125,7 +125,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return TypeUtility.HasRunWith(typeInfo);
         }
 
-        private IUnitTestViewElement ProcessTestMethod(IMethod method)
+        private IUnitTestElement ProcessTestMethod(IMethod method)
         {
             var type = method.GetContainingType();
             var @class = type as IClass;

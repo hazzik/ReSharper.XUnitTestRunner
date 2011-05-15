@@ -38,7 +38,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return ((other != null) && Equals(TypeName, other.TypeName));
         }
 
-        public override sealed bool Equals(IUnitTestElement other)
+        public override sealed bool Equals(IUnitTestRunnerElement other)
         {
             return Equals(other as XunitRunnerTestClassElement);
         }
@@ -53,7 +53,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return TypeName.GetHashCode();
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestRunnerElement> explicitElements)
         {
             // We don't have to do anything explicit for a test class, because when a class is run
             // we get called for each method, and each method already adds everything we need (loading

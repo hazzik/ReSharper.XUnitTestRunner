@@ -61,7 +61,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider.Presentation
 
         protected override object Unwrap(object value)
         {
-            var viewElement = value as IUnitTestViewElement;
+            var viewElement = value as IUnitTestElement;
             if (viewElement != null)
                 value = viewElement.GetDeclaredElement();
 

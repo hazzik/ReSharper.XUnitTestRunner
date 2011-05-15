@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Daemon.UsageChecking;
 using JetBrains.ReSharper.Psi;
 
@@ -29,6 +30,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     {
         public bool SupressUsageInspectionsOnElement(IDeclaredElement element)
         {
+            return UnitTestElementIdentifier.IsAnyUnitTestElement(element);
+        }
+
+        public bool SupressUsageInspectionsOnElement(IDeclaredElement element, out ImplicitUseKindFlags flags)
+        {
+            flags = ImplicitUseKindFlags.Default;
             return UnitTestElementIdentifier.IsAnyUnitTestElement(element);
         }
     }

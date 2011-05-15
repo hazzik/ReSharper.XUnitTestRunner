@@ -12,7 +12,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.ReSharper.UnitTestFramework;
 
-    public class XunitTestMethodElement : XunitRunnerTestMethodElement, IUnitTestViewElement, IEquatable<XunitTestMethodElement>
+    public class XunitTestMethodElement : XunitRunnerTestMethodElement, IUnitTestElement, IEquatable<XunitTestMethodElement>
     {
         private readonly IProject project;
         private readonly IProjectModelElementPointer projectPointer;
@@ -33,7 +33,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return Equals(other as XunitRunnerTestMethodElement);
         }
 
-        public bool Equals(IUnitTestViewElement other)
+        public bool Equals(IUnitTestElement other)
         {
             return Equals(other as XunitRunnerTestMethodElement);
         }
@@ -84,17 +84,17 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return projectPointer;
         }
 
-        public string GetTitle()
+        public string GetPresentation()
         {
             return string.Format("{0}.{1}", Class.ShortName, MethodName);
         }
 
-        IEnumerable<UnitTestElementCategory> IUnitTestViewElement.Categories
+        IEnumerable<UnitTestElementCategory> IUnitTestElement.Categories
         {
             get { return Categories; }
         }
 
-        string IUnitTestViewElement.ExplicitReason
+        string IUnitTestElement.ExplicitReason
         {
             get { return ExplicitReason; }
         }

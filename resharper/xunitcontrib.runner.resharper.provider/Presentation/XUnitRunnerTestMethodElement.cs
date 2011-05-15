@@ -47,7 +47,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return Equals(obj as XunitRunnerTestMethodElement);
         }
 
-        public override sealed bool Equals(IUnitTestElement other)
+        public override sealed bool Equals(IUnitTestRunnerElement other)
         {
             return Equals(other as XunitRunnerTestMethodElement);
         }
@@ -59,7 +59,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return ((result*397) ^ MethodName.GetHashCode());
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestRunnerElement> explicitElements)
         {
             XunitRunnerTestClassElement testClass = Class;
 
@@ -76,12 +76,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new XunitTestAssemblyTask(assemblyLocation);
         }
 
-        private static RemoteTask CreateClassTask(XunitRunnerTestClassElement testClass, IEnumerable<IUnitTestElement> explicitElements)
+        private static RemoteTask CreateClassTask(XunitRunnerTestClassElement testClass, IEnumerable<IUnitTestRunnerElement> explicitElements)
         {
             return new XunitTestClassTask(testClass.AssemblyLocation, testClass.TypeName, explicitElements.Contains(testClass));
         }
 
-        private static RemoteTask CreateMethodTask(XunitRunnerTestMethodElement testMethod, IEnumerable<IUnitTestElement> explicitElements)
+        private static RemoteTask CreateMethodTask(XunitRunnerTestMethodElement testMethod, IEnumerable<IUnitTestRunnerElement> explicitElements)
         {
             return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.TypeName, testMethod.MethodName, explicitElements.Contains(testMethod));
         }

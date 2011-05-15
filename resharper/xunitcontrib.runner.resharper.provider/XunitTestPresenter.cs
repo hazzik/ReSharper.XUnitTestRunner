@@ -14,7 +14,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         #region IUnitTestPresenter Members
 
-        public void Present(IUnitTestViewElement element, IPresentableItem presentableItem, TreeModelNode node, PresentationState state)
+        public void Present(IUnitTestElement element, IPresentableItem presentableItem, TreeModelNode node, PresentationState state)
         {
             if ((element is XunitTestClassElement) || (element is XunitTestMethodElement))
                 presenter.UpdateItem(element, node, presentableItem, state);

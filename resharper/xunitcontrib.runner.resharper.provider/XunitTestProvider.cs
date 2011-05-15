@@ -62,7 +62,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return solution; }
         }
 
-        public IUnitTestViewElement DeserializeElement(XmlElement parent, IUnitTestViewElement parentElement)
+        public IUnitTestElement DeserializeElement(XmlElement parent, IUnitTestElement parentElement)
         {
             return null;
         }
@@ -72,12 +72,12 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return true;
         }
 
-        public int CompareUnitTestElements(IUnitTestElement x, IUnitTestElement y)
+        public int CompareUnitTestElements(IUnitTestRunnerElement x, IUnitTestRunnerElement y)
         {
             return comparer.Compare(x, y);
         }
 
-        public void SerializeElement(XmlElement parent, IUnitTestElement element)
+        public void SerializeElement(XmlElement parent, IUnitTestRunnerElement element)
         {
         }
 
@@ -130,7 +130,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return false;
         }
 
-        public bool IsElementOfKind(IUnitTestElement element, UnitTestElementKind elementKind)
+        public bool IsElementOfKind(IUnitTestRunnerElement element, UnitTestElementKind elementKind)
         {
             switch (elementKind)
             {
@@ -154,7 +154,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public XunitTestClassElement GetOrCreateClassElement(string id, IProject project)
         {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
+            IUnitTestRunnerElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
                 return (element as XunitTestClassElement);
@@ -164,7 +164,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public XunitTestMethodElement GetOrCreateMethodElement(string id, IProject project, XunitRunnerTestClassElement parent)
         {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
+            IUnitTestRunnerElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
                 return (element as XunitTestMethodElement);

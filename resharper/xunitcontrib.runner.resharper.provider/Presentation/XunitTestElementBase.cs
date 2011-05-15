@@ -6,10 +6,10 @@ using JetBrains.Util;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    public abstract class XunitTestElementBase : IUnitTestElement
+    public abstract class XunitTestElementBase : IUnitTestRunnerElement
     {
         private readonly IEnumerable<UnitTestElementCategory> myCategories = UnitTestElementCategory.Uncategorized;
-        private IList<IUnitTestElement> myChildren;
+        private IList<IUnitTestRunnerElement> myChildren;
         private XunitTestElementBase myParent;
 
         protected XunitTestElementBase(IUnitTestRunnerProvider provider, XunitTestElementBase parent)
@@ -29,9 +29,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         #region IUnitTestElement Members
 
-        public ICollection<IUnitTestElement> Children
+        public ICollection<IUnitTestRunnerElement> Children
         {
-            get { return (myChildren ?? EmptyArray<IUnitTestElement>.Instance); }
+            get { return (myChildren ?? EmptyArray<IUnitTestRunnerElement>.Instance); }
         }
 
         public bool Explicit
@@ -41,7 +41,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public IUnitTestElement Parent
+        public IUnitTestRunnerElement Parent
         {
             get { return myParent; }
             set
@@ -64,7 +64,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public abstract string Id { get; }
 
-        public abstract bool Equals(IUnitTestElement other);
+        public abstract bool Equals(IUnitTestRunnerElement other);
 
         /// This method gets called to generate the tasks that the remote runner will execute
         /// When we run all the tests in a class (by e.g. clicking the menu in the margin marker)
@@ -92,20 +92,20 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         /// of the nodes (e.g. the classes + methods) to get executed (by serializing the nodes, containing
         /// the remote tasks from these lists, over into the new app domain). This is the default way the
         /// nunit and mstest providers work.
-        public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements);
+        public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestRunnerElement> explicitElements);
 
         #endregion
 
-        private void AppendChild(IUnitTestElement element)
+        private void AppendChild(IUnitTestRunnerElement element)
         {
             if (myChildren == null)
             {
-                myChildren = new List<IUnitTestElement>();
+                myChildren = new List<IUnitTestRunnerElement>();
             }
             myChildren.Add(element);
         }
 
-        private void RemoveChild(IUnitTestElement element)
+        private void RemoveChild(IUnitTestRunnerElement element)
         {
             if ((myChildren == null) || !myChildren.Remove(element))
             {
