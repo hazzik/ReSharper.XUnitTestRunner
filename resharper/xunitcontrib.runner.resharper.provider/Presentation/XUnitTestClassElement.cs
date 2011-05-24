@@ -1,3 +1,5 @@
+using System;
+
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System;
@@ -7,38 +9,47 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.Psi.Tree;
-    using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
     using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.Util;
 
-    public class XunitTestClassElement : XunitRunnerTestClassElement, IUnitTestElement, IEquatable<XunitTestClassElement>
+    public class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
     {
-        private readonly IProject project;
-        private readonly IProjectModelElementPointer projectPointer;
-
-        public XunitTestClassElement(IUnitTestRunnerProvider provider,
-                                       IProject project,
-                                       string typeName,
-                                       string assemblyLocation)
-            : base(provider, typeName, assemblyLocation)
+        public XunitTestClassElement(IUnitTestProvider provider,
+                                     IProjectModelElement project,
+                                     string typeName,
+                                     string assemblyLocation)
+            : base(provider, null, project, typeName)
         {
-            if (project == null)
-                throw new ArgumentNullException("project");
-
-            this.project = project;
-            projectPointer = project.CreatePointer();
+            AssemblyLocation = assemblyLocation;
         }
+
+        public override string Kind
+        {
+            get { return "xUnit.net Test Class"; }
+        }
+
+        public override string Id
+        {
+            get { return TypeName; }
+        }
+
+        public override string ShortName
+        {
+            get { return TypeName.Split('.').Last(); }
+        }
+
+        public string AssemblyLocation { get; private set; }
+
+        #region IEquatable<XunitTestClassElement> Members
 
         public bool Equals(XunitTestClassElement other)
         {
-            return Equals(other as XunitRunnerTestClassElement);
+            return ((other != null) && Equals(TypeName, other.TypeName));
         }
 
-        public bool Equals(IUnitTestElement other)
-        {
-            return Equals(other as XunitRunnerTestClassElement);
-        }
+        #endregion
 
-        public IDeclaredElement GetDeclaredElement()
+        public override IDeclaredElement GetDeclaredElement()
         {
             IProject project = GetProject();
             ISolution solution = project
@@ -53,7 +64,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 .GetTypeElementByCLRName(TypeName);
         }
 
-        public UnitTestElementDisposition GetDisposition()
+        public override UnitTestElementDisposition GetDisposition()
         {
             IDeclaredElement element = GetDeclaredElement();
             if (element == null || !element.IsValid())
@@ -62,48 +73,39 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             IEnumerable<UnitTestElementLocation> locations = from declaration in element.GetDeclarations()
                                                              let file = declaration.GetContainingFile()
                                                              where file != null
-                                                             select
-                                                                 new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
+                                                             select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
                                                                                              declaration.GetNameDocumentRange().TextRange,
                                                                                              declaration.GetDocumentRange().TextRange);
 
             return new UnitTestElementDisposition(locations.ToList(), this);
         }
 
-        public UnitTestNamespace GetNamespace()
-        {
-            return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
-        }
-
-        public IProject GetProject()
-        {
-            //return projectPointer.GetValidProjectElement(((XunitTestProvider)Provider).Solution) as IProject;
-            return project;
-        }
-
-        public IProjectModelElementPointer GetProjectPointer()
-        {
-            return projectPointer;
-        }
-
-        public string GetPresentation()
+        public override string GetPresentation()
         {
             return ShortName;
         }
 
-        IEnumerable<UnitTestElementCategory> IUnitTestElement.Categories
+        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            get { return Categories; }
+            // We don't have to do anything explicit for a test class, because when a class is run
+            // we get called for each method, and each method already adds everything we need (loading
+            // the assembly and the class)
+            return EmptyArray<UnitTestTask>.Instance;
         }
 
-        string IUnitTestElement.ExplicitReason
+        public override sealed bool Equals(IUnitTestElement other)
         {
-            get { return ExplicitReason; }
+            return Equals(other as XunitTestClassElement);
         }
 
-        public string Kind
+        public override sealed bool Equals(object obj)
         {
-            get { return "xUnit.net Test Class"; }
+            return Equals(obj as XunitTestClassElement);
+        }
+
+        public override sealed int GetHashCode()
+        {
+            return TypeName.GetHashCode();
         }
     }
 }

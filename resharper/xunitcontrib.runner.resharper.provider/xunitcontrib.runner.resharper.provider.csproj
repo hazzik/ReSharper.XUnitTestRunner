@@ -139,9 +139,6 @@
     <Compile Include="Wrappers\TypeWrapper.cs" />
     <Compile Include="Presentation\XunitTestElementBase.cs" />
     <Compile Include="XUnitMetadataExplorer.cs" />
-    <Compile Include="XunitRunnerMetadataExplorer.cs" />
-    <Compile Include="Presentation\XunitRunnerTestClassElement.cs" />
-    <Compile Include="Presentation\XunitRunnerTestMethodElement.cs" />
     <Compile Include="XUnitTestMetadataExplorer.cs" />
     <Compile Include="Presentation\XunitBrowserPresenter.cs" />
     <Compile Include="Presentation\XunitTestClassElement.cs" />
@@ -156,7 +153,6 @@
     <Compile Include="XunitFileExplorer.cs" />
     <Compile Include="XunitTestPresenter.cs" />
     <Compile Include="XunitTestProvider.cs" />
-    <Compile Include="XunitTestRunnerProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

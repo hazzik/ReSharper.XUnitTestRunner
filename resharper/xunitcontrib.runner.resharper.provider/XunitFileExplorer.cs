@@ -144,7 +144,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             {
                 var order = orders[type] + 1;
                 orders[type] = order;
-                return provider.GetOrCreateMethodElement(type.GetClrName().FullName + "." + method.ShortName, project, (XunitRunnerTestClassElement) fixtureElementClass);
+                return provider.GetOrCreateMethodElement(type.GetClrName().FullName + "." + method.ShortName, project, (XunitTestClassElement) fixtureElementClass);
             }
 
             return null;

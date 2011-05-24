@@ -1,24 +1,36 @@
 using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
-using JetBrains.Util;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
-    public abstract class XunitTestElementBase : IUnitTestRunnerElement
+    using System.Collections.Generic;
+    using JetBrains.Annotations;
+    using JetBrains.ProjectModel;
+    using JetBrains.ReSharper.Psi;
+    using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.Util;
+
+    public abstract class XunitTestElementBase : IUnitTestElement
     {
         private readonly IEnumerable<UnitTestElementCategory> myCategories = UnitTestElementCategory.Uncategorized;
-        private IList<IUnitTestRunnerElement> myChildren;
+        private readonly IProjectModelElementPointer projectPointer;
+        private IList<IUnitTestElement> myChildren;
         private XunitTestElementBase myParent;
 
-        protected XunitTestElementBase(IUnitTestRunnerProvider provider, XunitTestElementBase parent)
+        protected XunitTestElementBase(IUnitTestProvider provider, XunitTestElementBase parent, IProjectModelElement project, string typeName)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
+            if (project == null)
+                throw new ArgumentNullException("project");
             Provider = provider;
+            projectPointer = project.CreatePointer();
+            TypeName = typeName;
             Parent = parent;
         }
+
+        public string TypeName { get; private set; }
+
+        #region IUnitTestElement Members
 
         public string ExplicitReason { get; set; }
 
@@ -27,11 +39,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             get { return myCategories; }
         }
 
-        #region IUnitTestElement Members
-
-        public ICollection<IUnitTestRunnerElement> Children
+        public ICollection<IUnitTestElement> Children
         {
-            get { return (myChildren ?? EmptyArray<IUnitTestRunnerElement>.Instance); }
+            get { return (myChildren ?? EmptyArray<IUnitTestElement>.Instance); }
         }
 
         public bool Explicit
@@ -41,7 +51,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public IUnitTestRunnerElement Parent
+        public IUnitTestElement Parent
         {
             get { return myParent; }
             set
@@ -57,14 +67,18 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             }
         }
 
-        public IUnitTestRunnerProvider Provider { get; private set; }
+        public IUnitTestProvider Provider { get; private set; }
 
         [NotNull]
         public abstract string ShortName { get; }
 
         public abstract string Id { get; }
 
-        public abstract bool Equals(IUnitTestRunnerElement other);
+        public abstract bool Equals(IUnitTestElement other);
+
+        public abstract string GetPresentation();
+        public abstract UnitTestElementDisposition GetDisposition();
+        public abstract IDeclaredElement GetDeclaredElement();
 
         /// This method gets called to generate the tasks that the remote runner will execute
         /// When we run all the tests in a class (by e.g. clicking the menu in the margin marker)
@@ -92,20 +106,32 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         /// of the nodes (e.g. the classes + methods) to get executed (by serializing the nodes, containing
         /// the remote tasks from these lists, over into the new app domain). This is the default way the
         /// nunit and mstest providers work.
-        public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestRunnerElement> explicitElements);
+        public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements);
+
+        public abstract string Kind { get; }
+
+        public virtual UnitTestNamespace GetNamespace()
+        {
+            return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
+        }
+
+        public virtual IProject GetProject()
+        {
+            return projectPointer.GetValidProjectElement(Provider.Solution) as IProject;
+        }
 
         #endregion
 
-        private void AppendChild(IUnitTestRunnerElement element)
+        private void AppendChild(IUnitTestElement element)
         {
             if (myChildren == null)
             {
-                myChildren = new List<IUnitTestRunnerElement>();
+                myChildren = new List<IUnitTestElement>();
             }
             myChildren.Add(element);
         }
 
-        private void RemoveChild(IUnitTestRunnerElement element)
+        private void RemoveChild(IUnitTestElement element)
         {
             if ((myChildren == null) || !myChildren.Remove(element))
             {

@@ -1,7 +1,6 @@
 using System;
 using JetBrains.Metadata.Reader.API;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider

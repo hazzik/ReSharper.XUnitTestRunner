@@ -54,5 +54,10 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner
                 return (397) ^ (assemblyLocation != null ? assemblyLocation.GetHashCode() : 0);
             }
         }
+
+        public override bool IsMeaningfulTask
+        {
+            get { return false; }
+        }
     }
 }

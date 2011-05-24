@@ -1,3 +1,5 @@
+using System;
+
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
     using System;
@@ -9,99 +11,88 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
     using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.Psi.Util;
-    using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
+    using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
+    using RemoteRunner;
 
-    public class XunitTestMethodElement : XunitRunnerTestMethodElement, IUnitTestElement, IEquatable<XunitTestMethodElement>
+    public class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
     {
-        private readonly IProject project;
-        private readonly IProjectModelElementPointer projectPointer;
-
-        internal XunitTestMethodElement(IUnitTestRunnerProvider provider,
-                                        XunitRunnerTestClassElement @class,
-                                        IProject project,
+        internal XunitTestMethodElement(IUnitTestProvider provider,
+                                        XunitTestClassElement @class,
+                                        IProjectModelElement project,
                                         string declaringTypeName,
                                         string methodName)
-            : base(provider, @class, declaringTypeName, methodName)
+            : base(provider, @class, project, declaringTypeName)
         {
-            this.project = project;
-            projectPointer = project.CreatePointer();
+            Class = @class;
+            MethodName = methodName;
+        }
+
+        public XunitTestClassElement Class { get; private set; }
+        public string MethodName { get; private set; }
+
+        public override sealed string ShortName
+        {
+            get { return MethodName; }
+        }
+
+        public override sealed string Id
+        {
+            get { return string.Format("{0}.{1}", Class.TypeName, MethodName); }
+        }
+
+        public override string Kind
+        {
+            get { return "xUnit.net Test"; }
         }
 
         public bool Equals(XunitTestMethodElement other)
         {
-            return Equals(other as XunitRunnerTestMethodElement);
+            return (other != null && Equals(MethodName, other.MethodName)) && Equals(TypeName, other.TypeName);
         }
 
-        public bool Equals(IUnitTestElement other)
+        public override sealed bool Equals(object obj)
         {
-            return Equals(other as XunitRunnerTestMethodElement);
+            return Equals(obj as XunitTestMethodElement);
         }
 
-        public IDeclaredElement GetDeclaredElement()
+        public override sealed bool Equals(IUnitTestElement other)
         {
-            ITypeElement declaredType = GetDeclaredType();
-            if (declaredType != null)
-            {
-                return (from member in declaredType.EnumerateMembers(MethodName, true)
-                        let method = member as IMethod
-                        where method != null && !method.IsAbstract && method.TypeParameters.Count <= 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC
-                        select member).FirstOrDefault();
-            }
-
-            return null;
+            return Equals(other as XunitTestMethodElement);
         }
 
-        public UnitTestElementDisposition GetDisposition()
+        public override sealed int GetHashCode()
         {
-            IDeclaredElement element = GetDeclaredElement();
-            if (element == null || !element.IsValid())
-                return UnitTestElementDisposition.InvalidDisposition;
-
-            IEnumerable<UnitTestElementLocation> locations = from declaration in element.GetDeclarations()
-                                                             let file = declaration.GetContainingFile()
-                                                             where file != null
-                                                             select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
-                                                                                                declaration.GetNameDocumentRange().TextRange,
-                                                                                                declaration.GetDocumentRange().TextRange);
-
-            return new UnitTestElementDisposition(locations.ToList(), this);
+            int result = 0;
+            result = (result*397) ^ TypeName.GetHashCode();
+            return ((result*397) ^ MethodName.GetHashCode());
         }
 
-        public UnitTestNamespace GetNamespace()
+        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
+            XunitTestClassElement testClass = Class;
+
+            return new List<UnitTestTask>
+                       {
+                           new UnitTestTask(null, CreateAssemblyTask(testClass.AssemblyLocation)),
+                           new UnitTestTask(testClass, CreateClassTask(testClass, explicitElements)),
+                           new UnitTestTask(this, CreateMethodTask(this, explicitElements))
+                       };
         }
 
-        public IProject GetProject()
+        private static RemoteTask CreateAssemblyTask(string assemblyLocation)
         {
-            //return projectPointer.GetValidProjectElement(((XunitTestProvider) Provider).Solution) as IProject;
-            return project;
+            return new XunitTestAssemblyTask(assemblyLocation);
         }
 
-        public IProjectModelElementPointer GetProjectPointer()
+        private static RemoteTask CreateClassTask(XunitTestClassElement testClass, IEnumerable<IUnitTestElement> explicitElements)
         {
-            return projectPointer;
+            return new XunitTestClassTask(testClass.AssemblyLocation, testClass.TypeName, explicitElements.Contains(testClass));
         }
 
-        public string GetPresentation()
+        private static RemoteTask CreateMethodTask(XunitTestMethodElement testMethod, IEnumerable<IUnitTestElement> explicitElements)
         {
-            return string.Format("{0}.{1}", Class.ShortName, MethodName);
-        }
-
-        IEnumerable<UnitTestElementCategory> IUnitTestElement.Categories
-        {
-            get { return Categories; }
-        }
-
-        string IUnitTestElement.ExplicitReason
-        {
-            get { return ExplicitReason; }
-        }
-
-        public string Kind
-        {
-            get { return "xUnit.net Test"; }
+            return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.TypeName, testMethod.MethodName, explicitElements.Contains(testMethod));
         }
 
         private ITypeElement GetDeclaredType()
@@ -119,6 +110,41 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                     .GetDeclarationsCache(primaryPsiModule, true, true)
                     .GetTypeElementByCLRName(TypeName);
             }
+        }
+
+        public override IDeclaredElement GetDeclaredElement()
+        {
+            ITypeElement declaredType = GetDeclaredType();
+            if (declaredType != null)
+            {
+                return (from member in declaredType.EnumerateMembers(MethodName, true)
+                        let method = member as IMethod
+                        where method != null && !method.IsAbstract && method.TypeParameters.Count <= 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC
+                        select member).FirstOrDefault();
+            }
+
+            return null;
+        }
+
+        public override UnitTestElementDisposition GetDisposition()
+        {
+            IDeclaredElement element = GetDeclaredElement();
+            if (element == null || !element.IsValid())
+                return UnitTestElementDisposition.InvalidDisposition;
+
+            IEnumerable<UnitTestElementLocation> locations = from declaration in element.GetDeclarations()
+                                                             let file = declaration.GetContainingFile()
+                                                             where file != null
+                                                             select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
+                                                                                                declaration.GetNameDocumentRange().TextRange,
+                                                                                                declaration.GetDocumentRange().TextRange);
+
+            return new UnitTestElementDisposition(locations.ToList(), this);
+        }
+
+        public override string GetPresentation()
+        {
+            return string.Format("{0}.{1}", Class.ShortName, MethodName);
         }
     }
 }

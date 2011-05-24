@@ -48,11 +48,6 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner
             explicitly = bool.Parse(GetXmlAttribute(element, AttributeNames.Explicitly));
         }
 
-        public string TypeName
-        {
-            get { return classTypeName; }
-        }
-
         public string ShortName
         {
             get { return methodName; }
@@ -94,6 +89,11 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner
                 result = (result*397) ^ (assemblyLocation != null ? assemblyLocation.GetHashCode() : 0);
                 return result;
             }
+        }
+
+        public override bool IsMeaningfulTask
+        {
+            get { return true; }
         }
     }
 }

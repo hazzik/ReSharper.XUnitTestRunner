@@ -10,16 +10,18 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.TaskRunnerFramework;
-using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
 using JetBrains.ReSharper.UnitTestFramework;
 using XunitContrib.Runner.ReSharper.RemoteRunner;
 using XunitContrib.Runner.ReSharper.UnitTestProvider.Properties;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
+    using JetBrains.Metadata.Reader.API;
+    using JetBrains.Util;
+
     [UnitTestProvider]
     [UsedImplicitly]
-    public class XunitTestProvider : XunitTestRunnerProvider, IUnitTestProvider
+    public class XunitTestProvider : IUnitTestProvider
     {
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
         private static readonly UnitTestElementComparer comparer;
@@ -52,6 +54,25 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         #region IUnitTestProvider Members
 
+        // It's rather useful to put a breakpoint here. When this gets hit, you can then attach
+        // to the task runner process
+
+        // Used to discover the type of the element - unknown, test, test container (class) or
+        // something else relating to a test element (e.g. parent class of a nested test class)
+        // This method is called to get the icon for the completion lists, amongst other things
+
+        #endregion
+
+        public string ID
+        {
+            get { return XunitTaskRunner.RunnerId; }
+        }
+
+        public string Name
+        {
+            get { return "xUnit.net"; }
+        }
+
         public Image Icon
         {
             get { return Resources.xunit; }
@@ -60,6 +81,37 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public ISolution Solution
         {
             get { return solution; }
+        }
+
+        /// Provides Reflection-like metadata of a physical assembly, called at startup (if the
+        /// assembly exists) and whenever the assembly is recompiled. It allows us to retrieve
+        /// the tests that will actually get executed, as opposed to ExploreFile, which is about
+        /// identifying tests as they are being written, and finding their location in the source
+        /// code.
+        /// It would be nice to check to see that the assembly references xunit before iterating
+        /// through all the types in the assembly - a little optimisation. Unfortunately,
+        /// when an assembly is compiled, only assemblies that have types that are directly
+        /// referenced are embedded as references. In other words, if I use something from
+        /// xunit.extensions, but not from xunit (say I only use a DerivedFactAttribute),
+        /// then only xunit.extensions is listed as a referenced assembly. xunit will still
+        /// get loaded at runtime, because it's a referenced assembly of xunit.extensions.
+        /// It's also needed at compile time, but it's not a direct reference.
+        /// So I'd need to recurse into the referenced assemblies references, and I don't
+        /// quite know how to do that, and it's suddenly making our little optimisation
+        /// rather complicated. So (at least for now) we'll leave well enough alone and
+        /// just explore all the types
+        public void ExploreAssembly(string assemblyLocation, UnitTestElementConsumer consumer)
+        {
+            var resolver = new DefaultAssemblyResolver(new FileSystemPath[0]);
+            resolver.AddPath(new FileSystemPath(assemblyLocation).Directory);
+            IMetadataAssembly assembly = new MetadataLoader(resolver).LoadFrom(new FileSystemPath(assemblyLocation), Predicate.True);
+            //new XunitRunnerMetadataExplorer(this, consumer).ExploreAssembly(assembly);
+            new XunitMetadataExplorer(this, null, consumer).ExploreAssembly(assembly);
+        }
+
+        public RemoteTaskRunnerInfo GetTaskRunnerInfo()
+        {
+            return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
         }
 
         public IUnitTestElement DeserializeElement(XmlElement parent, IUnitTestElement parentElement)
@@ -72,15 +124,14 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return true;
         }
 
-        public int CompareUnitTestElements(IUnitTestRunnerElement x, IUnitTestRunnerElement y)
+        public int CompareUnitTestElements(IUnitTestElement x, IUnitTestElement y)
         {
             return comparer.Compare(x, y);
         }
 
-        public void SerializeElement(XmlElement parent, IUnitTestRunnerElement element)
+        public void SerializeElement(XmlElement parent, IUnitTestElement element)
         {
         }
-
 
         public void ExploreExternal(UnitTestElementConsumer consumer)
         {
@@ -104,12 +155,6 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             // Allows us to explore the solution, without going into the projects
         }
 
-        // It's rather useful to put a breakpoint here. When this gets hit, you can then attach
-        // to the task runner process
-
-        // Used to discover the type of the element - unknown, test, test container (class) or
-        // something else relating to a test element (e.g. parent class of a nested test class)
-        // This method is called to get the icon for the completion lists, amongst other things
         public bool IsElementOfKind(IDeclaredElement declaredElement, UnitTestElementKind elementKind)
         {
             switch (elementKind)
@@ -130,7 +175,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return false;
         }
 
-        public bool IsElementOfKind(IUnitTestRunnerElement element, UnitTestElementKind elementKind)
+        public bool IsElementOfKind(IUnitTestElement element, UnitTestElementKind elementKind)
         {
             switch (elementKind)
             {
@@ -150,11 +195,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return false;
         }
 
-        #endregion
-
         public XunitTestClassElement GetOrCreateClassElement(string id, IProject project)
         {
-            IUnitTestRunnerElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
+            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
                 return (element as XunitTestClassElement);
@@ -162,9 +205,9 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             return new XunitTestClassElement(this, project, id, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
         }
 
-        public XunitTestMethodElement GetOrCreateMethodElement(string id, IProject project, XunitRunnerTestClassElement parent)
+        public XunitTestMethodElement GetOrCreateMethodElement(string id, IProject project, XunitTestClassElement parent)
         {
-            IUnitTestRunnerElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
+            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
                 return (element as XunitTestMethodElement);
