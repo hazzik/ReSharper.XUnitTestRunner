@@ -64,6 +64,16 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 .GetTypeElementByCLRName(TypeName);
         }
 
+        public override IEnumerable<IProjectFile> GetProjectFiles()
+        {
+            IDeclaredElement declaredElement = GetDeclaredElement();
+            if (declaredElement == null)
+            {
+                return EmptyArray<IProjectFile>.Instance;
+            }
+            return declaredElement.GetSourceFiles().Select(sf => sf.ToProjectFile());
+        }
+
         public override UnitTestElementDisposition GetDisposition()
         {
             IDeclaredElement element = GetDeclaredElement();

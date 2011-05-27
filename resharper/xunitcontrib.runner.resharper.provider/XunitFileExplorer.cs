@@ -87,11 +87,11 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
                 {
                     // Ensure that the method has been implemented, i.e. it has a name and a document
                     var nameRange = declaration.GetNameDocumentRange().TextRange;
-                    var documentRange = declaration.GetDocumentRange();
-                    if (nameRange.IsValid && documentRange.IsValid())
+                    var documentRange = declaration.GetDocumentRange().TextRange;
+                    if (nameRange.IsValid && documentRange.IsValid)
                     {
                         var disposition = new UnitTestElementDisposition(testElement, file.GetSourceFile().ToProjectFile(),
-                            nameRange, documentRange.TextRange);
+                            nameRange, documentRange);
                         consumer(disposition);
                     }
                 }

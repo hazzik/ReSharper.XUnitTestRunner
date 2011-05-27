@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Util;
 
 namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 {
@@ -66,6 +67,27 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             int result = 0;
             result = (result*397) ^ TypeName.GetHashCode();
             return ((result*397) ^ MethodName.GetHashCode());
+        }
+
+        public override IEnumerable<IProjectFile> GetProjectFiles()
+        {
+            ITypeElement declaredType = GetDeclaredType();
+            if (declaredType != null)
+            {
+                List<IProjectFile> result = declaredType
+                    .GetSourceFiles()
+                    .Select(sf => sf.ToProjectFile())
+                    .ToList();
+                if (result.Count == 1)
+                    return result;
+            }
+            IDeclaredElement declaredElement = GetDeclaredElement();
+            if (declaredElement == null)
+                return EmptyArray<IProjectFile>.Instance;
+            return declaredElement
+                .GetSourceFiles()
+                .Select(sf => sf.ToProjectFile())
+                .ToList();
         }
 
         public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)

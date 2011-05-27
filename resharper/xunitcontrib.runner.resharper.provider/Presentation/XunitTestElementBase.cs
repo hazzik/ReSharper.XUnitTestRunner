@@ -79,6 +79,7 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
         public abstract string GetPresentation();
         public abstract UnitTestElementDisposition GetDisposition();
         public abstract IDeclaredElement GetDeclaredElement();
+        public abstract IEnumerable<IProjectFile> GetProjectFiles();
 
         /// This method gets called to generate the tasks that the remote runner will execute
         /// When we run all the tests in a class (by e.g. clicking the menu in the margin marker)
