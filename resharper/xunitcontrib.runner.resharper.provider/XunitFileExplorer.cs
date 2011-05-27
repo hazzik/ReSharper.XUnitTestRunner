@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Application;
 using JetBrains.Application.Progress;
 using JetBrains.ProjectModel;
@@ -64,37 +65,49 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
 
         public void ProcessAfterInterior(ITreeNode element)
         {
+            var declaration = element as IDeclaration;
+
+            if (declaration == null)
+                return;
+
+            var testClass = declaration.DeclaredElement as IClass;
+            IUnitTestElement testElement;
+            if (testClass == null || !IsValidTestClass(testClass) || !classes.TryGetValue(testClass, out testElement))
+                return;
+
+            foreach (var child in testElement.Children.Where(x => x.State == UnitTestElementState.Pending).ToList())
+                child.State = UnitTestElementState.Invalid;
         }
 
         public void ProcessBeforeInterior(ITreeNode element)
         {
             var declaration = element as IDeclaration;
 
-            if (declaration != null)
+            if (declaration == null)
+                return;
+
+            IUnitTestElement testElement = null;
+            var declaredElement = declaration.DeclaredElement;
+
+            var testClass = declaredElement as IClass;
+            if (testClass != null)
+                testElement = ProcessTestClass(testClass);
+
+            var testMethod = declaredElement as IMethod;
+            if (testMethod != null)
+                testElement = ProcessTestMethod(testMethod) ?? testElement;
+
+            if (testElement == null)
+                return;
+
+            // Ensure that the method has been implemented, i.e. it has a name and a document
+            var nameRange = declaration.GetNameDocumentRange().TextRange;
+            var documentRange = declaration.GetDocumentRange().TextRange;
+            if (nameRange.IsValid && documentRange.IsValid)
             {
-                IUnitTestElement testElement = null;
-                var declaredElement = declaration.DeclaredElement;
-
-                var testClass = declaredElement as IClass;
-                if (testClass != null)
-                    testElement = ProcessTestClass(testClass);
-
-                var testMethod = declaredElement as IMethod;
-                if (testMethod != null)
-                    testElement = ProcessTestMethod(testMethod) ?? testElement;
-
-                if (testElement != null)
-                {
-                    // Ensure that the method has been implemented, i.e. it has a name and a document
-                    var nameRange = declaration.GetNameDocumentRange().TextRange;
-                    var documentRange = declaration.GetDocumentRange().TextRange;
-                    if (nameRange.IsValid && documentRange.IsValid)
-                    {
-                        var disposition = new UnitTestElementDisposition(testElement, file.GetSourceFile().ToProjectFile(),
-                            nameRange, documentRange);
-                        consumer(disposition);
-                    }
-                }
+                var disposition = new UnitTestElementDisposition(testElement, file.GetSourceFile().ToProjectFile(),
+                                                                 nameRange, documentRange);
+                consumer(disposition);
             }
         }
 
@@ -108,6 +121,8 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             if (!classes.TryGetValue(testClass, out testElement))
             {
                 testElement = provider.GetOrCreateClassElement(testClass.GetClrName().FullName, project);
+                foreach (var child in testElement.Children.ToList())
+                    child.State = UnitTestElementState.Pending;
                 classes.Add(testClass, testElement);
                 orders.Add(testClass, 0);
             }

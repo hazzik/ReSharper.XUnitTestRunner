@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Xml;
@@ -200,8 +199,10 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
+                element.State = UnitTestElementState.Valid;
                 return (element as XunitTestClassElement);
             }
+
             return new XunitTestClassElement(this, project, id, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
         }
 
@@ -210,20 +211,13 @@ namespace XunitContrib.Runner.ReSharper.UnitTestProvider
             IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
+                element.State = UnitTestElementState.Valid;
                 return (element as XunitTestMethodElement);
             }
             string[] splitted = id.Split('.');
-            string declaringTypeName = splitted.Take((splitted.Length - 1)).Join(".");
+            string declaringTypeName = StringUtil.Join(splitted.Take((splitted.Length - 1)), ".");
             string name = splitted.Last();
             return new XunitTestMethodElement(this, parent, project, declaringTypeName, name);
-        }
-    }
-
-    public static class StringUtil
-    {
-        public static string Join(this IEnumerable<string> strings, string separator)
-        {
-            return string.Join(separator, strings.ToArray());
         }
     }
 }
