@@ -8,6 +8,3 @@ xunitcontrib.runner.resharper.runner.6.0.dll
 
 from Your_Solution_Dir\resharper\xunitcontrib.runner.resharper.provider\bin\Debug or Your_Solution_Dir\resharper\xunitcontrib.runner.resharper.provider\bin\Release
 to Your_ReSharper_Dir\v6.0\Bin\Plugins\xunitcontrib.runner.resharper.6.0\
-
-ATTENTION!
-Current ReSharper 6 EAP build 2098 has very nasty issue http://youtrack.jetbrains.net/issue/RSRP-220016, so you have to copy these assemblies also to Your_ReSharper_Dir\v6.0\Bin\
