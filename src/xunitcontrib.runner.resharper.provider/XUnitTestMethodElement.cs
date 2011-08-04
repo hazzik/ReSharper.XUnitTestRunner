@@ -2,7 +2,7 @@ namespace ReSharper.XUnitTestProvider
 {
     using System;
     using JetBrains.Util;
-    using ReSharper.XUnitTestRunner;
+    using XUnitTestRunner;
     using System.Collections.Generic;
     using System.Linq;
     using JetBrains.Application;
@@ -18,7 +18,7 @@ namespace ReSharper.XUnitTestProvider
     {
         internal XunitTestMethodElement(IUnitTestProvider provider,
                                         XunitTestClassElement @class,
-                                        IProjectModelElement project,
+                                        ProjectModelElementEnvoy project,
                                         string declaringTypeName,
                                         string methodName)
             : base(provider, @class, project, declaringTypeName)

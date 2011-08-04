@@ -7,7 +7,7 @@
 
     internal static class UnitTestElementIdentifier
     {
-        private static readonly ClrTypeName propertyDataAttributeName = new ClrTypeName("Xunit.Extensions.PropertyDataAttribute");
+        private static readonly ClrTypeName PropertyDataAttributeName = new ClrTypeName("Xunit.Extensions.PropertyDataAttribute");
 
         public static bool IsAnyUnitTestElement(IDeclaredElement element)
         {
@@ -97,7 +97,7 @@
                 // public read-write fields are named parameters. The name of the property we're after
                 // is not a public field/property, so it's a positional parameter
                 var propertyNames = from method in element.GetContainingType().Methods
-                                    from attributeInstance in method.GetAttributeInstances(propertyDataAttributeName, false)
+                                    from attributeInstance in method.GetAttributeInstances(PropertyDataAttributeName, false)
                                     select attributeInstance.PositionParameter(0).ConstantValue.Value as string;
                 return propertyNames.Any(name => name == element.ShortName);
             }

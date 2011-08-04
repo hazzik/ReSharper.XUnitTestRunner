@@ -3,6 +3,7 @@ namespace ReSharper.XUnitTestProvider
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using JetBrains.Annotations;
     using JetBrains.Application;
     using JetBrains.Application.Progress;
     using JetBrains.ProjectModel;
@@ -11,34 +12,29 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.UnitTestFramework;
     using Xunit.Sdk;
 
-    class XunitFileExplorer : IRecursiveElementProcessor
+    internal class XunitFileExplorer : IRecursiveElementProcessor
     {
         private readonly XunitTestProvider provider;
         private readonly UnitTestElementLocationConsumer consumer;
-        private readonly IFile file;
         private readonly CheckForInterrupt interrupted;
         private readonly IProject project;
-        private readonly string assemblyPath;
-
         private readonly Dictionary<ITypeElement, IUnitTestElement> classes = new Dictionary<ITypeElement, IUnitTestElement>();
-        private readonly Dictionary<IDeclaredElement, int> orders = new Dictionary<IDeclaredElement, int>();
+        private readonly IProjectFile projectFile;
+        private readonly ProjectModelElementEnvoy envoy;
 
-        public XunitFileExplorer(XunitTestProvider provider, UnitTestElementLocationConsumer consumer, IFile file,
-                                 CheckForInterrupt interrupted)
+        public XunitFileExplorer([NotNull] XunitTestProvider provider, [NotNull] IProjectFile projectFile, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
         {
-            if (file == null)
-                throw new ArgumentNullException("file");
-
             if (provider == null)
                 throw new ArgumentNullException("provider");
+            if (projectFile == null)
+                throw new ArgumentNullException("projectFile");
 
             this.consumer = consumer;
             this.provider = provider;
-            this.file = file;
             this.interrupted = interrupted;
-            project = file.GetSourceFile().ToProjectFile().GetProject();
-
-            assemblyPath = UnitTestManager.GetOutputAssemblyPath(project).FullPath;
+            this.projectFile = projectFile;
+            project = this.projectFile.GetProject();
+            envoy = ProjectModelElementEnvoy.Create(project);
         }
 
         public bool ProcessingIsFinished
@@ -99,8 +95,7 @@ namespace ReSharper.XUnitTestProvider
             var documentRange = declaration.GetDocumentRange().TextRange;
             if (nameRange.IsValid && documentRange.IsValid)
             {
-                var disposition = new UnitTestElementDisposition(testElement, file.GetSourceFile().ToProjectFile(),
-                                                                 nameRange, documentRange);
+                var disposition = new UnitTestElementDisposition(testElement, projectFile, nameRange, documentRange);
                 consumer(disposition);
             }
         }
@@ -114,11 +109,10 @@ namespace ReSharper.XUnitTestProvider
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
-                testElement = provider.GetOrCreateClassElement(testClass.GetClrName().FullName, project);
+                testElement = provider.GetOrCreateClassElement(testClass.GetClrName().FullName, project, envoy);
                 foreach (var child in testElement.Children.ToList())
                     child.State = UnitTestElementState.Pending;
                 classes.Add(testClass, testElement);
-                orders.Add(testClass, 0);
             }
 
             return testElement;
@@ -151,9 +145,7 @@ namespace ReSharper.XUnitTestProvider
 
             if (command.IsTestMethod(method.AsMethodInfo()))
             {
-                var order = orders[type] + 1;
-                orders[type] = order;
-                return provider.GetOrCreateMethodElement(type.GetClrName().FullName + "." + method.ShortName, project, (XunitTestClassElement) fixtureElementClass);
+                return provider.GetOrCreateMethodElement(type.GetClrName().FullName + "." + method.ShortName, project, (XunitTestClassElement) fixtureElementClass, envoy);
             }
 
             return null;

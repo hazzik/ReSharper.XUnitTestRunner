@@ -7,30 +7,32 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.UnitTestFramework;
     using Xunit.Sdk;
 
-    public class XunitMetadataExplorer
+    public sealed class XunitMetadataExplorer
     {
         private readonly UnitTestElementConsumer consumer;
         private readonly IProject project;
         private readonly XunitTestProvider provider;
+        private readonly ProjectModelElementEnvoy envoy;
 
         public XunitMetadataExplorer(XunitTestProvider provider, IProject project, UnitTestElementConsumer consumer)
         {
             this.provider = provider;
             this.project = project;
             this.consumer = consumer;
+            envoy = ProjectModelElementEnvoy.Create(project);
         }
 
-        protected virtual XunitTestClassElement GetOrCreateClassElement(string fullyQualifiedName)
+        private XunitTestClassElement GetOrCreateClassElement(string fullyQualifiedName)
         {
-            return provider.GetOrCreateClassElement(fullyQualifiedName, project);
+            return provider.GetOrCreateClassElement(fullyQualifiedName, project, envoy);
         }
 
-        protected virtual XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement testClass, string typeName, string methodName)
+        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement testClass, string typeName, string methodName)
         {
-            return provider.GetOrCreateMethodElement(typeName + "." + methodName, project, testClass);
+            return provider.GetOrCreateMethodElement(typeName + "." + methodName, project, testClass, envoy);
         }
 
-        private void ProcessTypeInfo(IMetadataAssembly assembly, IMetadataTypeInfo metadataTypeInfo)
+        private void ProcessTypeInfo(IMetadataTypeInfo metadataTypeInfo)
         {
             ITypeInfo typeInfo = metadataTypeInfo.AsTypeInfo();
             // TODO: What about HasRunWith support? Not supported in previous R# versions
@@ -40,10 +42,10 @@ namespace ReSharper.XUnitTestProvider
             if (testClassCommand == null)
                 return;
 
-            ProcessTestClass(metadataTypeInfo.FullyQualifiedName, testClassCommand.EnumerateTestMethods(), assembly.Location.FullPath);
+            ProcessTestClass(metadataTypeInfo.FullyQualifiedName, testClassCommand.EnumerateTestMethods());
         }
 
-        private void ProcessTestClass(string typeName, IEnumerable<IMethodInfo> methods, string assemblyLocation)
+        private void ProcessTestClass(string typeName, IEnumerable<IMethodInfo> methods)
         {
             XunitTestClassElement classUnitTestElement = GetOrCreateClassElement(typeName);
             consumer(classUnitTestElement);
@@ -68,7 +70,7 @@ namespace ReSharper.XUnitTestProvider
             // return;
             foreach (IMetadataTypeInfo metadataTypeInfo in GetExportedTypes(assembly.GetTypes()))
             {
-                ProcessTypeInfo(assembly, metadataTypeInfo);
+                ProcessTypeInfo(metadataTypeInfo);
             }
         }
 

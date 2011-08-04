@@ -8,14 +8,14 @@ namespace ReSharper.XUnitTestProvider
     [UnitTestPresenter]
     public class XunitTestPresenter : IUnitTestPresenter
     {
-        private static readonly XunitBrowserPresenter presenter = new XunitBrowserPresenter();
+        private static readonly XunitBrowserPresenter Presenter = new XunitBrowserPresenter();
 
         #region IUnitTestPresenter Members
 
         public void Present(IUnitTestElement element, IPresentableItem presentableItem, TreeModelNode node, PresentationState state)
         {
             if ((element is XunitTestClassElement) || (element is XunitTestMethodElement))
-                presenter.UpdateItem(element, node, presentableItem, state);
+                Presenter.UpdateItem(element, node, presentableItem, state);
         }
 
         #endregion

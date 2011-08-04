@@ -12,3 +12,5 @@ silverlight/external
 3rdParty/ReSharper/*
 src/*/bin/*
 src/*/obj/*
+src/*/*/bin/*
+src/*/*/obj/*

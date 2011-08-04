@@ -69,7 +69,7 @@ namespace ReSharper.XUnitTestProvider
                                           select method.AsMethodInfo();
 
                 // Let R#'s TypeElementUtil walk the super class chain - we don't have to worry about circular references, etc...
-                var allPublicInstanceMethods = from typeMemberInstance in TypeElementUtil.GetAllClassMembers(psiType)
+                var allPublicInstanceMethods = from typeMemberInstance in psiType.GetAllClassMembers()
                                                let typeMember = typeMemberInstance.Member as IMethod
                                                where typeMember != null && !typeMember.IsStatic && typeMember.GetAccessRights() == AccessRights.PUBLIC
                                                select typeMember.AsMethodInfo();

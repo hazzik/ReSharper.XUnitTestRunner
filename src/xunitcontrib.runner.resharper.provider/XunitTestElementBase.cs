@@ -11,18 +11,18 @@ namespace ReSharper.XUnitTestProvider
     public abstract class XunitTestElementBase : IUnitTestElement
     {
         private readonly IEnumerable<UnitTestElementCategory> myCategories = UnitTestElementCategory.Uncategorized;
-        private readonly IProjectModelElementPointer projectPointer;
+        private readonly ProjectModelElementEnvoy project;
         private IList<IUnitTestElement> myChildren;
         private XunitTestElementBase myParent;
 
-        protected XunitTestElementBase(IUnitTestProvider provider, XunitTestElementBase parent, IProjectModelElement project, string typeName)
+        protected XunitTestElementBase(IUnitTestProvider provider, XunitTestElementBase parent, ProjectModelElementEnvoy project, string typeName)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
             if (project == null)
                 throw new ArgumentNullException("project");
             Provider = provider;
-            projectPointer = project.CreatePointer();
+            this.project = project;
             TypeName = typeName;
             Parent = parent;
         }
@@ -117,7 +117,7 @@ namespace ReSharper.XUnitTestProvider
 
         public virtual IProject GetProject()
         {
-            return projectPointer.GetValidProjectElement(Provider.Solution) as IProject;
+            return project.GetValidProjectElement() as IProject;
         }
 
         #endregion

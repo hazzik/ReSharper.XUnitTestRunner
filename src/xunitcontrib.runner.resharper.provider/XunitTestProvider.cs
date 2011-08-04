@@ -9,8 +9,8 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
-    using ReSharper.XUnitTestProvider.Properties;
-    using ReSharper.XUnitTestRunner;
+    using Properties;
+    using XUnitTestRunner;
     using JetBrains.Util;
 
     [UnitTestProvider]
@@ -18,7 +18,7 @@ namespace ReSharper.XUnitTestProvider
     public class XunitTestProvider : IUnitTestProvider
     {
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
-        private static readonly UnitTestElementComparer comparer;
+        private static readonly UnitTestElementComparer Comparer;
         private readonly ISolution solution;
 
         static XunitTestProvider()
@@ -33,7 +33,7 @@ namespace ReSharper.XUnitTestProvider
             // it uses to handle the AppDomain.Resolve event. Since we've got a second assembly to
             // live in the remote process, we need to add this to the list.
             AssemblyLoader.RegisterAssembly(typeof (XunitTaskRunner).Assembly);
-            comparer = new UnitTestElementComparer(new[] {typeof (XunitTestMethodElement), typeof (XunitTestClassElement)});
+            Comparer = new UnitTestElementComparer(new[] {typeof (XunitTestMethodElement), typeof (XunitTestClassElement)});
         }
 
         public XunitTestProvider(ISolution solution,
@@ -92,7 +92,7 @@ namespace ReSharper.XUnitTestProvider
 
         public int CompareUnitTestElements(IUnitTestElement x, IUnitTestElement y)
         {
-            return comparer.Compare(x, y);
+            return Comparer.Compare(x, y);
         }
 
         public void SerializeElement(XmlElement parent, IUnitTestElement element)
@@ -151,30 +151,33 @@ namespace ReSharper.XUnitTestProvider
             return false;
         }
 
-        public XunitTestClassElement GetOrCreateClassElement(string id, IProject project)
+        public XunitTestClassElement GetOrCreateClassElement(string id, IProject project, ProjectModelElementEnvoy envoy)
         {
             IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
-                element.State = UnitTestElementState.Valid;
                 return (element as XunitTestClassElement);
             }
 
-            return new XunitTestClassElement(this, project, id, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+            return new XunitTestClassElement(this, envoy, id, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
         }
 
-        public XunitTestMethodElement GetOrCreateMethodElement(string id, IProject project, XunitTestClassElement parent)
+        public XunitTestMethodElement GetOrCreateMethodElement(string id, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
         {
             IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
             if (element != null)
             {
-                element.State = UnitTestElementState.Valid;
-                return (element as XunitTestMethodElement);
+                var xunitTestMethodElement = element as XunitTestMethodElement;
+                if (xunitTestMethodElement != null)
+                {
+                    xunitTestMethodElement.State = UnitTestElementState.Valid;
+                }
+                return xunitTestMethodElement;
             }
             string[] splitted = id.Split('.');
-            string declaringTypeName = splitted.Take((splitted.Length - 1)).Join(".");
+            string declaringTypeName = splitted.Take(splitted.Length - 1).Join(".");
             string name = splitted.Last();
-            return new XunitTestMethodElement(this, parent, project, declaringTypeName, name);
+            return new XunitTestMethodElement(this, parent, envoy, declaringTypeName, name);
         }
     }
 }

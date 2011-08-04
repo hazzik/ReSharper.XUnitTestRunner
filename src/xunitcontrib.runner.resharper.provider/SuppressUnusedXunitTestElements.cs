@@ -27,11 +27,6 @@
     [UsedImplicitly]
     public class SuppressUnusedXunitTestElements : IUsageInspectionsSupressor
     {
-        public bool SupressUsageInspectionsOnElement(IDeclaredElement element)
-        {
-            return UnitTestElementIdentifier.IsAnyUnitTestElement(element);
-        }
-
         public bool SupressUsageInspectionsOnElement(IDeclaredElement element, out ImplicitUseKindFlags flags)
         {
             flags = ImplicitUseKindFlags.Default;

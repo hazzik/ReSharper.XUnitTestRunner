@@ -13,7 +13,7 @@ namespace ReSharper.XUnitTestProvider
     public class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
     {
         public XunitTestClassElement(IUnitTestProvider provider,
-                                     IProjectModelElement project,
+                                     ProjectModelElementEnvoy project,
                                      string typeName,
                                      string assemblyLocation)
             : base(provider, null, project, typeName)
