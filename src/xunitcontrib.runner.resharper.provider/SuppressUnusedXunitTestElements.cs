@@ -1,6 +1,7 @@
 ﻿namespace ReSharper.XUnitTestProvider
 {
     using JetBrains.Annotations;
+    using JetBrains.Application;
     using JetBrains.ReSharper.Daemon.UsageChecking;
     using JetBrains.ReSharper.Psi;
 
@@ -24,7 +25,7 @@
     // I did open a bug in Jira (RSRP-101582) that complained that marking a test method or test class
     // as being in use didn't mark parent classes as also in use, however, at that time, I didn't
     // realise that messages were suppressed rather than elements marked as in use.
-    [UsedImplicitly]
+    [ShellComponent]
     public class SuppressUnusedXunitTestElements : IUsageInspectionsSupressor
     {
         public bool SupressUsageInspectionsOnElement(IDeclaredElement element, out ImplicitUseKindFlags flags)
