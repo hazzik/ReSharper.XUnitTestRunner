@@ -1,0 +1,14 @@
+_ReSharper.*
+**/_ReSharper.*
+3rdParty/ReSharper_v*
+3rdParty/ReSharper*
+**/bin
+**/[bB]in
+**/obj
+*.suo
+*.user
+*.cache
+silverlight/external
+3rdParty/ReSharper/*
+src/*/bin/*
+src/*/obj/*
