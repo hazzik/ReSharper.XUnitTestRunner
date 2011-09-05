@@ -50,6 +50,7 @@
     </Reference>
     <Reference Include="JetBrains.Platform.ReSharper.ComponentModel">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.Platform.ReSharper.ComponentModel.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.Platform.ReSharper.DocumentManager">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.Platform.ReSharper.DocumentManager.dll</HintPath>
@@ -57,6 +58,7 @@
     </Reference>
     <Reference Include="JetBrains.Platform.ReSharper.DocumentModel">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.Platform.ReSharper.DocumentModel.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.Platform.ReSharper.IDE">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.Platform.ReSharper.IDE.dll</HintPath>
@@ -100,6 +102,7 @@
     </Reference>
     <Reference Include="JetBrains.ReSharper.Resources">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.ReSharper.Resources.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.TaskRunnerFramework">
       <HintPath>..\..\3rdParty\ReSharper\JetBrains.ReSharper.TaskRunnerFramework.dll</HintPath>

@@ -11,7 +11,6 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.Psi.Util;
-    using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
 
     public class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
@@ -90,29 +89,12 @@ namespace ReSharper.XUnitTestProvider
 
         public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            XunitTestClassElement testClass = Class;
-
-            return new List<UnitTestTask>
+            return new []
                        {
-                           new UnitTestTask(null, CreateAssemblyTask(testClass.AssemblyLocation)),
-                           new UnitTestTask(testClass, CreateClassTask(testClass, explicitElements)),
-                           new UnitTestTask(this, CreateMethodTask(this, explicitElements))
+                           new UnitTestTask(null, new XunitTestAssemblyTask(Class.AssemblyLocation)),
+                           new UnitTestTask(Class, new XunitTestClassTask(Class.AssemblyLocation, Class.TypeName, explicitElements.Contains(Class))),
+                           new UnitTestTask(this, new XunitTestMethodTask(Class.AssemblyLocation, Class.TypeName, MethodName, explicitElements.Contains(this)))
                        };
-        }
-
-        private static RemoteTask CreateAssemblyTask(string assemblyLocation)
-        {
-            return new XunitTestAssemblyTask(assemblyLocation);
-        }
-
-        private static RemoteTask CreateClassTask(XunitTestClassElement testClass, IEnumerable<IUnitTestElement> explicitElements)
-        {
-            return new XunitTestClassTask(testClass.AssemblyLocation, testClass.TypeName, explicitElements.Contains(testClass));
-        }
-
-        private static RemoteTask CreateMethodTask(XunitTestMethodElement testMethod, IEnumerable<IUnitTestElement> explicitElements)
-        {
-            return new XunitTestMethodTask(testMethod.Class.AssemblyLocation, testMethod.Class.TypeName, testMethod.MethodName, explicitElements.Contains(testMethod));
         }
 
         private ITypeElement GetDeclaredType()

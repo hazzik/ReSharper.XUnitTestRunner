@@ -6,9 +6,12 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Caches;
+    using JetBrains.ReSharper.Psi.ExtensionsAPI.Caches2;
     using JetBrains.ReSharper.Psi.Tree;
+    using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.Util;
+    using XUnitTestRunner;
 
     public class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
     {
@@ -95,10 +98,12 @@ namespace ReSharper.XUnitTestProvider
 
         public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            // We don't have to do anything explicit for a test class, because when a class is run
-            // we get called for each method, and each method already adds everything we need (loading
-            // the assembly and the class)
-            return EmptyArray<UnitTestTask>.Instance;
+            return new[]
+                       {
+                           new UnitTestTask(null, new AssemblyLoadTask(AssemblyLocation)),
+                           new UnitTestTask(null, new XunitTestAssemblyTask(AssemblyLocation)),
+                           new UnitTestTask(this, new XunitTestClassTask(AssemblyLocation, TypeName, explicitElements.Contains(this)))
+                       };
         }
 
         public override sealed bool Equals(IUnitTestElement other)
