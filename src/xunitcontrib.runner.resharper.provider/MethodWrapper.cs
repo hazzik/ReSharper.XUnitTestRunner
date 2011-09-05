@@ -64,7 +64,12 @@ namespace ReSharper.XUnitTestProvider
 				throw new NotImplementedException();
 			}
 
-			public object CreateInstance()
+		    public ITypeInfo Class
+		    {
+		        get { throw new NotImplementedException(); }
+		    }
+
+		    public object CreateInstance()
 			{
 				throw new NotImplementedException();
 			}
@@ -140,7 +145,12 @@ namespace ReSharper.XUnitTestProvider
 				throw new NotImplementedException();
 			}
 
-			public object CreateInstance()
+		    public ITypeInfo Class
+		    {
+		        get { throw new NotImplementedException(); }
+		    }
+
+		    public object CreateInstance()
 			{
 				throw new NotImplementedException();
 			}
