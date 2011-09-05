@@ -16,10 +16,10 @@
 ;Global definitions
 
 	!define InstallationName "xUnit plugin for ReSharper 6.0"	
-	!define InstallRegKeyName "xUnit.ReSharper.60"
+	!define InstallRegKeyName "ReSharper.XUnitTestRunner.60"
 	!define InstallRegKey "Software\${InstallRegKeyName}"
 	
-	!define OutputFileName "xUnit.ReSharper.6.0.exe"
+	!define OutputFileName "ReSharper.XUnitTestRunner.6.0.exe"
 	!define UninstallerName "Uninstall ${OutputFileName}"
 
 ;--------------------------------

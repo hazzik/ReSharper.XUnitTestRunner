@@ -85,7 +85,7 @@
   <ItemGroup>
     <ProjectReference Include="..\xunitcontrib.runner.resharper.runner\XUnitTestRunner.csproj">
       <Project>{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}</Project>
-      <Name>xunitcontrib.runner.resharper.runner</Name>
+      <Name>XUnitTestRunner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
