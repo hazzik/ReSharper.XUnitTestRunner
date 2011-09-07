@@ -89,12 +89,9 @@ namespace ReSharper.XUnitTestProvider
 
         public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
-            return new []
-                       {
-                           new UnitTestTask(null, new XunitTestAssemblyTask(Class.AssemblyLocation)),
-                           new UnitTestTask(Class, new XunitTestClassTask(Class.AssemblyLocation, Class.TypeName, explicitElements.Contains(Class))),
-                           new UnitTestTask(this, new XunitTestMethodTask(Class.AssemblyLocation, Class.TypeName, MethodName, explicitElements.Contains(this)))
-                       };
+            var tasks = Class.GetTaskSequence(explicitElements);
+            tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(Class.AssemblyLocation, Class.TypeName, MethodName, explicitElements.Contains(this))));
+            return tasks;
         }
 
         private ITypeElement GetDeclaredType()

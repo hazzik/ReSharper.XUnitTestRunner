@@ -77,6 +77,11 @@ namespace ReSharper.XUnitTestProvider
 
         public RemoteTaskRunnerInfo GetTaskRunnerInfo()
         {
+#if DEBUG
+            // Causes the external test runner to display a message box before running, very handy for attaching the debugger
+            // and while it's a bit crufty here, we know this method gets called before a test run
+            UnitTestManager.GetInstance(Solution).EnableDebugInternal = true;
+#endif
             return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
         }
 
