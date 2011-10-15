@@ -5,6 +5,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Metadata.Reader.API;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.Util;
     using Xunit.Sdk;
 
     public sealed class XunitMetadataExplorer
@@ -22,16 +23,6 @@ namespace ReSharper.XUnitTestProvider
             envoy = ProjectModelElementEnvoy.Create(project);
         }
 
-        private XunitTestClassElement GetOrCreateClassElement(string fullyQualifiedName)
-        {
-            return provider.GetOrCreateClassElement(fullyQualifiedName, project, envoy);
-        }
-
-        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement testClass, string typeName, string methodName)
-        {
-            return provider.GetOrCreateMethodElement(typeName + "." + methodName, project, testClass, envoy);
-        }
-
         private void ProcessTypeInfo(IMetadataTypeInfo metadataTypeInfo)
         {
             ITypeInfo typeInfo = metadataTypeInfo.AsTypeInfo();
@@ -47,7 +38,7 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessTestClass(string typeName, IEnumerable<IMethodInfo> methods)
         {
-            XunitTestClassElement classUnitTestElement = GetOrCreateClassElement(typeName);
+            XunitTestClassElement classUnitTestElement = provider.GetOrCreateClassElement(typeName, project, envoy);
             consumer(classUnitTestElement);
 
             foreach (IMethodInfo method in methods.Where(MethodUtility.IsTest))
@@ -58,7 +49,7 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessTestMethod(XunitTestClassElement classUnitTestElement, IMethodInfo method)
         {
-            XunitTestMethodElement methodUnitTestElement = GetOrCreateMethodElement(classUnitTestElement, method.TypeName, method.Name);
+            XunitTestMethodElement methodUnitTestElement = provider.GetOrCreateMethodElement(method.TypeName, method.Name, project, classUnitTestElement, envoy);
             methodUnitTestElement.ExplicitReason = MethodUtility.GetSkipReason(method);
             // TODO: Categories?
             consumer(methodUnitTestElement);

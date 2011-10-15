@@ -2,6 +2,7 @@ namespace ReSharper.XUnitTestProvider
 {
     using System;
     using System.Collections.Generic;
+    using System.Xml;
     using JetBrains.Annotations;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
@@ -138,5 +139,7 @@ namespace ReSharper.XUnitTestProvider
                 throw new InvalidOperationException("No such element");
             }
         }
+
+        public abstract void WriteToXml(XmlElement parent);
     }
 }

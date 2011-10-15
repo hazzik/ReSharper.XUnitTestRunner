@@ -1,5 +1,6 @@
 namespace ReSharper.XUnitTestProvider
 {
+    using System;
     using System.Drawing;
     using System.Linq;
     using System.Xml;
@@ -80,14 +81,24 @@ namespace ReSharper.XUnitTestProvider
 #if DEBUG
             // Causes the external test runner to display a message box before running, very handy for attaching the debugger
             // and while it's a bit crufty here, we know this method gets called before a test run
-            UnitTestManager.GetInstance(Solution).EnableDebugInternal = true;
+//            UnitTestManager.GetInstance(Solution).EnableDebugInternal = true;
 #endif
             return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
         }
 
         public IUnitTestElement DeserializeElement(XmlElement parent, IUnitTestElement parentElement)
         {
-            return null;
+            if (!parent.HasAttribute("type"))
+                throw new ArgumentException(@"Element is not Xunit", "parent");
+            switch (parent.GetAttribute("type"))
+            {
+                case "XunitTestClassElement":
+                    return XunitTestClassElement.ReadFromXml(parent, this);
+                case "XunitTestMethodElement":
+                    return XunitTestMethodElement.ReadFromXml(parent, parentElement, this);
+                default:
+                    throw new ArgumentException(@"Element is not Xunit", "parent");
+            }
         }
 
         public bool IsSupported(IHostProvider hostProvider)
@@ -102,6 +113,13 @@ namespace ReSharper.XUnitTestProvider
 
         public void SerializeElement(XmlElement parent, IUnitTestElement element)
         {
+            parent.SetAttribute("type", element.GetType().Name);
+            
+            var testElement = element as XunitTestElementBase;
+            if (testElement == null)
+                throw new ArgumentException(string.Format("Element {0} is not MSTest", element.GetType()), "element");
+            
+            testElement.WriteToXml(parent);
         }
 
         public void ExploreExternal(UnitTestElementConsumer consumer)
@@ -156,20 +174,20 @@ namespace ReSharper.XUnitTestProvider
             return false;
         }
 
-        public XunitTestClassElement GetOrCreateClassElement(string id, IProject project, ProjectModelElementEnvoy envoy)
+        public XunitTestClassElement GetOrCreateClassElement(string typeName, IProject project, ProjectModelElementEnvoy envoy)
         {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
+            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, typeName);
             if (element != null)
             {
                 return (element as XunitTestClassElement);
             }
 
-            return new XunitTestClassElement(this, envoy, id, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+            return new XunitTestClassElement(this, envoy, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
         }
 
-        public XunitTestMethodElement GetOrCreateMethodElement(string id, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
+        public XunitTestMethodElement GetOrCreateMethodElement(string typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
         {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, id);
+            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, string.Format("{0}.{1}", typeName, methodName));
             if (element != null)
             {
                 var xunitTestMethodElement = element as XunitTestMethodElement;
@@ -179,10 +197,7 @@ namespace ReSharper.XUnitTestProvider
                 }
                 return xunitTestMethodElement;
             }
-            string[] splitted = id.Split('.');
-            string declaringTypeName = splitted.Take(splitted.Length - 1).Join(".");
-            string name = splitted.Last();
-            return new XunitTestMethodElement(this, parent, envoy, declaringTypeName, name);
+            return new XunitTestMethodElement(this, parent, envoy, typeName, methodName);
         }
     }
 }

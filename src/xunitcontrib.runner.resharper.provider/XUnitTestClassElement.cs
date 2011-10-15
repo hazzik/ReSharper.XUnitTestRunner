@@ -3,10 +3,10 @@ namespace ReSharper.XUnitTestProvider
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Xml;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Caches;
-    using JetBrains.ReSharper.Psi.ExtensionsAPI.Caches2;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
@@ -119,6 +119,24 @@ namespace ReSharper.XUnitTestProvider
         public override sealed int GetHashCode()
         {
             return TypeName.GetHashCode();
+        }
+
+        public override void WriteToXml(XmlElement parent)
+        {
+            parent.SetAttribute("TypeName", TypeName);
+            IProject project = GetProject();
+            if (project != null)
+                parent.SetAttribute("Project", project.GetPersistentID());
+        }
+
+        public static IUnitTestElement ReadFromXml(XmlElement parent, XunitTestProvider provider)
+        {
+            string typeName = parent.GetAttribute("TypeName");
+            string projectId = parent.GetAttribute("Project");
+            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId);
+            if (project == null)
+                return null;
+            return provider.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project));
         }
     }
 }

@@ -10,6 +10,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.Util;
     using Xunit.Sdk;
 
     internal class XunitFileExplorer : IRecursiveElementProcessor
@@ -139,13 +140,13 @@ namespace ReSharper.XUnitTestProvider
             if (command == null)
                 return null;
 
-            var fixtureElementClass = classes[type];
-            if (fixtureElementClass == null)
+            var classElement = classes[type];
+            if (classElement == null)
                 return null;
 
             if (command.IsTestMethod(method.AsMethodInfo()))
             {
-                return provider.GetOrCreateMethodElement(type.GetClrName().FullName + "." + method.ShortName, project, (XunitTestClassElement) fixtureElementClass, envoy);
+                return provider.GetOrCreateMethodElement(type.GetClrName().FullName, method.ShortName, project, (XunitTestClassElement)classElement, envoy);
             }
 
             return null;

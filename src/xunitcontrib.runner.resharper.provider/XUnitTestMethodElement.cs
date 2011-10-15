@@ -1,6 +1,7 @@
 namespace ReSharper.XUnitTestProvider
 {
     using System;
+    using System.Xml;
     using JetBrains.Util;
     using XUnitTestRunner;
     using System.Collections.Generic;
@@ -18,9 +19,9 @@ namespace ReSharper.XUnitTestProvider
         internal XunitTestMethodElement(IUnitTestProvider provider,
                                         XunitTestClassElement @class,
                                         ProjectModelElementEnvoy project,
-                                        string declaringTypeName,
+                                        string typeName,
                                         string methodName)
-            : base(provider, @class, project, declaringTypeName)
+            : base(provider, @class, project, typeName)
         {
             Class = @class;
             MethodName = methodName;
@@ -144,6 +145,27 @@ namespace ReSharper.XUnitTestProvider
         public override string GetPresentation()
         {
             return string.Format("{0}.{1}", Class.ShortName, MethodName);
+        }
+
+        public override void WriteToXml(XmlElement parent)
+        {
+            parent.SetAttribute("MethodName", MethodName);
+            IProject project = GetProject();
+            if (project != null)
+                parent.SetAttribute("Project", project.GetPersistentID());
+        }
+
+        public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, XunitTestProvider provider)
+        {
+            var testClassElement = parentElement as XunitTestClassElement;
+            if (testClassElement == null)
+                return null;
+            string methodName = parent.GetAttribute("MethodName");
+            string projectId = parent.GetAttribute("Project");
+            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId);
+            if (project == null)
+                return null;
+            return provider.GetOrCreateMethodElement(testClassElement.TypeName, methodName, project, testClassElement, ProjectModelElementEnvoy.Create(project));
         }
     }
 }
