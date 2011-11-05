@@ -21,11 +21,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Live Templates", "Live Temp
 		src\LiveTemplates\xunit-xe.xml = src\LiveTemplates\xunit-xe.xml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestRunner.Tests", "src\tests.xunitcontrib.runner.resharper.runner\XUnitTestRunner.Tests.csproj", "{D4C11286-1981-4D28-A40E-FB624929C61D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestRunner.Tests", "src\XUnitTestRunner.Tests\XUnitTestRunner.Tests.csproj", "{D4C11286-1981-4D28-A40E-FB624929C61D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestProvider", "src\xunitcontrib.runner.resharper.provider\XUnitTestProvider.csproj", "{AE37EF14-4EC4-4D53-A3A8-90BECB3F9566}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestProvider", "src\XUnitTestProvider\XUnitTestProvider.csproj", "{AE37EF14-4EC4-4D53-A3A8-90BECB3F9566}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestRunner", "src\xunitcontrib.runner.resharper.runner\XUnitTestRunner.csproj", "{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestRunner", "src\XUnitTestRunner\XUnitTestRunner.csproj", "{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{8687D633-EB97-47EB-8A10-0C4DDE6765CE}"
 EndProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Setup.TemplatesInstaller", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Setup", "src\Setup\Setup.csproj", "{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestProvider.Debugger", "src\xunitcontrib.runner.resharper.provider\XUnitTestProvider.Debugger.csproj", "{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestProvider.Debugger", "src\XUnitTestProvider\XUnitTestProvider.Debugger.csproj", "{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
