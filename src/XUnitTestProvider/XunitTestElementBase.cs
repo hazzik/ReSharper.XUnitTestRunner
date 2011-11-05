@@ -107,7 +107,7 @@ namespace ReSharper.XUnitTestProvider
         /// of the nodes (e.g. the classes + methods) to get executed (by serializing the nodes, containing
         /// the remote tasks from these lists, over into the new app domain). This is the default way the
         /// nunit and mstest providers work.
-        public abstract IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements);
+        public abstract IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements);
 
         public abstract string Kind { get; }
 

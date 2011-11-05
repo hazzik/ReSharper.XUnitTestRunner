@@ -9,7 +9,6 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Application;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
@@ -88,7 +87,7 @@ namespace ReSharper.XUnitTestProvider
                 .ToList();
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        public override sealed IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
         {
             var tasks = Class.GetTaskSequence(explicitElements);
             tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(Class.AssemblyLocation, Class.TypeName, MethodName, explicitElements.Contains(this))));
@@ -99,14 +98,15 @@ namespace ReSharper.XUnitTestProvider
         {
             IProject project = GetProject();
             if (project == null)
-            {
                 return null;
-            }
-            PsiManager manager = PsiManager.GetInstance(project.GetSolution());
+            
             using (ReadLockCookie.Create())
             {
-                IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(project.GetSolution()).GetPrimaryPsiModule(project);
-                return CacheManager.GetInstance(manager.Solution)
+                ISolution solution = project.GetSolution();
+                
+                IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
+                
+                return solution.GetPsiServices().CacheManager
                     .GetDeclarationsCache(primaryPsiModule, true, true)
                     .GetTypeElementByCLRName(TypeName);
             }
@@ -155,17 +155,17 @@ namespace ReSharper.XUnitTestProvider
                 parent.SetAttribute("Project", project.GetPersistentID());
         }
 
-        public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, XunitTestProvider provider)
+        public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, XunitElementFactory factory, ISolution solution)
         {
             var testClassElement = parentElement as XunitTestClassElement;
             if (testClassElement == null)
                 return null;
             string methodName = parent.GetAttribute("MethodName");
             string projectId = parent.GetAttribute("Project");
-            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId);
+            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
-            return provider.GetOrCreateMethodElement(testClassElement.TypeName, methodName, project, testClassElement, ProjectModelElementEnvoy.Create(project));
+            return factory.GetOrCreateMethodElement(testClassElement.TypeName, methodName, project, testClassElement, ProjectModelElementEnvoy.Create(project));
         }
     }
 }

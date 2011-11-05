@@ -1,4 +1,4 @@
-;xUnit plugin for ReSharper 6.0 (by hazzik) installation script
+;xUnit plugin for ReSharper 6.1 (by hazzik) installation script
 ;Written by Eskat0n
 
 ;--------------------------------
@@ -15,11 +15,11 @@
 ;--------------------------------
 ;Global definitions
 
-	!define InstallationName "xUnit plugin for ReSharper 6.0"	
-	!define InstallRegKeyName "ReSharper.XUnitTestRunner.60"
+	!define InstallationName "xUnit plugin for ReSharper 6.1"	
+	!define InstallRegKeyName "ReSharper.XUnitTestRunner.61"
 	!define InstallRegKey "Software\${InstallRegKeyName}"
 	
-	!define OutputFileName "ReSharper.XUnitTestRunner.6.0.exe"
+	!define OutputFileName "ReSharper.XUnitTestRunner.6.1.exe"
 	!define UninstallerName "Uninstall ${OutputFileName}"
 
 ;--------------------------------
@@ -78,8 +78,8 @@
 	LangString NAME_SecXeTemplates ${LANG_RUSSIAN} "Установить шаблоны xe-"
 	
 	;Section descriptions
-	LangString DESC_SecPlugin ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper 6.0"
-	LangString DESC_SecPlugin ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper 6.0"
+	LangString DESC_SecPlugin ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper 6.1"
+	LangString DESC_SecPlugin ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper 6.1"
 
 ;--------------------------------
 ;Installer Sections: Main section
@@ -205,20 +205,20 @@ SectionEnd
 Function .onInit
 
 	;Try to get ReSharper's installation directory from registry key
-	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v6.0\vs10.0 "InstallDir"  
+	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v6.1\vs10.0 "InstallDir"  
 	
 	;Check whether specified registry key exists or not
 	StrCmp $R0 "" 0 +3
-	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper 6.0$\r$\nInstallation process aborted" /SD IDOK
+	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper 6.1$\r$\nInstallation process aborted" /SD IDOK
 	Quit
 	
 	;Form path to ReSharper's app data directory for current user
-	StrCpy $R1 "$APPDATA\JetBrains\ReSharper\v6.0"
+	StrCpy $R1 "$APPDATA\JetBrains\ReSharper\v6.1"
 	
 	;Check whether ReSharper's app data directory exists
 	${DirState} $R1 $R2
 	StrCmp $R2 "-1" 0 +3
-	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper 6.0 directory under current user's ApplicationData$\r$\nInstallation process aborted" /SD IDOK
+	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper 6.1 directory under current user's ApplicationData$\r$\nInstallation process aborted" /SD IDOK
 	Quit
 	
 	;Sets the default installation folder to ReSharper's app data directory for currect user

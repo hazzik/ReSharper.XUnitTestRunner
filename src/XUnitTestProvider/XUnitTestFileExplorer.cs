@@ -9,10 +9,12 @@ namespace ReSharper.XUnitTestProvider
     public class XUnitTestFileExplorer : IUnitTestFileExplorer
     {
         private readonly XunitTestProvider provider;
+        private readonly XunitElementFactory factory;
 
-        public XUnitTestFileExplorer(XunitTestProvider provider)
+        public XUnitTestFileExplorer(XunitTestProvider provider, XunitElementFactory factory)
         {
             this.provider = provider;
+            this.factory = factory;
         }
 
         public IUnitTestProvider Provider
@@ -25,7 +27,7 @@ namespace ReSharper.XUnitTestProvider
             if (psiFile.Language.Name != "CSHARP" && psiFile.Language.Name != "VBASIC")
                 return;
 
-            psiFile.ProcessDescendants(new XunitFileExplorer(provider, psiFile.GetSourceFile().ToProjectFile(), consumer, interrupted));
+            psiFile.ProcessDescendants(new XunitFileExplorer(factory, psiFile.GetSourceFile().ToProjectFile(), consumer, interrupted));
         }
     }
 }

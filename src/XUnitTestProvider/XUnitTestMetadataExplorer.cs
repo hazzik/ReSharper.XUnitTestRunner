@@ -8,6 +8,7 @@ namespace ReSharper.XUnitTestProvider
     public class XUnitTestMetadataExplorer : IUnitTestMetadataExplorer
     {
         private readonly XunitTestProvider provider;
+        private readonly XunitElementFactory factory;
 
         public IUnitTestProvider Provider
         {
@@ -17,9 +18,10 @@ namespace ReSharper.XUnitTestProvider
             }
         }
 
-        public XUnitTestMetadataExplorer(XunitTestProvider provider)
+        public XUnitTestMetadataExplorer(XunitTestProvider provider, XunitElementFactory factory)
         {
             this.provider = provider;
+            this.factory = factory;
         }
 
         /// Provides Reflection-like metadata of a physical assembly, called at startup (if the
@@ -41,7 +43,7 @@ namespace ReSharper.XUnitTestProvider
         /// just explore all the types
         public void ExploreAssembly(IProject project, IMetadataAssembly assembly, UnitTestElementConsumer consumer)
         {
-            new XunitMetadataExplorer(provider, project , consumer).ExploreAssembly(assembly);
+            new XunitMetadataExplorer(factory, project , consumer).ExploreAssembly(assembly);
         }
     }
 }

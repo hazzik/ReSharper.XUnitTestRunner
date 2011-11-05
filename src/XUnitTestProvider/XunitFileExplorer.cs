@@ -10,12 +10,11 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
-    using JetBrains.Util;
     using Xunit.Sdk;
 
     internal class XunitFileExplorer : IRecursiveElementProcessor
     {
-        private readonly XunitTestProvider provider;
+        private readonly XunitElementFactory factory;
         private readonly UnitTestElementLocationConsumer consumer;
         private readonly CheckForInterrupt interrupted;
         private readonly IProject project;
@@ -23,16 +22,16 @@ namespace ReSharper.XUnitTestProvider
         private readonly IProjectFile projectFile;
         private readonly ProjectModelElementEnvoy envoy;
 
-        public XunitFileExplorer([NotNull] XunitTestProvider provider, [NotNull] IProjectFile projectFile, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
+        public XunitFileExplorer([NotNull] XunitElementFactory factory, [NotNull] IProjectFile projectFile, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
         {
-            if (provider == null)
-                throw new ArgumentNullException("provider");
+            if (factory == null) 
+                throw new ArgumentNullException("factory");
             if (projectFile == null)
                 throw new ArgumentNullException("projectFile");
 
             this.consumer = consumer;
-            this.provider = provider;
             this.interrupted = interrupted;
+            this.factory = factory;
             this.projectFile = projectFile;
             project = this.projectFile.GetProject();
             envoy = ProjectModelElementEnvoy.Create(project);
@@ -110,7 +109,7 @@ namespace ReSharper.XUnitTestProvider
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
-                testElement = provider.GetOrCreateClassElement(testClass.GetClrName().FullName, project, envoy);
+                testElement = factory.GetOrCreateClassElement(testClass.GetClrName().FullName, project, envoy);
                 foreach (var child in testElement.Children.ToList())
                     child.State = UnitTestElementState.Pending;
                 classes.Add(testClass, testElement);
@@ -146,7 +145,7 @@ namespace ReSharper.XUnitTestProvider
 
             if (command.IsTestMethod(method.AsMethodInfo()))
             {
-                return provider.GetOrCreateMethodElement(type.GetClrName().FullName, method.ShortName, project, (XunitTestClassElement)classElement, envoy);
+                return factory.GetOrCreateMethodElement(type.GetClrName().FullName, method.ShortName, project, (XunitTestClassElement)classElement, envoy);
             }
 
             return null;

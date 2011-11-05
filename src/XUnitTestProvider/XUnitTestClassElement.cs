@@ -4,6 +4,7 @@ namespace ReSharper.XUnitTestProvider
     using System.Collections.Generic;
     using System.Linq;
     using System.Xml;
+    using JetBrains.Application;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Caches;
@@ -53,14 +54,12 @@ namespace ReSharper.XUnitTestProvider
         public override IDeclaredElement GetDeclaredElement()
         {
             IProject project = GetProject();
-            ISolution solution = project
-                .GetSolution();
-
-            IPsiModule primaryPsiModule = PsiModuleManager
-                .GetInstance(solution)
-                .GetPrimaryPsiModule(project);
-
-            return CacheManager.GetInstance(PsiManager.GetInstance(solution).Solution)
+            
+            ISolution solution = project.GetSolution();
+            
+            IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
+            
+            return project.GetSolution().GetPsiServices().CacheManager
                 .GetDeclarationsCache(primaryPsiModule, false, true)
                 .GetTypeElementByCLRName(TypeName);
         }
@@ -96,7 +95,7 @@ namespace ReSharper.XUnitTestProvider
             return ShortName;
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        public override sealed IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
         {
             return new List<UnitTestTask>
                        {
@@ -129,14 +128,14 @@ namespace ReSharper.XUnitTestProvider
                 parent.SetAttribute("Project", project.GetPersistentID());
         }
 
-        public static IUnitTestElement ReadFromXml(XmlElement parent, XunitTestProvider provider)
+        public static IUnitTestElement ReadFromXml(XmlElement parent, XunitElementFactory factory, ISolution solution)
         {
             string typeName = parent.GetAttribute("TypeName");
             string projectId = parent.GetAttribute("Project");
-            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId);
+            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
-            return provider.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project));
+            return factory.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project));
         }
     }
 }

@@ -1,26 +1,19 @@
 namespace ReSharper.XUnitTestProvider
 {
-    using System;
     using System.Drawing;
-    using System.Linq;
-    using System.Xml;
     using JetBrains.Annotations;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
     using Properties;
     using XUnitTestRunner;
-    using JetBrains.Util;
 
-    [UnitTestProvider]
-    [UsedImplicitly]
+    [UnitTestProvider, UsedImplicitly]
     public class XunitTestProvider : IUnitTestProvider
     {
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
         private static readonly UnitTestElementComparer Comparer;
-        private readonly ISolution solution;
 
         static XunitTestProvider()
         {
@@ -37,22 +30,8 @@ namespace ReSharper.XUnitTestProvider
             Comparer = new UnitTestElementComparer(new[] {typeof (XunitTestMethodElement), typeof (XunitTestClassElement)});
         }
 
-        public XunitTestProvider(ISolution solution,
-                                 CacheManager cacheManager,
-                                 PsiModuleManager psiModuleManager,
-                                 UnitTestingCategoriesProvider categoriesProvider)
-        {
-            this.solution = solution;
-        }
-
         #region IUnitTestProvider Members
 
-        // It's rather useful to put a breakpoint here. When this gets hit, you can then attach
-        // to the task runner process
-
-        // Used to discover the type of the element - unknown, test, test container (class) or
-        // something else relating to a test element (e.g. parent class of a nested test class)
-        // This method is called to get the icon for the completion lists, amongst other things
 
         #endregion
 
@@ -70,12 +49,7 @@ namespace ReSharper.XUnitTestProvider
         {
             get { return Resources.xunit; }
         }
-
-        public ISolution Solution
-        {
-            get { return solution; }
-        }
-
+  
         public RemoteTaskRunnerInfo GetTaskRunnerInfo()
         {
 #if DEBUG
@@ -86,21 +60,6 @@ namespace ReSharper.XUnitTestProvider
             return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
         }
 
-        public IUnitTestElement DeserializeElement(XmlElement parent, IUnitTestElement parentElement)
-        {
-            if (!parent.HasAttribute("type"))
-                throw new ArgumentException(@"Element is not Xunit", "parent");
-            switch (parent.GetAttribute("type"))
-            {
-                case "XunitTestClassElement":
-                    return XunitTestClassElement.ReadFromXml(parent, this);
-                case "XunitTestMethodElement":
-                    return XunitTestMethodElement.ReadFromXml(parent, parentElement, this);
-                default:
-                    throw new ArgumentException(@"Element is not Xunit", "parent");
-            }
-        }
-
         public bool IsSupported(IHostProvider hostProvider)
         {
             return true;
@@ -109,17 +68,6 @@ namespace ReSharper.XUnitTestProvider
         public int CompareUnitTestElements(IUnitTestElement x, IUnitTestElement y)
         {
             return Comparer.Compare(x, y);
-        }
-
-        public void SerializeElement(XmlElement parent, IUnitTestElement element)
-        {
-            parent.SetAttribute("type", element.GetType().Name);
-            
-            var testElement = element as XunitTestElementBase;
-            if (testElement == null)
-                throw new ArgumentException(string.Format("Element {0} is not MSTest", element.GetType()), "element");
-            
-            testElement.WriteToXml(parent);
         }
 
         public void ExploreExternal(UnitTestElementConsumer consumer)
@@ -172,32 +120,6 @@ namespace ReSharper.XUnitTestProvider
             }
 
             return false;
-        }
-
-        public XunitTestClassElement GetOrCreateClassElement(string typeName, IProject project, ProjectModelElementEnvoy envoy)
-        {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, typeName);
-            if (element != null)
-            {
-                return (element as XunitTestClassElement);
-            }
-
-            return new XunitTestClassElement(this, envoy, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
-        }
-
-        public XunitTestMethodElement GetOrCreateMethodElement(string typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
-        {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, string.Format("{0}.{1}", typeName, methodName));
-            if (element != null)
-            {
-                var xunitTestMethodElement = element as XunitTestMethodElement;
-                if (xunitTestMethodElement != null)
-                {
-                    xunitTestMethodElement.State = UnitTestElementState.Valid;
-                }
-                return xunitTestMethodElement;
-            }
-            return new XunitTestMethodElement(this, parent, envoy, typeName, methodName);
         }
     }
 }
