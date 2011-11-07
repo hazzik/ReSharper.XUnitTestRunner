@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReSharper.XUnitTestRunner</RootNamespace>
-    <AssemblyName>ReSharper.XUnitTestRunner.6.0</AssemblyName>
+    <AssemblyName>ReSharper.XUnitTestRunner.6.1</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>

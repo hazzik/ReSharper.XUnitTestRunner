@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReSharper.XUnitTestProvider</RootNamespace>
-    <AssemblyName>ReSharper.XUnitTestProvider.6.0.Debugger</AssemblyName>
+    <AssemblyName>ReSharper.XUnitTestProvider.6.1.Debugger</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
@@ -141,7 +141,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xunitcontrib.runner.resharper.runner\XUnitTestRunner.csproj">
+    <ProjectReference Include="..\XUnitTestRunner\XUnitTestRunner.csproj">
       <Project>{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}</Project>
       <Name>XUnitTestRunner</Name>
     </ProjectReference>

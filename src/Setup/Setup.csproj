@@ -59,7 +59,7 @@
       <Project>{40BCA0DA-81F2-4F1F-8485-E069BC8B1E69}</Project>
       <Name>Setup.TemplatesInstaller</Name>
     </ProjectReference>
-    <ProjectReference Include="..\xunitcontrib.runner.resharper.provider\XUnitTestProvider.csproj">
+    <ProjectReference Include="..\XUnitTestProvider\XUnitTestProvider.csproj">
       <Project>{AE37EF14-4EC4-4D53-A3A8-90BECB3F9566}</Project>
       <Name>XUnitTestProvider</Name>
     </ProjectReference>
