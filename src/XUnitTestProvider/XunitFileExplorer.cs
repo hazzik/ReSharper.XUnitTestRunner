@@ -22,17 +22,17 @@ namespace ReSharper.XUnitTestProvider
         private readonly IProjectFile projectFile;
         private readonly ProjectModelElementEnvoy envoy;
 
-        public XunitFileExplorer([NotNull] XunitElementFactory factory, [NotNull] IProjectFile projectFile, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
+        public XunitFileExplorer([NotNull] XunitElementFactory factory, [NotNull] IFile file, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
         {
             if (factory == null) 
                 throw new ArgumentNullException("factory");
-            if (projectFile == null)
-                throw new ArgumentNullException("projectFile");
+            if (file == null)
+                throw new ArgumentNullException("file");
 
             this.consumer = consumer;
             this.interrupted = interrupted;
             this.factory = factory;
-            this.projectFile = projectFile;
+            this.projectFile = file.GetSourceFile().ToProjectFile();
             project = this.projectFile.GetProject();
             envoy = ProjectModelElementEnvoy.Create(project);
         }

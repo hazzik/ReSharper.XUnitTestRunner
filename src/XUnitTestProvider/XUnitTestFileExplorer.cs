@@ -27,7 +27,7 @@ namespace ReSharper.XUnitTestProvider
             if (psiFile.Language.Name != "CSHARP" && psiFile.Language.Name != "VBASIC")
                 return;
 
-            psiFile.ProcessDescendants(new XunitFileExplorer(factory, psiFile.GetSourceFile().ToProjectFile(), consumer, interrupted));
+            psiFile.ProcessDescendants(new XunitFileExplorer(factory, psiFile, consumer, interrupted));
         }
     }
 }

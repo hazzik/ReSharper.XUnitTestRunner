@@ -60,7 +60,9 @@ namespace ReSharper.XUnitTestRunner
             if (otherClassTask == null)
                 return false;
 
-            return (Equals(assemblyLocation, otherClassTask.assemblyLocation) && Equals(typeName, otherClassTask.typeName) && explicitly == otherClassTask.explicitly);
+            return Equals(assemblyLocation, otherClassTask.assemblyLocation) &&
+                   Equals(typeName, otherClassTask.typeName) &&
+                   explicitly == otherClassTask.explicitly;
         }
 
         public override bool Equals(RemoteTask other)
