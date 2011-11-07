@@ -19,27 +19,38 @@ namespace ReSharper.XUnitTestProvider
         public XunitTestClassElement GetOrCreateClassElement(string typeName, IProject project, ProjectModelElementEnvoy envoy)
         {
             IUnitTestElement element = unitTestElementManager.GetElementById(project, typeName);
-            if (element != null)
+            if (element == null)
             {
-                return (element as XunitTestClassElement);
+                return new XunitTestClassElement(provider, envoy, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
             }
 
-            return new XunitTestClassElement(provider, envoy, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+            var xunitTestClassElement = element as XunitTestClassElement;
+            if (xunitTestClassElement == null)
+            {
+                return null;
+            }
+
+            xunitTestClassElement.State = UnitTestElementState.Valid;
+            return xunitTestClassElement;
         }
 
         public XunitTestMethodElement GetOrCreateMethodElement(string typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
         {
             IUnitTestElement element = unitTestElementManager.GetElementById(project, string.Format("{0}.{1}", typeName, methodName));
-            if (element != null)
+            if (element == null)
             {
-                var xunitTestMethodElement = element as XunitTestMethodElement;
-                if (xunitTestMethodElement != null)
-                {
-                    xunitTestMethodElement.State = UnitTestElementState.Valid;
-                }
-                return xunitTestMethodElement;
+                return new XunitTestMethodElement(provider, parent, envoy, typeName, methodName);
             }
-            return new XunitTestMethodElement(provider, parent, envoy, typeName, methodName);
+
+            var xunitTestMethodElement = element as XunitTestMethodElement;
+            if (xunitTestMethodElement == null)
+            {
+                return null;
+            }
+
+            xunitTestMethodElement.State = UnitTestElementState.Valid;
+            xunitTestMethodElement.Parent = parent;
+            return xunitTestMethodElement;
         }
     }
 }
