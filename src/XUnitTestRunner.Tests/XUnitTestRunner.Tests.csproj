@@ -8,8 +8,8 @@
     <ProjectGuid>{D4C11286-1981-4D28-A40E-FB624929C61D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XunitContrib.Runner.ReSharper.RemoteRunner.Tests</RootNamespace>
-    <AssemblyName>tests.xunitcontrib.runner.resharper.runner.5.1</AssemblyName>
+    <RootNamespace>ReSharper.XUnitTestRunner.Tests</RootNamespace>
+    <AssemblyName>ReSharper.XUnitTestRunner.Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Full" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\CommunityTasks</MSBuildCommunityTasksPath>
+	</PropertyGroup>
+
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
+
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+		<version>0.6.1.0</version>
+
+		<xunit>$(MSBuildProjectDirectory)\tools\xunit\xunit.console.exe</xunit>
+
+		<artifactPath>$(MSBuildProjectDirectory)\release</artifactPath>
+
+		<sln>$(MSBuildProjectDirectory)\ReSharper.XUnitTestRunner.sln</sln>
+
+		<main>ReSharper.XUnitTestRunner</main>
+		<mainPath>$(MSBuildProjectDirectory)\src\XUnitTestProvider</mainPath>
+
+		<testPath>$(MSBuildProjectDirectory)\src\XUnitTestRunner.Tests</testPath>
+		<testFile>ReSharper.XUnitTestRunner.Tests</testFile>
+	</PropertyGroup>
+
+	<Target Name="Full" DependsOnTargets="Init; Clean; Build; Test; Deploy;"/>
+
+	<Target Name="Init">
+		<MakeDir Directories="$(artifactPath)" Condition="!Exists('$(artifactPath)')"/>
+	</Target>
+
+	<Target Name="Clean">
+		<MSBuild Projects="$(sln)" Targets="Clean" Properties="Configuration=$(Configuration)"/>
+	</Target>
+
+	<Target Name="Build">
+		<AssemblyInfo CodeLanguage="CS"
+					OutputFile="src\CommonAssemblyInfo.cs"
+					AssemblyProduct="xUnit.net unit test runner for ReSharper 6"
+					AssemblyCopyright="Copyright © xunitcontrib team 2010, hazzik 2011"
+					ComVisible="false"
+					CLSCompliant="false"
+					AssemblyVersion="$(Version)"
+					AssemblyFileVersion="$(Version)"/>
+
+		<MSBuild Projects="$(sln)" Targets="Build" Properties="Configuration=$(Configuration)"/>
+	</Target>
+
+	<Target Name="Test">
+		<Exec Command="$(xunit) $(testPath)\bin\$(Configuration)\$(testFile).dll" />
+	</Target>
+
+	<Target Name="Deploy">
+		<ItemGroup>
+			<ZipFiles Include="$(mainPath)\bin\$(Configuration)\*.*" Exclude="*Debugger*" />
+		</ItemGroup>
+		<Zip Files="@(ZipFiles)"
+			WorkingDirectory="$(mainPath)\bin\$(Configuration)\"
+			ZipFileName="$(artifactPath)\$(main).$(version).zip"
+			ZipLevel="9"/>
+	</Target>
+
+	<Target Name="BuildSetup">
+		
+	</Target>
+</Project>
