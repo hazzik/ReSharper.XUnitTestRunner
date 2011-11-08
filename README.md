@@ -15,4 +15,4 @@
 
 ## Roadmap
 * Unit test categories
-* Better support for [Teory] attribute (one test item per theory's data)
+* Better support for [Theory] attribute (one test item per theory's data)
