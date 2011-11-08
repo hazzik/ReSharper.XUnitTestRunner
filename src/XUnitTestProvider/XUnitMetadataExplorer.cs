@@ -43,7 +43,7 @@ namespace ReSharper.XUnitTestProvider
             XunitTestClassElement classUnitTestElement = factory.GetOrCreateClassElement(typeName, project, envoy);
             consumer(classUnitTestElement);
 
-            foreach (IMethodInfo method in methods.Where(MethodUtility.IsTest))
+            foreach (IMethodInfo method in methods)
             {
                 ProcessTestMethod(classUnitTestElement, method);
             }
@@ -59,8 +59,6 @@ namespace ReSharper.XUnitTestProvider
 
         public void ExploreAssembly(IMetadataAssembly assembly)
         {
-            //if (!assembly.ReferencedAssembliesNames.Any(reference => ((reference != null) && "xunit".Equals(reference.Name, StringComparison.InvariantCultureIgnoreCase))))
-            // return;
             foreach (IMetadataTypeInfo metadataTypeInfo in GetExportedTypes(assembly.GetTypes()))
             {
                 ProcessTypeInfo(metadataTypeInfo);
@@ -69,7 +67,7 @@ namespace ReSharper.XUnitTestProvider
 
         private static IEnumerable<IMetadataTypeInfo> GetExportedTypes(IEnumerable<IMetadataTypeInfo> types)
         {
-            foreach (IMetadataTypeInfo type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(IsPublic))
+            foreach (IMetadataTypeInfo type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(UnitTestElementIdentifier.IsPublic))
             {
                 foreach (IMetadataTypeInfo nestedType in GetExportedTypes(type.GetNestedTypes()))
                 {
@@ -78,13 +76,6 @@ namespace ReSharper.XUnitTestProvider
 
                 yield return type;
             }
-        }
-
-        private static bool IsPublic(IMetadataTypeInfo type)
-        {
-            // Hmmm. This seems a little odd. Resharper reports public nested types with IsNestedPublic,
-            // while IsPublic is false
-            return (type.IsNested && type.IsNestedPublic) || type.IsPublic;
         }
     }
 }

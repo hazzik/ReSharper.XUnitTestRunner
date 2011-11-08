@@ -11,26 +11,21 @@
 
         public static bool IsAnyUnitTestElement(IDeclaredElement element)
         {
-            return IsDirectUnitTestClass(element as IClass) ||
-                   IsContainingUnitTestClass(element as IClass) ||
-                   IsUnitTestMethod(element) ||
-                   IsUnitTestDataProperty(element) ||
-                   IsUnitTestClassConstructor(element);
-        }
-
-        public static bool IsUnitTest(IDeclaredElement element)
-        {
-            return IsUnitTestMethod(element);
+            return IsUnitTestContainer(element) ||
+                   IsUnitTest(element) ||
+                   IsUnitTestStuff(element);
         }
 
         public static bool IsUnitTestContainer(IDeclaredElement element)
         {
-            return IsDirectUnitTestClass(element as IClass);
+            var @class = element as IClass;
+            return @class != null && IsPublic(@class) && TypeUtility.IsTestClass(@class.AsTypeInfo());
         }
 
-        public static bool IsUnitTestContainer(IMetadataTypeInfo metadataTypeInfo)
+        public static bool IsUnitTest(IDeclaredElement element)
         {
-            return IsDirectUnitTestClass(metadataTypeInfo);
+            var method = element as IMethod;
+            return method != null && MethodUtility.IsTest(method.AsMethodInfo());
         }
 
         public static bool IsUnitTestStuff(IDeclaredElement element)
@@ -40,69 +35,60 @@
                    IsUnitTestClassConstructor(element);
         }
 
+        private static bool IsContainingUnitTestClass(IClass @class)
+        {
+            return @class != null && IsPublic(@class) && @class.NestedTypes.Any(IsAnyUnitTestElement);
+        }
+
+        private static bool IsUnitTestDataProperty(IDeclaredElement element)
+        {
+            var accessor = element as IAccessor;
+            if (accessor != null)
+            {
+                return accessor.Kind == AccessorKind.GETTER && IsTheoryPropertyDataProperty(accessor.OwnerMember);
+            }
+
+            var property = element as IProperty;
+            return property != null && IsTheoryPropertyDataProperty(property);
+        }
+
         private static bool IsUnitTestClassConstructor(IDeclaredElement element)
         {
             var constructor = element as IConstructor;
             return constructor != null && constructor.IsDefault && IsUnitTestContainer(constructor.GetContainingType());
         }
 
-        private static bool IsDirectUnitTestClass(IClass @class)
-        {
-            return @class != null && IsExportedType(@class) && TypeUtility.IsTestClass(@class.AsTypeInfo());
-        }
-
-        private static bool IsDirectUnitTestClass(IMetadataTypeInfo metadataTypeInfo)
-        {
-            return IsExportedType(metadataTypeInfo) && TypeUtility.IsTestClass(metadataTypeInfo.AsTypeInfo());
-        }
-
-    	private static bool IsContainingUnitTestClass(IClass @class)
-        {
-            return @class != null && IsExportedType(@class) &&
-                   @class.NestedTypes.Aggregate(false, (foundAnyUnitTestElements, nestedType) => IsAnyUnitTestElement(nestedType) || foundAnyUnitTestElements);
-        }
-
-        private static bool IsExportedType(IAccessRightsOwner @class)
-        {
-            return @class.GetAccessRights() == AccessRights.PUBLIC;
-        }
-
-        private static bool IsExportedType(IMetadataTypeInfo metadataTypeInfo)
-        {
-            return metadataTypeInfo.IsPublic || metadataTypeInfo.IsNestedPublic;
-        }
-
-        private static bool IsUnitTestMethod(IDeclaredElement element)
-        {
-            var testMethod = element as IMethod;
-            return testMethod != null && MethodUtility.IsTest(testMethod.AsMethodInfo());
-        }
-
-        private static bool IsUnitTestDataProperty(IDeclaredElement element)
-        {
-            if (element is IAccessor)
-            {
-                var accessor = ((IAccessor)element);
-                return accessor.Kind == AccessorKind.GETTER && IsTheoryPropertyDataProperty(accessor.OwnerMember);
-            }
-
-            return element is IProperty && IsTheoryPropertyDataProperty((IProperty)element);
-        }
-
         private static bool IsTheoryPropertyDataProperty(ITypeMember element)
         {
-            if (element.IsStatic && element.GetAccessRights() == AccessRights.PUBLIC)
+            if (!element.IsStatic || !IsPublic(element))
             {
-                // According to msdn, parameters to the constructor are positional parameters, and any
-                // public read-write fields are named parameters. The name of the property we're after
-                // is not a public field/property, so it's a positional parameter
-                var propertyNames = from method in element.GetContainingType().Methods
-                                    from attributeInstance in method.GetAttributeInstances(PropertyDataAttributeName, false)
-                                    select attributeInstance.PositionParameter(0).ConstantValue.Value as string;
-                return propertyNames.Any(name => name == element.ShortName);
+                return false;
             }
 
-            return false;
+            // According to msdn, parameters to the constructor are positional parameters, and any
+            // public read-write fields are named parameters. The name of the property we're after
+            // is not a public field/property, so it's a positional parameter
+            var propertyNames = from method in element.GetContainingType().Methods
+                                from attributeInstance in method.GetAttributeInstances(PropertyDataAttributeName, false)
+                                select attributeInstance.PositionParameter(0).ConstantValue.Value as string;
+            return propertyNames.Any(name => name == element.ShortName);
+        }
+
+        private static bool IsPublic(IAccessRightsOwner element)
+        {
+            return element.GetAccessRights() == AccessRights.PUBLIC;
+        }
+
+        public static bool IsUnitTestContainer(IMetadataTypeInfo metadataTypeInfo)
+        {
+            return IsPublic(metadataTypeInfo) && TypeUtility.IsTestClass(metadataTypeInfo.AsTypeInfo());
+        }
+
+        public static bool IsPublic(IMetadataTypeInfo type)
+        {
+            // Hmmm. This seems a little odd. Resharper reports public nested types with IsNestedPublic,
+            // while IsPublic is false
+            return type.IsPublic || (type.IsNested && type.IsNestedPublic);
         }
     }
 }

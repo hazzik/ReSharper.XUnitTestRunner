@@ -32,8 +32,8 @@ namespace ReSharper.XUnitTestProvider
             this.consumer = consumer;
             this.interrupted = interrupted;
             this.factory = factory;
-            this.projectFile = file.GetSourceFile().ToProjectFile();
-            project = this.projectFile.GetProject();
+            projectFile = file.GetSourceFile().ToProjectFile();
+            if (projectFile != null) project = projectFile.GetProject();
             envoy = ProjectModelElementEnvoy.Create(project);
         }
 
