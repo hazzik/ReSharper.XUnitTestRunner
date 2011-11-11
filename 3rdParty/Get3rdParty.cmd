@@ -6,6 +6,7 @@ if not exist "%R%" set R=%ProgramFiles%\JetBrains\Resharper\v6.1\bin
 if not exist "%R%" set R=%ProgramFiles(x86)%\JetBrains\Resharper\v6.1\bin
 if not exist "%R%" goto End
 
+
 mkdir ReSharper
 cd ReSharper
 copy "%R%\JetBrains.Annotations.???" > nul
@@ -28,7 +29,8 @@ copy "%R%\JetBrains.Platform.ReSharper.DocumentModel.???" > nul
 copy "%R%\JetBrains.ReSharper.Resources.???" > nul
 
 cd ..
-echo Support for ReSharper 6.1 successfully copied.
+echo Support for ReSharper 6.1 successfully copied
+echo   from %R%
 
 :End
 pause
