@@ -130,7 +130,9 @@ namespace ReSharper.XUnitTestProvider
 
         public override string GetPresentation()
         {
-            return string.Format("{0}.{1}", Class.ShortName, MethodName);
+            if(Class.TypeName != TypeName)
+                return string.Format("{0}.{1}", Class.ShortName, MethodName);
+            return MethodName;
         }
 
         public override void WriteToXml(XmlElement parent)

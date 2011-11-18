@@ -150,7 +150,6 @@
     <Compile Include="XunitTestElementBase.cs" />
     <Compile Include="XUnitMetadataExplorer.cs" />
     <Compile Include="XUnitTestMetadataExplorer.cs" />
-    <Compile Include="XunitBrowserPresenter.cs" />
     <Compile Include="XunitTestClassElement.cs" />
     <Compile Include="XunitTestMethodElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -161,7 +160,6 @@
     </Compile>
     <Compile Include="SuppressUnusedXunitTestElements.cs" />
     <Compile Include="XunitFileExplorer.cs" />
-    <Compile Include="XunitTestPresenter.cs" />
     <Compile Include="XunitTestProvider.cs" />
   </ItemGroup>
   <ItemGroup>
