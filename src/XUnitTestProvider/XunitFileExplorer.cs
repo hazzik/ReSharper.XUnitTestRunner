@@ -10,6 +10,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.Util;
     using Xunit.Sdk;
 
     internal class XunitFileExplorer : IRecursiveElementProcessor
@@ -110,12 +111,20 @@ namespace ReSharper.XUnitTestProvider
             if (!classes.TryGetValue(testClass, out testElement))
             {
                 testElement = factory.GetOrCreateClassElement(testClass.GetClrName().FullName, project, envoy);
-                foreach (var child in testElement.Children.ToList())
+                foreach (var child in ChildrenInThisFile(testElement))
                     child.State = UnitTestElementState.Pending;
                 classes.Add(testClass, testElement);
             }
 
             return testElement;
+        }
+
+        private IEnumerable<IUnitTestElement> ChildrenInThisFile(IUnitTestElement testElement)
+        {
+            return from element in testElement.Children
+                   let projectFiles = element.GetProjectFiles()
+                   where projectFiles == null || projectFiles.IsEmpty() || projectFiles.Contains(projectFile)
+                   select element;
         }
 
         private static bool IsValidTestClass(IClass testClass)

@@ -54,7 +54,9 @@ namespace ReSharper.XUnitTestProvider
         public override IDeclaredElement GetDeclaredElement()
         {
             IProject project = GetProject();
-            
+            if (project == null)
+                return null;
+
             ISolution solution = project.GetSolution();
             
             IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
@@ -69,25 +71,12 @@ namespace ReSharper.XUnitTestProvider
             IDeclaredElement declaredElement = GetDeclaredElement();
             if (declaredElement == null)
             {
-                return EmptyArray<IProjectFile>.Instance;
+                return null;
             }
-            return declaredElement.GetSourceFiles().Select(sf => sf.ToProjectFile());
-        }
 
-        public override UnitTestElementDisposition GetDisposition()
-        {
-            IDeclaredElement element = GetDeclaredElement();
-            if (element == null || !element.IsValid())
-                return UnitTestElementDisposition.InvalidDisposition;
-
-            IEnumerable<UnitTestElementLocation> locations = from declaration in element.GetDeclarations()
-                                                             let file = declaration.GetContainingFile()
-                                                             where file != null
-                                                             select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
-                                                                                             declaration.GetNameDocumentRange().TextRange,
-                                                                                             declaration.GetDocumentRange().TextRange);
-
-            return new UnitTestElementDisposition(locations.ToList(), this);
+            return declaredElement
+                .GetSourceFiles()
+                .Select(sf => sf.ToProjectFile());
         }
 
         public override string GetPresentation()

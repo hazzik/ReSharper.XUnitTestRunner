@@ -2,15 +2,13 @@ namespace ReSharper.XUnitTestProvider
 {
     using System;
     using System.Xml;
-    using JetBrains.Util;
+    using JetBrains.ReSharper.Psi.Util;
     using XUnitTestRunner;
     using System.Collections.Generic;
     using System.Linq;
     using JetBrains.Application;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.Psi.Tree;
-    using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
 
     public class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
@@ -68,20 +66,23 @@ namespace ReSharper.XUnitTestProvider
 
         public override IEnumerable<IProjectFile> GetProjectFiles()
         {
-            ITypeElement declaredType = GetDeclaredType();
-            if (declaredType != null)
-            {
-                List<IProjectFile> result = declaredType
-                    .GetSourceFiles()
-                    .Select(sf => sf.ToProjectFile())
-                    .ToList();
-                if (result.Count == 1)
-                    return result;
-            }
-            IDeclaredElement declaredElement = GetDeclaredElement();
-            if (declaredElement == null)
-                return EmptyArray<IProjectFile>.Instance;
-            return declaredElement
+            var declaredType = GetDeclaredType();
+            if (declaredType == null)
+                return null;
+            
+            var result = declaredType
+                .GetSourceFiles()
+                .Select(sf => sf.ToProjectFile())
+                .ToList();
+
+            if (result.Count == 1)
+                return result;
+
+            var declaredMethod = FindDeclaredMethod(declaredType);
+            if (declaredMethod == null)
+                return null;
+
+            return declaredMethod
                 .GetSourceFiles()
                 .Select(sf => sf.ToProjectFile())
                 .ToList();
@@ -114,32 +115,17 @@ namespace ReSharper.XUnitTestProvider
 
         public override IDeclaredElement GetDeclaredElement()
         {
-            ITypeElement declaredType = GetDeclaredType();
-            if (declaredType != null)
-            {
-                return (from member in declaredType.EnumerateMembers(MethodName, true)
-                        let method = member as IMethod
-                        where method != null && !method.IsAbstract && method.TypeParameters.Count <= 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC
-                        select member).FirstOrDefault();
-            }
-
-            return null;
+            var declaredType = GetDeclaredType();
+            if (declaredType == null)
+                return null;
+            return FindDeclaredMethod(declaredType);
         }
 
-        public override UnitTestElementDisposition GetDisposition()
+        private IDeclaredElement FindDeclaredMethod(ITypeElement declaredType)
         {
-            IDeclaredElement element = GetDeclaredElement();
-            if (element == null || !element.IsValid())
-                return UnitTestElementDisposition.InvalidDisposition;
-
-            IEnumerable<UnitTestElementLocation> locations = from declaration in element.GetDeclarations()
-                                                             let file = declaration.GetContainingFile()
-                                                             where file != null
-                                                             select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
-                                                                                                declaration.GetNameDocumentRange().TextRange,
-                                                                                                declaration.GetDocumentRange().TextRange);
-
-            return new UnitTestElementDisposition(locations.ToList(), this);
+            return declaredType.EnumerateMembers(MethodName, true)
+                .OfType<IMethod>()
+                .FirstOrDefault(method => !method.IsAbstract && method.TypeParameters.Count == 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC);
         }
 
         public override string GetPresentation()
@@ -167,5 +153,5 @@ namespace ReSharper.XUnitTestProvider
                 return null;
             return factory.GetOrCreateMethodElement(testClassElement.TypeName, methodName, project, testClassElement, ProjectModelElementEnvoy.Create(project));
         }
-    }
+   }
 }

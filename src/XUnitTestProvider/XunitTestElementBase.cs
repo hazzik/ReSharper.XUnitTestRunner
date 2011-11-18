@@ -2,10 +2,12 @@ namespace ReSharper.XUnitTestProvider
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Xml;
     using JetBrains.Annotations;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
+    using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.Util;
 
@@ -77,7 +79,6 @@ namespace ReSharper.XUnitTestProvider
         public abstract bool Equals(IUnitTestElement other);
 
         public abstract string GetPresentation();
-        public abstract UnitTestElementDisposition GetDisposition();
         public abstract IDeclaredElement GetDeclaredElement();
         public abstract IEnumerable<IProjectFile> GetProjectFiles();
 
@@ -111,14 +112,30 @@ namespace ReSharper.XUnitTestProvider
 
         public abstract string Kind { get; }
 
-        public virtual UnitTestNamespace GetNamespace()
+        public UnitTestNamespace GetNamespace()
         {
             return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
         }
 
-        public virtual IProject GetProject()
+        public IProject GetProject()
         {
             return project.GetValidProjectElement() as IProject;
+        }
+
+        public UnitTestElementDisposition GetDisposition()
+        {
+            IDeclaredElement element = GetDeclaredElement();
+            if (element == null || !element.IsValid())
+                return UnitTestElementDisposition.InvalidDisposition;
+
+            var locations = from declaration in element.GetDeclarations()
+                            let file = declaration.GetContainingFile()
+                            where file != null
+                            select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
+                                                               declaration.GetNameDocumentRange().TextRange,
+                                                               declaration.GetDocumentRange().TextRange);
+
+            return new UnitTestElementDisposition(locations.ToList(), this);
         }
 
         #endregion
