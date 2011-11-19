@@ -1,6 +1,8 @@
 namespace ReSharper.XUnitTestProvider
 {
+    using System.Linq;
     using JetBrains.ProjectModel;
+    using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.ReSharper.UnitTestFramework.Elements;
 
@@ -16,12 +18,14 @@ namespace ReSharper.XUnitTestProvider
             this.unitTestElementManager = unitTestElementManager;
         }
 
-        public XunitTestClassElement GetOrCreateClassElement(string typeName, IProject project, ProjectModelElementEnvoy envoy)
+        public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy)
         {
-            IUnitTestElement element = unitTestElementManager.GetElementById(project, typeName);
+            var id = typeName.FullName;
+
+            IUnitTestElement element = unitTestElementManager.GetElementById(project, id);
             if (element == null)
             {
-                return new XunitTestClassElement(provider, envoy, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+                return new XunitTestClassElement(provider, envoy, id, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
             }
 
             var xunitTestClassElement = element as XunitTestClassElement;
@@ -34,12 +38,23 @@ namespace ReSharper.XUnitTestProvider
             return xunitTestClassElement;
         }
 
-        public XunitTestMethodElement GetOrCreateMethodElement(string typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
+        public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
         {
-            IUnitTestElement element = unitTestElementManager.GetElementById(project, string.Format("{0}.{1}", typeName, methodName));
+            var parts = new[]
+                            {
+                                parent.TypeName.FullName,
+                                parent.TypeName.Equals(typeName) ? null : typeName.ShortName,
+                                methodName
+                            }
+                .Where(x => !string.IsNullOrEmpty(x))
+                .ToArray();
+
+            var id = string.Join(".", parts);
+
+            IUnitTestElement element = unitTestElementManager.GetElementById(project, id);
             if (element == null)
             {
-                return new XunitTestMethodElement(provider, parent, envoy, typeName, methodName);
+                return new XunitTestMethodElement(provider, envoy, id, typeName, parent, methodName);
             }
 
             var xunitTestMethodElement = element as XunitTestMethodElement;

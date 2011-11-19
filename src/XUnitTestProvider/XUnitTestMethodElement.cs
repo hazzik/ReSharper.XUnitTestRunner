@@ -1,40 +1,32 @@
 namespace ReSharper.XUnitTestProvider
 {
     using System;
-    using System.Xml;
-    using JetBrains.ReSharper.Psi.Util;
-    using XUnitTestRunner;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Xml;
     using JetBrains.Application;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
+    using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
+    using JetBrains.Util;
+    using XUnitTestRunner;
 
-    public class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
+    public sealed class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
     {
-        internal XunitTestMethodElement(IUnitTestProvider provider,
-                                        XunitTestClassElement @class,
-                                        ProjectModelElementEnvoy project,
-                                        string typeName,
-                                        string methodName)
-            : base(provider, @class, project, typeName)
+        private readonly string methodName;
+        private XunitTestClassElement parent;
+
+        internal XunitTestMethodElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, IUnitTestElement parent, string methodName)
+            : base(provider, project, id, typeName)
         {
-            Class = @class;
-            MethodName = methodName;
+            this.methodName = methodName;
+            Parent = parent;
         }
 
-        public XunitTestClassElement Class { get; private set; }
-        public string MethodName { get; private set; }
-
-        public override sealed string ShortName
+        public override string ShortName
         {
-            get { return MethodName; }
-        }
-
-        public override sealed string Id
-        {
-            get { return string.Format("{0}.{1}", Class.TypeName, MethodName); }
+            get { return methodName; }
         }
 
         public override string Kind
@@ -42,35 +34,63 @@ namespace ReSharper.XUnitTestProvider
             get { return "xUnit.net Test"; }
         }
 
-        public bool Equals(XunitTestMethodElement other)
+        public override ICollection<IUnitTestElement> Children
         {
-            return (other != null && Equals(MethodName, other.MethodName)) && Equals(TypeName, other.TypeName);
+            get { return EmptyArray<IUnitTestElement>.Instance; }
         }
 
-        public override sealed bool Equals(object obj)
+        public override IUnitTestElement Parent
+        {
+            get { return parent; }
+            set
+            {
+                var val = value as XunitTestClassElement;
+                if (val == parent)
+                    return;
+                if (parent != null)
+                    parent.RemoveChild(this);
+                parent = val;
+                if (parent == null)
+                    return;
+                parent.AppendChild(this);
+            }
+        }
+
+        #region IEquatable<XunitTestMethodElement> Members
+
+        public bool Equals(XunitTestMethodElement other)
+        {
+            return other != null &&
+                   Equals(methodName, other.methodName) &&
+                   Equals(TypeName, other.TypeName);
+        }
+
+        #endregion
+
+        public override bool Equals(object obj)
         {
             return Equals(obj as XunitTestMethodElement);
         }
 
-        public override sealed bool Equals(IUnitTestElement other)
+        public override bool Equals(IUnitTestElement other)
         {
             return Equals(other as XunitTestMethodElement);
         }
 
-        public override sealed int GetHashCode()
+        public override int GetHashCode()
         {
             int result = 0;
             result = (result*397) ^ TypeName.GetHashCode();
-            return ((result*397) ^ MethodName.GetHashCode());
+            return ((result*397) ^ methodName.GetHashCode());
         }
 
         public override IEnumerable<IProjectFile> GetProjectFiles()
         {
-            var declaredType = GetDeclaredType();
+            ITypeElement declaredType = GetDeclaredType();
             if (declaredType == null)
                 return null;
-            
-            var result = declaredType
+
+            List<IProjectFile> result = declaredType
                 .GetSourceFiles()
                 .Select(sf => sf.ToProjectFile())
                 .ToList();
@@ -78,7 +98,7 @@ namespace ReSharper.XUnitTestProvider
             if (result.Count == 1)
                 return result;
 
-            var declaredMethod = FindDeclaredMethod(declaredType);
+            IDeclaredElement declaredMethod = FindDeclaredMethod(declaredType);
             if (declaredMethod == null)
                 return null;
 
@@ -88,10 +108,10 @@ namespace ReSharper.XUnitTestProvider
                 .ToList();
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
+        public override IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
         {
-            var tasks = Class.GetTaskSequence(explicitElements);
-            tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(Class.AssemblyLocation, Class.TypeName, MethodName, explicitElements.Contains(this))));
+            IList<UnitTestTask> tasks = parent.GetTaskSequence(explicitElements);
+            tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(parent.AssemblyLocation, parent.TypeName.FullName, methodName, explicitElements.Contains(this))));
             return tasks;
         }
 
@@ -100,13 +120,13 @@ namespace ReSharper.XUnitTestProvider
             IProject project = GetProject();
             if (project == null)
                 return null;
-            
+
             using (ReadLockCookie.Create())
             {
                 ISolution solution = project.GetSolution();
-                
+
                 IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
-                
+
                 return solution.GetPsiServices().CacheManager
                     .GetDeclarationsCache(primaryPsiModule, true, true)
                     .GetTypeElementByCLRName(TypeName);
@@ -115,7 +135,7 @@ namespace ReSharper.XUnitTestProvider
 
         public override IDeclaredElement GetDeclaredElement()
         {
-            var declaredType = GetDeclaredType();
+            ITypeElement declaredType = GetDeclaredType();
             if (declaredType == null)
                 return null;
             return FindDeclaredMethod(declaredType);
@@ -123,37 +143,37 @@ namespace ReSharper.XUnitTestProvider
 
         private IDeclaredElement FindDeclaredMethod(ITypeElement declaredType)
         {
-            return declaredType.EnumerateMembers(MethodName, true)
+            return declaredType.EnumerateMembers(methodName, true)
                 .OfType<IMethod>()
                 .FirstOrDefault(method => !method.IsAbstract && method.TypeParameters.Count == 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC);
         }
 
         public override string GetPresentation()
         {
-            if(Class.TypeName != TypeName)
-                return string.Format("{0}.{1}", Class.ShortName, MethodName);
-            return MethodName;
+            return !Equals(parent.TypeName, TypeName)
+                       ? string.Format("{0}.{1}", TypeName.ShortName, methodName)
+                       : methodName;
         }
 
-        public override void WriteToXml(XmlElement parent)
+        public override void WriteToXml(XmlElement xml)
         {
-            parent.SetAttribute("MethodName", MethodName);
+            xml.SetAttribute("MethodName", methodName);
             IProject project = GetProject();
             if (project != null)
-                parent.SetAttribute("Project", project.GetPersistentID());
+                xml.SetAttribute("Project", project.GetPersistentID());
         }
 
         public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, XunitElementFactory factory, ISolution solution)
         {
-            var testClassElement = parentElement as XunitTestClassElement;
-            if (testClassElement == null)
+            var classElement = parentElement as XunitTestClassElement;
+            if (classElement == null)
                 return null;
             string methodName = parent.GetAttribute("MethodName");
             string projectId = parent.GetAttribute("Project");
-            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
+            var project = (IProject) ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
-            return factory.GetOrCreateMethodElement(testClassElement.TypeName, methodName, project, testClassElement, ProjectModelElementEnvoy.Create(project));
+            return factory.GetOrCreateMethodElement(classElement.TypeName, methodName, project, classElement, ProjectModelElementEnvoy.Create(project));
         }
-   }
+    }
 }

@@ -90,6 +90,7 @@ namespace ReSharper.XUnitTestRunner
                 runnerLogger.MethodTasks = methodTasks;
 
                 var runner = new TestRunner(executorWrapper, runnerLogger);
+
                 // Don't capture the result of the test run - ReSharper gathers that as we go
                 runner.RunTests(classTask.TypeName, methodNames);
 

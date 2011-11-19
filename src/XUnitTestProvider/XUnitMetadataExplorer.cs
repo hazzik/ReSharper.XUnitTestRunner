@@ -6,6 +6,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Annotations;
     using JetBrains.Metadata.Reader.API;
     using JetBrains.ProjectModel;
+    using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.UnitTestFramework;
     using Xunit.Sdk;
 
@@ -35,10 +36,10 @@ namespace ReSharper.XUnitTestProvider
             if (testClassCommand == null)
                 return;
 
-            ProcessTestClass(metadataTypeInfo.FullyQualifiedName, testClassCommand.EnumerateTestMethods());
+            ProcessTestClass(new ClrTypeName(metadataTypeInfo.FullyQualifiedName), testClassCommand.EnumerateTestMethods());
         }
 
-        private void ProcessTestClass(string typeName, IEnumerable<IMethodInfo> methods)
+        private void ProcessTestClass(IClrTypeName typeName, IEnumerable<IMethodInfo> methods)
         {
             XunitTestClassElement classUnitTestElement = factory.GetOrCreateClassElement(typeName, project, envoy);
             consumer(classUnitTestElement);
@@ -51,7 +52,7 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessTestMethod(XunitTestClassElement classUnitTestElement, IMethodInfo method)
         {
-            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(method.TypeName, method.Name, project, classUnitTestElement, envoy);
+            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(new ClrTypeName( method.TypeName), method.Name, project, classUnitTestElement, envoy);
             methodUnitTestElement.ExplicitReason = MethodUtility.GetSkipReason(method);
             // TODO: Categories?
             consumer(methodUnitTestElement);

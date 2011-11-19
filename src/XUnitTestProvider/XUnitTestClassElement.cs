@@ -4,23 +4,18 @@ namespace ReSharper.XUnitTestProvider
     using System.Collections.Generic;
     using System.Linq;
     using System.Xml;
-    using JetBrains.Application;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.Psi.Caches;
-    using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
-    using JetBrains.Util;
     using XUnitTestRunner;
 
-    public class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
+    public sealed class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
     {
-        public XunitTestClassElement(IUnitTestProvider provider,
-                                     ProjectModelElementEnvoy project,
-                                     string typeName,
-                                     string assemblyLocation)
-            : base(provider, null, project, typeName)
+        private readonly ICollection<IUnitTestElement> children = new List<IUnitTestElement>();
+
+        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation)
+            : base(provider, project, id, typeName)
         {
             AssemblyLocation = assemblyLocation;
         }
@@ -30,23 +25,30 @@ namespace ReSharper.XUnitTestProvider
             get { return "xUnit.net Test Class"; }
         }
 
-        public override string Id
-        {
-            get { return TypeName; }
-        }
-
         public override string ShortName
         {
-            get { return TypeName.Split('.').Last(); }
+            get { return TypeName.ShortName; }
         }
 
         public string AssemblyLocation { get; private set; }
+
+        public override ICollection<IUnitTestElement> Children
+        {
+            get { return children; }
+        }
+
+        public override IUnitTestElement Parent
+        {
+            get { return null; }
+            set { throw new NotSupportedException(); }
+        }
 
         #region IEquatable<XunitTestClassElement> Members
 
         public bool Equals(XunitTestClassElement other)
         {
-            return ((other != null) && Equals(TypeName, other.TypeName));
+            return other != null &&
+                   Equals(TypeName, other.TypeName);
         }
 
         #endregion
@@ -81,50 +83,61 @@ namespace ReSharper.XUnitTestProvider
 
         public override string GetPresentation()
         {
-            return ShortName;
+            return TypeName.ShortName;
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
+        public override IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
         {
             return new List<UnitTestTask>
                        {
                            new UnitTestTask(null, new AssemblyLoadTask(AssemblyLocation)),
                            new UnitTestTask(null, new XunitTestAssemblyTask(AssemblyLocation)),
-                           new UnitTestTask(this, new XunitTestClassTask(AssemblyLocation, TypeName, explicitElements.Contains(this)))
+                           new UnitTestTask(this, new XunitTestClassTask(AssemblyLocation, TypeName.FullName, explicitElements.Contains(this)))
                        };
         }
 
-        public override sealed bool Equals(IUnitTestElement other)
+        public override bool Equals(IUnitTestElement other)
         {
             return Equals(other as XunitTestClassElement);
         }
 
-        public override sealed bool Equals(object obj)
+        public override bool Equals(object obj)
         {
             return Equals(obj as XunitTestClassElement);
         }
 
-        public override sealed int GetHashCode()
+        public override int GetHashCode()
         {
             return TypeName.GetHashCode();
         }
 
-        public override void WriteToXml(XmlElement parent)
+        public override void WriteToXml(XmlElement xml)
         {
-            parent.SetAttribute("TypeName", TypeName);
+            xml.SetAttribute("TypeName", TypeName.FullName);
             IProject project = GetProject();
             if (project != null)
-                parent.SetAttribute("Project", project.GetPersistentID());
+                xml.SetAttribute("Project", project.GetPersistentID());
         }
 
         public static IUnitTestElement ReadFromXml(XmlElement parent, XunitElementFactory factory, ISolution solution)
         {
-            string typeName = parent.GetAttribute("TypeName");
+            IClrTypeName typeName = new ClrTypeName(parent.GetAttribute("TypeName"));
             string projectId = parent.GetAttribute("Project");
             var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
             return factory.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project));
+        }
+
+        public void AppendChild(IUnitTestElement element)
+        {
+            children.Add(element);
+        }
+
+        public void RemoveChild(IUnitTestElement element)
+        {
+            if (!children.Remove(element))
+                throw new InvalidOperationException("No such element");
         }
     }
 }

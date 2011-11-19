@@ -9,16 +9,13 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
-    using JetBrains.Util;
 
     public abstract class XunitTestElementBase : IUnitTestElement
     {
-        private readonly IEnumerable<UnitTestElementCategory> myCategories = UnitTestElementCategory.Uncategorized;
+        private readonly IEnumerable<UnitTestElementCategory> categories = UnitTestElementCategory.Uncategorized;
         private readonly ProjectModelElementEnvoy project;
-        private IList<IUnitTestElement> myChildren;
-        private XunitTestElementBase myParent;
 
-        protected XunitTestElementBase(IUnitTestProvider provider, XunitTestElementBase parent, ProjectModelElementEnvoy project, string typeName)
+        protected XunitTestElementBase(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
@@ -27,10 +24,10 @@ namespace ReSharper.XUnitTestProvider
             Provider = provider;
             this.project = project;
             TypeName = typeName;
-            Parent = parent;
+            Id = id;
         }
 
-        public string TypeName { get; private set; }
+        public IClrTypeName TypeName { get; private set; }
 
         #region IUnitTestElement Members
 
@@ -38,13 +35,10 @@ namespace ReSharper.XUnitTestProvider
 
         public IEnumerable<UnitTestElementCategory> Categories
         {
-            get { return myCategories; }
+            get { return categories; }
         }
 
-        public ICollection<IUnitTestElement> Children
-        {
-            get { return (myChildren ?? EmptyArray<IUnitTestElement>.Instance); }
-        }
+        public abstract ICollection<IUnitTestElement> Children { get; }
 
         public bool Explicit
         {
@@ -53,33 +47,21 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public IUnitTestElement Parent
-        {
-            get { return myParent; }
-            set
-            {
-                if (value == myParent)
-                    return;
-                if (myParent != null)
-                    myParent.RemoveChild(this);
-                myParent = (XunitTestElementBase) value;
-                if (myParent == null)
-                    return;
-                myParent.AppendChild(this);
-            }
-        }
+        public abstract IUnitTestElement Parent { get; set; }
 
         public IUnitTestProvider Provider { get; private set; }
 
         [NotNull]
         public abstract string ShortName { get; }
 
-        public abstract string Id { get; }
+        public string Id { get; private set; }
 
         public abstract bool Equals(IUnitTestElement other);
 
         public abstract string GetPresentation();
+        
         public abstract IDeclaredElement GetDeclaredElement();
+        
         public abstract IEnumerable<IProjectFile> GetProjectFiles();
 
         /// This method gets called to generate the tasks that the remote runner will execute
@@ -114,7 +96,7 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestNamespace GetNamespace()
         {
-            return new UnitTestNamespace(new ClrTypeName(TypeName).GetNamespaceName());
+            return new UnitTestNamespace(TypeName.GetNamespaceName());
         }
 
         public IProject GetProject()
@@ -140,23 +122,6 @@ namespace ReSharper.XUnitTestProvider
 
         #endregion
 
-        private void AppendChild(IUnitTestElement element)
-        {
-            if (myChildren == null)
-            {
-                myChildren = new List<IUnitTestElement>();
-            }
-            myChildren.Add(element);
-        }
-
-        private void RemoveChild(IUnitTestElement element)
-        {
-            if ((myChildren == null) || !myChildren.Remove(element))
-            {
-                throw new InvalidOperationException("No such element");
-            }
-        }
-
-        public abstract void WriteToXml(XmlElement parent);
+        public abstract void WriteToXml(XmlElement xml);
     }
 }

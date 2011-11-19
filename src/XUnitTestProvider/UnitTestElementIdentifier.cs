@@ -74,7 +74,7 @@
             return propertyNames.Any(name => name == element.ShortName);
         }
 
-        private static bool IsPublic(IAccessRightsOwner element)
+        public static bool IsPublic(IAccessRightsOwner element)
         {
             return element.GetAccessRights() == AccessRights.PUBLIC;
         }

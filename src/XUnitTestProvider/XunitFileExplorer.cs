@@ -9,6 +9,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Tree;
+    using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.Util;
     using Xunit.Sdk;
@@ -19,7 +20,7 @@ namespace ReSharper.XUnitTestProvider
         private readonly UnitTestElementLocationConsumer consumer;
         private readonly CheckForInterrupt interrupted;
         private readonly IProject project;
-        private readonly Dictionary<ITypeElement, IUnitTestElement> classes = new Dictionary<ITypeElement, IUnitTestElement>();
+        private readonly Dictionary<ITypeElement, XunitTestClassElement> classes = new Dictionary<ITypeElement, XunitTestClassElement>();
         private readonly IProjectFile projectFile;
         private readonly ProjectModelElementEnvoy envoy;
 
@@ -62,7 +63,7 @@ namespace ReSharper.XUnitTestProvider
                 return;
 
             var testClass = declaration.DeclaredElement as IClass;
-            IUnitTestElement testElement;
+            XunitTestClassElement testElement;
             if (testClass == null || !IsValidTestClass(testClass) || !classes.TryGetValue(testClass, out testElement))
                 return;
 
@@ -106,17 +107,30 @@ namespace ReSharper.XUnitTestProvider
             if (!IsValidTestClass(testClass))
                 return null;
 
-            IUnitTestElement testElement;
+            XunitTestClassElement testElement;
 
             if (!classes.TryGetValue(testClass, out testElement))
             {
-                testElement = factory.GetOrCreateClassElement(testClass.GetClrName().FullName, project, envoy);
-                foreach (var child in ChildrenInThisFile(testElement))
-                    child.State = UnitTestElementState.Pending;
+                testElement = factory.GetOrCreateClassElement(testClass.GetClrName(), project, envoy);
                 classes.Add(testClass, testElement);
             }
+            
+            foreach (var child in ChildrenInThisFile(testElement))
+                child.State = UnitTestElementState.Pending;
+
+            foreach (IDeclaredType type in testClass.GetAllSuperTypes())
+                ProcessSuperType(testElement, type);
 
             return testElement;
+        }
+
+        private void ProcessSuperType(XunitTestClassElement classElement, IDeclaredType type)
+        {
+            var @class = type.GetTypeElement() as IClass;
+            if (@class == null) return;
+            var methods = @class.GetMembers().Where(UnitTestElementIdentifier.IsUnitTest);
+            foreach (IMethod method in methods)
+                factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
         }
 
         private IEnumerable<IUnitTestElement> ChildrenInThisFile(IUnitTestElement testElement)
@@ -139,23 +153,16 @@ namespace ReSharper.XUnitTestProvider
 
         private IUnitTestElement ProcessTestMethod(IMethod method)
         {
-            var type = method.GetContainingType();
-            var @class = type as IClass;
-            if (type == null || @class == null || !IsValidTestClass(@class))
+            var @class = method.GetContainingType() as IClass;
+            if (@class == null || !IsValidTestClass(@class))
                 return null;
 
-            var command = TestClassCommandFactory.Make(@class.AsTypeInfo());
-            if (command == null)
-                return null;
-
-            var classElement = classes[type];
+            var classElement = classes[@class];
             if (classElement == null)
                 return null;
 
-            if (command.IsTestMethod(method.AsMethodInfo()))
-            {
-                return factory.GetOrCreateMethodElement(type.GetClrName().FullName, method.ShortName, project, (XunitTestClassElement)classElement, envoy);
-            }
+            if (UnitTestElementIdentifier.IsUnitTest(method))
+                return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
 
             return null;
         }
