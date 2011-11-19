@@ -82,7 +82,7 @@ namespace tests.reference.nunit
                 Assert.AreEqual(1, 1);
             }
         }
-
+        
         [TestFixture]
         public class AttributeDerivedFromAbstractClassWithNoAttribute : AbstractBaseClassWithNoAttribute
         {

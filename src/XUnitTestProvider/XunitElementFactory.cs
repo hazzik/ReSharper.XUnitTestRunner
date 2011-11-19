@@ -69,5 +69,10 @@ namespace ReSharper.XUnitTestProvider
             xunitTestMethodElement.Parent = parent;
             return xunitTestMethodElement;
         }
+
+        public IUnitTestElement CreateFakeElement(IProject project, IClrTypeName getClrName, string shortName)
+        {
+            return new XunitTestFakeElement(provider, project, getClrName.GetPersistent(), shortName);
+        }
     }
 }

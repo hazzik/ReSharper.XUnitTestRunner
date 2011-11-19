@@ -8,6 +8,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Application.Progress;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
+    using JetBrains.ReSharper.Psi.Search;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
@@ -20,20 +21,25 @@ namespace ReSharper.XUnitTestProvider
         private readonly UnitTestElementLocationConsumer consumer;
         private readonly CheckForInterrupt interrupted;
         private readonly IProject project;
-        private readonly Dictionary<ITypeElement, XunitTestClassElement> classes = new Dictionary<ITypeElement, XunitTestClassElement>();
+        private readonly Dictionary<ITypeElement, IList<XunitTestClassElement>> classes = new Dictionary<ITypeElement, IList<XunitTestClassElement>>();
         private readonly IProjectFile projectFile;
         private readonly ProjectModelElementEnvoy envoy;
+        private readonly SearchDomainFactory searchDomainFactory;
 
-        public XunitFileExplorer([NotNull] XunitElementFactory factory, [NotNull] IFile file, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
+        public XunitFileExplorer([NotNull] XunitElementFactory factory, [NotNull] ITreeNode file, [NotNull] SearchDomainFactory searchDomainFactory, UnitTestElementLocationConsumer consumer, CheckForInterrupt interrupted)
         {
             if (factory == null) 
                 throw new ArgumentNullException("factory");
+            if (searchDomainFactory == null) 
+                throw new ArgumentNullException("searchDomainFactory");
             if (file == null)
                 throw new ArgumentNullException("file");
 
+            this.factory = factory;
+            this.searchDomainFactory = searchDomainFactory;
             this.consumer = consumer;
             this.interrupted = interrupted;
-            this.factory = factory;
+
             projectFile = file.GetSourceFile().ToProjectFile();
             if (projectFile != null) project = projectFile.GetProject();
             envoy = ProjectModelElementEnvoy.Create(project);
@@ -63,11 +69,12 @@ namespace ReSharper.XUnitTestProvider
                 return;
 
             var testClass = declaration.DeclaredElement as IClass;
-            XunitTestClassElement testElement;
-            if (testClass == null || !IsValidTestClass(testClass) || !classes.TryGetValue(testClass, out testElement))
+            IList<XunitTestClassElement> classElements;
+            bool isAbstract;
+            if (testClass == null || !IsValidTestClass(testClass, out isAbstract) || !classes.TryGetValue(testClass, out classElements))
                 return;
 
-            foreach (var child in testElement.Children.Where(x => x.State == UnitTestElementState.Pending).ToList())
+            foreach (var child in classElements.SelectMany(classElement => classElement.Children.Where(x => x.State == UnitTestElementState.Pending).ToList()))
                 child.State = UnitTestElementState.Invalid;
         }
 
@@ -86,8 +93,9 @@ namespace ReSharper.XUnitTestProvider
                 testElement = ProcessTestClass(testClass);
 
             var testMethod = declaredElement as IMethod;
+            IList<IUnitTestElement> rowTests = null;
             if (testMethod != null)
-                testElement = ProcessTestMethod(testMethod) ?? testElement;
+                testElement = ProcessTestMethod(testMethod, out rowTests) ?? testElement;
 
             if (testElement == null)
                 return;
@@ -97,22 +105,33 @@ namespace ReSharper.XUnitTestProvider
             var documentRange = declaration.GetDocumentRange().TextRange;
             if (nameRange.IsValid && documentRange.IsValid)
             {
-                var disposition = new UnitTestElementDisposition(testElement, projectFile, nameRange, documentRange);
+                var disposition = new UnitTestElementDisposition(testElement, projectFile, nameRange, documentRange, rowTests);
                 consumer(disposition);
             }
         }
 
         private IUnitTestElement ProcessTestClass(IClass testClass)
         {
-            if (!IsValidTestClass(testClass))
+            bool isAbstract;
+            if (!IsValidTestClass(testClass, out isAbstract))
                 return null;
+            
+            if (isAbstract)
+            {
+                ProcessAbstractClass(testClass);
+                return null;
+            }
 
+            IList<XunitTestClassElement> testElements;
             XunitTestClassElement testElement;
-
-            if (!classes.TryGetValue(testClass, out testElement))
+            if (!classes.TryGetValue(testClass, out testElements))
             {
                 testElement = factory.GetOrCreateClassElement(testClass.GetClrName(), project, envoy);
-                classes.Add(testClass, testElement);
+                classes.Add(testClass, new List<XunitTestClassElement> {testElement});
+            }
+            else
+            {
+                testElement = testElements.First();
             }
             
             foreach (var child in ChildrenInThisFile(testElement))
@@ -126,11 +145,21 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessSuperType(XunitTestClassElement classElement, IDeclaredType type)
         {
-            var @class = type.GetTypeElement() as IClass;
-            if (@class == null) return;
-            var methods = @class.GetMembers().Where(UnitTestElementIdentifier.IsUnitTest);
-            foreach (IMethod method in methods)
-                factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
+            ITypeElement @class = type.GetTypeElement() as IClass;
+            if (@class == null)
+                return;
+
+            foreach (IMethod method in @class.GetMembers().Where(UnitTestElementIdentifier.IsUnitTest))
+                GetOrCreateMethodElement(classElement, @class, method);
+        }
+
+        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement classElement, ITypeElement @class, IDeclaredElement method)
+        {
+            var projectElement = classElement.GetProject();
+            var projectEnvoy = Equals(projectElement, project)
+                                   ? envoy
+                                   : ProjectModelElementEnvoy.Create(projectElement);
+            return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, projectElement, classElement, projectEnvoy);
         }
 
         private IEnumerable<IUnitTestElement> ChildrenInThisFile(IUnitTestElement testElement)
@@ -141,30 +170,76 @@ namespace ReSharper.XUnitTestProvider
                    select element;
         }
 
-        private static bool IsValidTestClass(IClass testClass)
+        private static bool IsValidTestClass([NotNull] IClass @class, out bool isAbstract)
         {
-            return UnitTestElementIdentifier.IsUnitTestContainer(testClass) && !HasUnsupportedRunWith(testClass.AsTypeInfo());
+            isAbstract = false;
+            
+            var typeInfo = @class.AsTypeInfo();
+            if (!UnitTestElementIdentifier.IsPublic(@class) ||
+                !TypeUtility.ContainsTestMethods(typeInfo) ||
+                TypeUtility.HasRunWith(typeInfo))
+            {
+                return false;
+            }
+
+
+            if (!TypeUtility.IsStatic(typeInfo) && TypeUtility.IsAbstract(typeInfo))
+            {
+                isAbstract = true;
+            }
+            return true;
         }
 
-        private static bool HasUnsupportedRunWith(ITypeInfo typeInfo)
+        private IUnitTestElement ProcessTestMethod(IMethod method, out IList<IUnitTestElement> rowTests)
         {
-            return TypeUtility.HasRunWith(typeInfo);
-        }
-
-        private IUnitTestElement ProcessTestMethod(IMethod method)
-        {
+            rowTests = null;
             var @class = method.GetContainingType() as IClass;
-            if (@class == null || !IsValidTestClass(@class))
+            bool isAbstract;
+            if (@class == null || !IsValidTestClass(@class, out isAbstract))
                 return null;
 
-            var classElement = classes[@class];
-            if (classElement == null)
+            var elements = classes[@class];
+            if (elements.Count == 1 && !isAbstract)
+            {
+                var classElement = elements.First();
+                if (classElement == null)
+                    return null;
+
+                if (UnitTestElementIdentifier.IsUnitTest(method))
+                    return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
+
                 return null;
+            }
+            rowTests = elements.Select(classElement => GetOrCreateMethodElement(classElement, @class, method))
+                .Cast<IUnitTestElement>()
+                .ToList();
 
-            if (UnitTestElementIdentifier.IsUnitTest(method))
-                return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
+            return factory.CreateFakeElement(project, @class.GetClrName(), method.ShortName);
+        }
 
-            return null;
+        private void ProcessAbstractClass(ITypeElement typeElement)
+        {
+            ISolution solution = typeElement.GetSolution();
+            var inheritorsConsumer = new XunitFileExplorerInheritorsConsumer();
+            var fixtures = new List<XunitTestClassElement>();
+            solution.GetPsiServices().Finder.FindInheritors(typeElement, searchDomainFactory.CreateSearchDomain(solution, true), inheritorsConsumer, NullProgressIndicator.Instance);
+            foreach (var inheritor in inheritorsConsumer.FoundElements)
+            {
+                IProject projectElement = project;
+                ProjectModelElementEnvoy projectEnvoy = envoy;
+                var declaration = inheritor.GetDeclarations().FirstOrDefault();
+                if (declaration != null)
+                {
+                    projectElement = declaration.GetProject();
+                    if (!Equals(projectElement, project))
+                        projectEnvoy = ProjectModelElementEnvoy.Create(projectElement);
+                }
+                XunitTestClassElement fixtureElement = factory.GetOrCreateClassElement(inheritor.GetClrName(), projectElement, projectEnvoy);
+                fixtures.Add(fixtureElement);
+                foreach (IDeclaredType type in inheritor.GetAllSuperTypes())
+                    ProcessSuperType(fixtureElement, type);
+            }
+            classes.Add(typeElement, fixtures);
         }
     }
 }

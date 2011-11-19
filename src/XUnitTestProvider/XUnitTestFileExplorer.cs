@@ -2,6 +2,7 @@ namespace ReSharper.XUnitTestProvider
 {
     using JetBrains.Application;
     using JetBrains.ReSharper.Psi;
+    using JetBrains.ReSharper.Psi.Search;
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
 
@@ -10,11 +11,13 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly XunitTestProvider provider;
         private readonly XunitElementFactory factory;
+        private readonly SearchDomainFactory searchDomainFactory;
 
-        public XUnitTestFileExplorer(XunitTestProvider provider, XunitElementFactory factory)
+        public XUnitTestFileExplorer(XunitTestProvider provider, XunitElementFactory factory, SearchDomainFactory searchDomainFactory)
         {
             this.provider = provider;
             this.factory = factory;
+            this.searchDomainFactory = searchDomainFactory;
         }
 
         public IUnitTestProvider Provider
@@ -27,7 +30,7 @@ namespace ReSharper.XUnitTestProvider
             if (psiFile.Language.Name != "CSHARP" && psiFile.Language.Name != "VBASIC")
                 return;
 
-            psiFile.ProcessDescendants(new XunitFileExplorer(factory, psiFile, consumer, interrupted));
+            psiFile.ProcessDescendants(new XunitFileExplorer(factory, psiFile, searchDomainFactory, consumer, interrupted));
         }
     }
 }
