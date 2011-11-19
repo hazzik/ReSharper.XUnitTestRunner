@@ -61,8 +61,7 @@ namespace ReSharper.XUnitTestProvider
         public bool Equals(XunitTestMethodElement other)
         {
             return other != null &&
-                   Equals(methodName, other.methodName) &&
-                   Equals(TypeName, other.TypeName);
+                   Equals(Id, other.Id);
         }
 
         #endregion
@@ -79,9 +78,7 @@ namespace ReSharper.XUnitTestProvider
 
         public override int GetHashCode()
         {
-            int result = 0;
-            result = (result*397) ^ TypeName.GetHashCode();
-            return ((result*397) ^ methodName.GetHashCode());
+            return Id.GetHashCode();
         }
 
         public override IEnumerable<IProjectFile> GetProjectFiles()

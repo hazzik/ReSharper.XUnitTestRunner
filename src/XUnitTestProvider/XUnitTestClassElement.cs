@@ -48,7 +48,7 @@ namespace ReSharper.XUnitTestProvider
         public bool Equals(XunitTestClassElement other)
         {
             return other != null &&
-                   Equals(TypeName, other.TypeName);
+                   Equals(Id, other.Id);
         }
 
         #endregion
@@ -108,7 +108,7 @@ namespace ReSharper.XUnitTestProvider
 
         public override int GetHashCode()
         {
-            return TypeName.GetHashCode();
+            return Id.GetHashCode();
         }
 
         public override void WriteToXml(XmlElement xml)
