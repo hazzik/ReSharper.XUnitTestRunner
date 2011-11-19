@@ -20,12 +20,13 @@ namespace ReSharper.XUnitTestProvider
 
         public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy)
         {
-            var id = typeName.FullName;
+            var persistentTypeName = typeName.GetPersistent();
+            var id = persistentTypeName.FullName;
 
             IUnitTestElement element = unitTestElementManager.GetElementById(project, id);
             if (element == null)
             {
-                return new XunitTestClassElement(provider, envoy, id, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+                return new XunitTestClassElement(provider, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
             }
 
             var xunitTestClassElement = element as XunitTestClassElement;
@@ -40,10 +41,11 @@ namespace ReSharper.XUnitTestProvider
 
         public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
         {
+            var persistentTypeName = typeName.GetPersistent();
             var parts = new[]
                             {
                                 parent.TypeName.FullName,
-                                parent.TypeName.Equals(typeName) ? null : typeName.ShortName,
+                                parent.TypeName.Equals(persistentTypeName) ? null : persistentTypeName.ShortName,
                                 methodName
                             }
                 .Where(x => !string.IsNullOrEmpty(x))
@@ -54,7 +56,7 @@ namespace ReSharper.XUnitTestProvider
             IUnitTestElement element = unitTestElementManager.GetElementById(project, id);
             if (element == null)
             {
-                return new XunitTestMethodElement(provider, envoy, id, typeName, parent, methodName);
+                return new XunitTestMethodElement(provider, envoy, id, persistentTypeName, parent, methodName);
             }
 
             var xunitTestMethodElement = element as XunitTestMethodElement;
