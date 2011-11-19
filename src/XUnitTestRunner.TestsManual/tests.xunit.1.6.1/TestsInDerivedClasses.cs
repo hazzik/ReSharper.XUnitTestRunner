@@ -27,7 +27,8 @@ namespace tests.xunit
 
         public abstract class AbstractBaseClass
         {
-            // TEST: Should not be flagged as test method
+            // TEST: Should be flagged as test method and 
+            // should have ability to run all derived classes 
             [Fact]
             public void AbstractBaseTestMethod()
             {
