@@ -36,6 +36,7 @@ namespace ReSharper.XUnitTestProvider
             }
 
             xunitTestClassElement.State = UnitTestElementState.Valid;
+            xunitTestClassElement.Parent = parent;
             return xunitTestClassElement;
         }
 
