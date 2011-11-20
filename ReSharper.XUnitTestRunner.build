@@ -29,7 +29,7 @@
     <templatesInstallerOutputPath>$(templatesInstallerPath)\bin\$(Configuration)</templatesInstallerOutputPath>
   </PropertyGroup>
 
-	<Target Name="Full" DependsOnTargets="Init; Clean; Build; Test; MakeZip; MakeSetup; CleanOutput"/>
+	<Target Name="Full" DependsOnTargets="Init; Clean; Build; MakeZip; MakeSetup; CleanOutput"/>
 
 	<Target Name="Init">
 	<Error 

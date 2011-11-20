@@ -20,10 +20,8 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
         public ReSharperRunnerLoggerTests()
         {
-        	logger = new ReSharperRunnerLogger(mockRemoteTaskServer.Object, classTask)
-        	         	{
-        	         		MethodTasks = new List<XunitTestMethodTask>()
-        	         	};
+            logger = new ReSharperRunnerLogger(mockRemoteTaskServer.Object, classTask);
+            logger.SetMethodTasks(new List<XunitTestMethodTask>());
         }
 
         [Fact]
@@ -98,7 +96,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             const string expectedOutput = "This is the output of the test";
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
@@ -121,7 +119,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             const string displayName = "Test Display Name";
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
@@ -144,7 +142,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             const string expectedSkipReason = "this is the skip reason";
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
@@ -177,7 +175,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
                                                                       out simplifiedMessage);
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
@@ -208,7 +206,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
             var methodTask1 = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName1, false);
             var methodTask2 = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName2, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask1, methodTask2 };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask1, methodTask2 });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).Returns(true).AtMostOnce().Verifiable();
@@ -246,7 +244,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
             var methodTask1 = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName1, false);
             var methodTask2 = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName2, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask1, methodTask2 };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask1, methodTask2 });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).Returns(true).AtMostOnce().Verifiable();
@@ -283,7 +281,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
             var methodTask1 = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName1, false);
             var methodTask2 = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName2, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask1, methodTask2 };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask1, methodTask2 });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).Returns(true).AtMostOnce().Verifiable();
@@ -317,7 +315,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             const string expectedOutput2 = "This is the output of the second test row";
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
@@ -359,7 +357,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
                                                                               out simplifiedMessage);
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
@@ -403,7 +401,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
                                                                               out simplifiedMessage);
 
             var methodTask = new XunitTestMethodTask(TestAssemblyLocation, TestClassTypeName, methodName, false);
-            logger.MethodTasks = new List<XunitTestMethodTask> { methodTask };
+            logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
             mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();

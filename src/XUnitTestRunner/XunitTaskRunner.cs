@@ -77,22 +77,20 @@ namespace ReSharper.XUnitTestRunner
 
                 var runnerLogger = new ReSharperRunnerLogger(Server, classTask);
                 runnerLogger.ClassStart();
-                Server.TaskStarting(classTask);
 
                 // TODO: try/catch or at least try/finally?
-                IList<XunitTestMethodTask> methodTasks = new List<XunitTestMethodTask>();
-                var methodNames = new List<string>();
-                foreach (var methodTask in childNode.Children.Select(methodNode => (XunitTestMethodTask) methodNode.RemoteTask))
-                {
-                    methodTasks.Add(methodTask);
-                    methodNames.Add(methodTask.ShortName);
-                }
-                runnerLogger.MethodTasks = methodTasks;
+                var tasks = childNode.Children
+                    .Select(methodNode => (XunitTestMethodTask) methodNode.RemoteTask)
+                    .ToList();
 
-                var runner = new TestRunner(executorWrapper, runnerLogger);
+                runnerLogger.SetMethodTasks(tasks);
+                
+                var methodNames = tasks
+                    .Select(methodTask => methodTask.ShortName)
+                    .ToList();
 
                 // Don't capture the result of the test run - ReSharper gathers that as we go
-                runner.RunTests(classTask.TypeName, methodNames);
+                new TestRunner(executorWrapper, runnerLogger).RunTests(classTask.TypeName, methodNames);
 
                 runnerLogger.ClassFinished();
             }
