@@ -127,6 +127,9 @@ namespace ReSharper.XUnitTestProvider
             if (!classes.TryGetValue(testClass, out testElements))
             {
                 testElement = GetOrCreateClassElement(testClass, project, envoy);
+                
+                foreach (var child in ChildrenInThisFile(testElement))
+                    child.State = UnitTestElementState.Pending;
 
                 classes.Add(testClass, new List<XunitTestClassElement> {testElement});
             }
@@ -135,9 +138,6 @@ namespace ReSharper.XUnitTestProvider
                 testElement = testElements.First();
             }
             
-            foreach (var child in ChildrenInThisFile(testElement))
-                child.State = UnitTestElementState.Pending;
-
             foreach (IDeclaredType type in testClass.GetAllSuperTypes())
                 ProcessSuperType(testElement, type);
 
