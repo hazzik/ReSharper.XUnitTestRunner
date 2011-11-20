@@ -19,18 +19,18 @@ namespace ReSharper.XUnitTestProvider
             this.solution = solution;
         }
 
-        public IUnitTestElement DeserializeElement(XmlElement parent, IUnitTestElement parentElement)
+        public IUnitTestElement DeserializeElement(XmlElement xml, IUnitTestElement parent)
         {
-            if (!parent.HasAttribute("type"))
-                throw new ArgumentException(@"Element is not Xunit", "parent");
-            switch (parent.GetAttribute("type"))
+            if (!xml.HasAttribute("type"))
+                throw new ArgumentException(@"Element is not Xunit", "xml");
+            switch (xml.GetAttribute("type"))
             {
                 case "XunitTestClassElement":
-                    return XunitTestClassElement.ReadFromXml(parent, factory, solution);
+                    return XunitTestClassElement.ReadFromXml(xml, parent, factory, solution);
                 case "XunitTestMethodElement":
-                    return XunitTestMethodElement.ReadFromXml(parent, parentElement, factory, solution);
+                    return XunitTestMethodElement.ReadFromXml(xml, parent, factory, solution);
                 default:
-                    throw new ArgumentException(@"Element is not Xunit", "parent");
+                    throw new ArgumentException(@"Element is not Xunit", "xml");
             }
         }
 

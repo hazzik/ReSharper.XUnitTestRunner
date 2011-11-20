@@ -14,8 +14,8 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly ICollection<IUnitTestElement> children = new List<IUnitTestElement>();
 
-        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation)
-            : base(provider, project, id, typeName)
+        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation, XunitTestClassElement parent)
+            : base(provider, project, id, typeName, parent)
         {
             AssemblyLocation = assemblyLocation;
         }
@@ -35,12 +35,6 @@ namespace ReSharper.XUnitTestProvider
         public override ICollection<IUnitTestElement> Children
         {
             get { return children; }
-        }
-
-        public override IUnitTestElement Parent
-        {
-            get { return null; }
-            set { throw new NotSupportedException(); }
         }
 
         #region IEquatable<XunitTestClassElement> Members
@@ -119,14 +113,15 @@ namespace ReSharper.XUnitTestProvider
                 xml.SetAttribute("Project", project.GetPersistentID());
         }
 
-        public static IUnitTestElement ReadFromXml(XmlElement parent, XunitElementFactory factory, ISolution solution)
+        public static IUnitTestElement ReadFromXml(XmlElement xml, IUnitTestElement parent, XunitElementFactory factory, ISolution solution)
         {
-            IClrTypeName typeName = new ClrTypeName(parent.GetAttribute("TypeName"));
-            string projectId = parent.GetAttribute("Project");
+            var classElement = parent as XunitTestClassElement;
+            IClrTypeName typeName = new ClrTypeName(xml.GetAttribute("TypeName"));
+            string projectId = xml.GetAttribute("Project");
             var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
-            return factory.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project));
+            return factory.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project), classElement);
         }
 
         public void AppendChild(IUnitTestElement element)

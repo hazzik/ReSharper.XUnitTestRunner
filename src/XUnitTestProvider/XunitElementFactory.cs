@@ -18,15 +18,15 @@ namespace ReSharper.XUnitTestProvider
             this.unitTestElementManager = unitTestElementManager;
         }
 
-        public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy)
+        public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy, XunitTestClassElement parent)
         {
             var persistentTypeName = typeName.GetPersistent();
             var id = persistentTypeName.FullName;
 
-            IUnitTestElement element = unitTestElementManager.GetElementById(project, id);
+            IUnitTestElement element = GetElementById(project, id);
             if (element == null)
             {
-                return new XunitTestClassElement(provider, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+                return new XunitTestClassElement(provider, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath, parent);
             }
 
             var xunitTestClassElement = element as XunitTestClassElement;
@@ -53,7 +53,7 @@ namespace ReSharper.XUnitTestProvider
 
             var id = string.Join(".", parts);
 
-            IUnitTestElement element = unitTestElementManager.GetElementById(project, id);
+            IUnitTestElement element = GetElementById(project, id);
             if (element == null)
             {
                 return new XunitTestMethodElement(provider, envoy, id, persistentTypeName, parent, methodName);
@@ -73,6 +73,11 @@ namespace ReSharper.XUnitTestProvider
         public IUnitTestElement CreateFakeElement(IProject project, IClrTypeName getClrName, string shortName)
         {
             return new XunitTestFakeElement(provider, project, getClrName.GetPersistent(), shortName);
+        }
+
+        public IUnitTestElement GetElementById(IProject project, string id)
+        {
+            return unitTestElementManager.GetElementById(project, id);
         }
     }
 }

@@ -36,17 +36,26 @@ namespace ReSharper.XUnitTestProvider
             if (testClassCommand == null)
                 return;
 
-            ProcessTestClass(new ClrTypeName(metadataTypeInfo.FullyQualifiedName), testClassCommand.EnumerateTestMethods());
+            ProcessTestClass(new ClrTypeName(metadataTypeInfo.FullyQualifiedName), testClassCommand.EnumerateTestMethods(), GetParentClassElement(metadataTypeInfo));
         }
 
-        private void ProcessTestClass(IClrTypeName typeName, IEnumerable<IMethodInfo> methods)
+        private XunitTestClassElement GetParentClassElement(IMetadataTypeInfo type)
         {
-            XunitTestClassElement classUnitTestElement = factory.GetOrCreateClassElement(typeName, project, envoy);
-            consumer(classUnitTestElement);
+            if (!type.IsNested)
+            {
+                return null;
+            }
+            return factory.GetElementById(project, type.DeclaringType.FullyQualifiedName) as XunitTestClassElement;
+        }
+
+        private void ProcessTestClass(IClrTypeName typeName, IEnumerable<IMethodInfo> methods, XunitTestClassElement parent)
+        {
+            XunitTestClassElement classElement = factory.GetOrCreateClassElement(typeName, project, envoy, parent);
+            consumer(classElement);
 
             foreach (IMethodInfo method in methods)
             {
-                ProcessTestMethod(classUnitTestElement, method);
+                ProcessTestMethod(classElement, method);
             }
         }
 
@@ -70,12 +79,12 @@ namespace ReSharper.XUnitTestProvider
         {
             foreach (IMetadataTypeInfo type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(UnitTestElementIdentifier.IsPublic))
             {
+                yield return type;
+                
                 foreach (IMetadataTypeInfo nestedType in GetExportedTypes(type.GetNestedTypes()))
                 {
                     yield return nestedType;
                 }
-
-                yield return type;
             }
         }
     }

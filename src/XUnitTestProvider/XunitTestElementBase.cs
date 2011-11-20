@@ -14,8 +14,9 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly IEnumerable<UnitTestElementCategory> categories = UnitTestElementCategory.Uncategorized;
         private readonly ProjectModelElementEnvoy project;
+        private XunitTestClassElement parent;
 
-        protected XunitTestElementBase(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
+        protected XunitTestElementBase(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, XunitTestClassElement parent)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
@@ -25,6 +26,7 @@ namespace ReSharper.XUnitTestProvider
             this.project = project;
             TypeName = typeName;
             Id = id;
+            Parent = parent;
         }
 
         public IClrTypeName TypeName { get; private set; }
@@ -47,9 +49,13 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public abstract IUnitTestElement Parent { get; set; }
-
         public IUnitTestProvider Provider { get; private set; }
+        
+        IUnitTestElement IUnitTestElement.Parent
+        {
+            get { return Parent; }
+            set { Parent = value as XunitTestClassElement; }
+        }
 
         [NotNull]
         public abstract string ShortName { get; }
@@ -93,6 +99,23 @@ namespace ReSharper.XUnitTestProvider
         public abstract IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements);
 
         public abstract string Kind { get; }
+
+        public virtual XunitTestClassElement Parent
+        {
+            get { return parent; }
+            set
+            {
+                var val = value;
+                if (val == parent)
+                    return;
+                if (parent != null)
+                    parent.RemoveChild(this);
+                parent = val;
+                if (parent == null)
+                    return;
+                parent.AppendChild(this);
+            }
+        }
 
         public UnitTestNamespace GetNamespace()
         {

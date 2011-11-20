@@ -126,7 +126,8 @@ namespace ReSharper.XUnitTestProvider
             XunitTestClassElement testElement;
             if (!classes.TryGetValue(testClass, out testElements))
             {
-                testElement = factory.GetOrCreateClassElement(testClass.GetClrName(), project, envoy);
+                testElement = GetOrCreateClassElement(testClass, project, envoy);
+
                 classes.Add(testClass, new List<XunitTestClassElement> {testElement});
             }
             else
@@ -141,6 +142,23 @@ namespace ReSharper.XUnitTestProvider
                 ProcessSuperType(testElement, type);
 
             return testElement;
+        }
+
+        private XunitTestClassElement GetOrCreateClassElement(ITypeElement testClass, IProject projectElement, ProjectModelElementEnvoy projectEnvoy)
+        {
+            ITypeElement containingType = testClass.GetContainingType();
+            XunitTestClassElement parent = null;
+            if (containingType != null)
+                parent = GetParent(containingType);
+
+            return factory.GetOrCreateClassElement(testClass.GetClrName(), projectElement, projectEnvoy, parent);
+        }
+
+        private XunitTestClassElement GetParent(ITypeElement containingType)
+        {
+            var typeName = containingType.GetClrName().GetPersistent();
+            var id = typeName.FullName;
+            return factory.GetElementById(project, id) as XunitTestClassElement;
         }
 
         private void ProcessSuperType(XunitTestClassElement classElement, IDeclaredType type)
@@ -234,7 +252,7 @@ namespace ReSharper.XUnitTestProvider
                     if (!Equals(projectElement, project))
                         projectEnvoy = ProjectModelElementEnvoy.Create(projectElement);
                 }
-                XunitTestClassElement fixtureElement = factory.GetOrCreateClassElement(inheritor.GetClrName(), projectElement, projectEnvoy);
+                var fixtureElement = GetOrCreateClassElement(inheritor, projectElement, projectEnvoy);
                 fixtures.Add(fixtureElement);
                 foreach (IDeclaredType type in inheritor.GetAllSuperTypes())
                     ProcessSuperType(fixtureElement, type);

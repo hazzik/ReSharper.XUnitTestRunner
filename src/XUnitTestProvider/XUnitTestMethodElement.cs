@@ -15,13 +15,11 @@ namespace ReSharper.XUnitTestProvider
     public sealed class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
     {
         private readonly string methodName;
-        private XunitTestClassElement parent;
 
-        internal XunitTestMethodElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, IUnitTestElement parent, string methodName)
-            : base(provider, project, id, typeName)
+        internal XunitTestMethodElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, XunitTestClassElement parent, string methodName)
+            : base(provider, project, id, typeName, parent)
         {
             this.methodName = methodName;
-            Parent = parent;
         }
 
         public override string ShortName
@@ -37,23 +35,6 @@ namespace ReSharper.XUnitTestProvider
         public override ICollection<IUnitTestElement> Children
         {
             get { return EmptyArray<IUnitTestElement>.Instance; }
-        }
-
-        public override IUnitTestElement Parent
-        {
-            get { return parent; }
-            set
-            {
-                var val = value as XunitTestClassElement;
-                if (val == parent)
-                    return;
-                if (parent != null)
-                    parent.RemoveChild(this);
-                parent = val;
-                if (parent == null)
-                    return;
-                parent.AppendChild(this);
-            }
         }
 
         #region IEquatable<XunitTestMethodElement> Members
@@ -107,8 +88,8 @@ namespace ReSharper.XUnitTestProvider
 
         public override IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
         {
-            IList<UnitTestTask> tasks = parent.GetTaskSequence(explicitElements);
-            tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(parent.AssemblyLocation, parent.TypeName.FullName, methodName, explicitElements.Contains(this))));
+            IList<UnitTestTask> tasks = Parent.GetTaskSequence(explicitElements);
+            tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(Parent.AssemblyLocation, Parent.TypeName.FullName, methodName, explicitElements.Contains(this))));
             return tasks;
         }
 
@@ -147,7 +128,7 @@ namespace ReSharper.XUnitTestProvider
 
         public override string GetPresentation()
         {
-            return !Equals(parent.TypeName, TypeName)
+            return !Equals(Parent.TypeName, TypeName)
                        ? string.Format("{0}.{1}", TypeName.ShortName, methodName)
                        : methodName;
         }
@@ -160,13 +141,13 @@ namespace ReSharper.XUnitTestProvider
                 xml.SetAttribute("Project", project.GetPersistentID());
         }
 
-        public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, XunitElementFactory factory, ISolution solution)
+        public static IUnitTestElement ReadFromXml(XmlElement xml, IUnitTestElement parent, XunitElementFactory factory, ISolution solution)
         {
-            var classElement = parentElement as XunitTestClassElement;
+            var classElement = parent as XunitTestClassElement;
             if (classElement == null)
                 return null;
-            string methodName = parent.GetAttribute("MethodName");
-            string projectId = parent.GetAttribute("Project");
+            string methodName = xml.GetAttribute("MethodName");
+            string projectId = xml.GetAttribute("Project");
             var project = (IProject) ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
