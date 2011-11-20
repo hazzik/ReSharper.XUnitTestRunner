@@ -11,7 +11,7 @@ namespace ReSharper.XUnitTestRunner
     {
         private readonly IRemoteTaskServer server;
         private readonly XunitTestClassTask classTask;
-        private IList<XunitTestMethodTask> methodTasks;
+        private IDictionary<string, XunitTestMethodTask> methodTasks;
 
         private TaskResult classResult;
         private string classFinishMessage = string.Empty;
@@ -26,9 +26,17 @@ namespace ReSharper.XUnitTestRunner
             this.classTask = classTask;
         }
 
-        public IList<XunitTestMethodTask> MethodTasks
+        public void SetMethodTasks(ICollection<XunitTestMethodTask> value)
         {
-            set { methodTasks = value; }
+            if (value == null || value.Count == 0)
+            {
+                classResult = TaskResult.Inconclusive;
+                methodTasks = new Dictionary<string, XunitTestMethodTask>();
+            }
+            else
+            {
+                methodTasks = value.ToDictionary(x => x.ShortName);
+            }
         }
 
         public void AssemblyStart(string assemblyFilename, string configFilename, string xUnitVersion)
@@ -57,7 +65,7 @@ namespace ReSharper.XUnitTestRunner
         public bool ClassFailed(string className, string exceptionType, string message, string stackTrace)
         {
             var methodMessage = string.Format("Class failed in {0}", className);
-            foreach (var methodTask in methodTasks)
+            foreach (var methodTask in methodTasks.Values)
             {
                 server.TaskException(methodTask, new[] { new TaskException(null, methodMessage, null) } ); 
                 server.TaskFinished(methodTask, methodMessage, TaskResult.Error);
@@ -92,8 +100,9 @@ namespace ReSharper.XUnitTestRunner
 
         private RemoteTask GetMethodTask(string methodName)
         {
-            // We'd need a lot of methods in a test for this to become unacceptable, performance-wise
-            return methodTasks.FirstOrDefault(task => task.ShortName == methodName);
+            XunitTestMethodTask task;
+            methodTasks.TryGetValue(methodName, out task);
+            return task;
         }
 
         private void EnsureCurrentTestMethodFinished(string method)

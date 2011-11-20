@@ -14,3 +14,5 @@ src/*/bin/*
 src/*/obj/*
 src/*/*/bin/*
 src/*/*/obj/*
+/release
+/build

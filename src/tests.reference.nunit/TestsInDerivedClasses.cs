@@ -52,7 +52,8 @@ namespace tests.reference.nunit
         [TestFixture]
         public abstract class AbstractBaseClassWithAttribute
         {
-            // No maker
+            // Gets a marker
+            // Runs all derived classes
             [Test]
             public void HereIsATest()
             {
@@ -73,14 +74,15 @@ namespace tests.reference.nunit
 
         public abstract class AbstractBaseClassWithNoAttribute
         {
-            // No marker
+            // Gets a marker
+            // Runs all derived classes
             [Test]
             public void AnotherTest()
             {
                 Assert.AreEqual(1, 1);
             }
         }
-
+        
         [TestFixture]
         public class AttributeDerivedFromAbstractClassWithNoAttribute : AbstractBaseClassWithNoAttribute
         {

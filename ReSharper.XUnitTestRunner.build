@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Full" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\CommunityTasks</MSBuildCommunityTasksPath>
+	</PropertyGroup>
+
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
+  
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+		<version>6.0</version>
+    <assemblyVersion>0.6.0.0</assemblyVersion>
+
+		<xunit>$(MSBuildProjectDirectory)\tools\xunit\xunit.console.exe</xunit>
+
+		<artifactPath>$(MSBuildProjectDirectory)\release</artifactPath>
+    <outputPath>$(MSBuildProjectDirectory)\build</outputPath>
+
+    <sln>$(MSBuildProjectDirectory)\ReSharper.XUnitTestRunner.sln</sln>
+
+		<main>ReSharper.XUnitTestRunner</main>
+		<mainPath>$(MSBuildProjectDirectory)\src\XUnitTestProvider</mainPath>
+    <mainOutputPath>$(mainPath)\bin\$(Configuration)</mainOutputPath>
+
+		<testPath>$(MSBuildProjectDirectory)\src\XUnitTestRunner.Tests</testPath>
+    <testOutputPath>$(testPath)\bin\$(Configuration)</testOutputPath>
+    
+    <templatesInstallerPath>$(MSBuildProjectDirectory)\src\Setup.TemplatesInstaller</templatesInstallerPath>
+    <templatesInstallerOutputPath>$(templatesInstallerPath)\bin\$(Configuration)</templatesInstallerOutputPath>
+  </PropertyGroup>
+
+	<Target Name="Full" DependsOnTargets="Init; Clean; Build; MakeZip; MakeSetup; CleanOutput"/>
+
+	<Target Name="Init">
+	<Error 
+		Text="It seems that NSIS is not installed on your PC. Please download and install it from http://nsis.sourceforge.net/Download"
+		Condition="!Exists('$(ProgramFiles)\NSIS')" />
+		
+    <Time Format="yyyyMMddHHmm">
+      <Output TaskParameter="FormattedTime" PropertyName="BuildDate" />
+    </Time>
+	
+	<MakeDir Directories="$(outputPath)" Condition="!Exists('$(outputPath)')" />
+    <MakeDir Directories="$(artifactPath)" Condition="!Exists('$(artifactPath)')"/>
+	</Target>
+
+	<Target Name="Clean">
+		<MSBuild Projects="$(sln)" Targets="Clean" Properties="Configuration=$(Configuration)"/>
+	</Target>
+
+	<Target Name="Build">
+		<AssemblyInfo CodeLanguage="CS"
+					OutputFile="src\CommonAssemblyInfo.cs"
+					AssemblyProduct="xUnit.net unit test runner for ReSharper 6"
+					AssemblyCopyright="Copyright © xunitcontrib team 2010, hazzik 2011"
+					ComVisible="false"
+					CLSCompliant="false"
+					AssemblyVersion="$(assemblyVersion)"
+					AssemblyFileVersion="$(assemblyVersion)"/>
+
+		<MSBuild Projects="$(sln)" Targets="Build" Properties="Configuration=$(Configuration)"/>
+	</Target>
+
+	<Target Name="Test">
+		<Exec Command="$(xunit) $(testOutputPath)\ReSharper.XUnitTestRunner.Tests.dll" />
+	</Target>
+
+  <Target Name="CopyToOutput">
+    <ItemGroup>
+      <ExternalAnnotations Include="$(MSBuildProjectDirectory)\src\ExternalAnnotations\*.*" />
+      <LiveTemplates Include="$(MSBuildProjectDirectory)\src\LiveTemplates\*.*" />
+      <XUnitTestRunner Include="$(mainOutputPath)\xunit*.*;$(mainOutputPath)\ReSharper.XUnitTest*.*"/>
+      <TemplatesInstaller Include="$(templatesInstallerOutputPath)\*.*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(ExternalAnnotations)" DestinationFolder="$(outputPath)\ExternalAnnotations" />
+    <Copy SourceFiles="@(LiveTemplates)" DestinationFolder="$(outputPath)\LiveTemplates" />
+    <Copy SourceFiles="@(XUnitTestRunner)" DestinationFolder="$(outputPath)\XUnitTestRunner" />
+    <Copy SourceFiles="@(TemplatesInstaller)" DestinationFolder="$(outputPath)" />
+  </Target>
+  
+  <Target Name="MakeSetup" DependsOnTargets="CopyToOutput">
+    <Exec Command="&quot;$(ProgramFiles)\NSIS\makensis.exe&quot; /DOutputFileName=&quot;$(artifactPath)\$(main).$(Version)-$(BuildDate).exe&quot; /DVersion=&quot;$(Version)&quot; &quot;$(MSBuildProjectDirectory)\ReSharper.XUnitTestRunner.nsi&quot;" />
+  </Target>
+
+  <Target Name="MakeZip" DependsOnTargets="CopyToOutput">
+		<ItemGroup>
+			<ZipFiles Include="$(outputPath)\**\*.*" Exclude="*Debugger*" />
+		</ItemGroup>
+		<Zip Files="@(ZipFiles)"
+			WorkingDirectory="$(outputPath)"
+			ZipFileName="$(artifactPath)\$(main).$(Version)-$(BuildDate).zip"
+			ZipLevel="9"/>
+	</Target>
+ 
+  <Target Name="CleanOutput">
+    <RemoveDir Directories="$(outputPath)" />
+  </Target>
+
+	<Target Name="BuildSetup">
+		
+	</Target>
+</Project>

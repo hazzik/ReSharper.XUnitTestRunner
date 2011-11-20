@@ -45,5 +45,29 @@ namespace tests.xunit
                 }
             }
         }
+
+        // TEST: Should be flagged as test class
+        public class ParentClassWithTests
+        {
+            // TEST: Should be flagged as test
+            [Fact]
+            public void ParentTest()
+            {
+                Assert.Equal(1, 1);
+            }
+
+            // TEST: Should be flagged as nested test class
+            // TEST: Should be flagged as nested test class
+            public class NestedClass
+            {
+                // TEST: Should be flagged as nested test
+                // TEST: When runs only this ParentClassWithTests should be marked as `Inconclusive`
+                [Fact]
+                public void NestedTest()
+                {
+                    Assert.Equal(1, 1);
+                }
+            }
+        }
     }
 }

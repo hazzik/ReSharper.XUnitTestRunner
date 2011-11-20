@@ -7,15 +7,12 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Annotations;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.Psi.Caches;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
     using Properties;
     using XUnitTestRunner;
-    using JetBrains.Util;
 
-    [UnitTestProvider]
-    [UsedImplicitly]
+    [UnitTestProvider, UsedImplicitly]
     public class XunitTestProvider : IUnitTestProvider
     {
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
@@ -37,24 +34,10 @@ namespace ReSharper.XUnitTestProvider
             Comparer = new UnitTestElementComparer(new[] {typeof (XunitTestMethodElement), typeof (XunitTestClassElement)});
         }
 
-        public XunitTestProvider(ISolution solution,
-                                 CacheManager cacheManager,
-                                 PsiModuleManager psiModuleManager,
-                                 UnitTestingCategoriesProvider categoriesProvider)
+        public XunitTestProvider(ISolution solution)
         {
             this.solution = solution;
         }
-
-        #region IUnitTestProvider Members
-
-        // It's rather useful to put a breakpoint here. When this gets hit, you can then attach
-        // to the task runner process
-
-        // Used to discover the type of the element - unknown, test, test container (class) or
-        // something else relating to a test element (e.g. parent class of a nested test class)
-        // This method is called to get the icon for the completion lists, amongst other things
-
-        #endregion
 
         public string ID
         {
@@ -78,26 +61,21 @@ namespace ReSharper.XUnitTestProvider
 
         public RemoteTaskRunnerInfo GetTaskRunnerInfo()
         {
-#if DEBUG
-            // Causes the external test runner to display a message box before running, very handy for attaching the debugger
-            // and while it's a bit crufty here, we know this method gets called before a test run
-//            UnitTestManager.GetInstance(Solution).EnableDebugInternal = true;
-#endif
             return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
         }
 
-        public IUnitTestElement DeserializeElement(XmlElement parent, IUnitTestElement parentElement)
+        public IUnitTestElement DeserializeElement(XmlElement xml, IUnitTestElement parent)
         {
-            if (!parent.HasAttribute("type"))
-                throw new ArgumentException(@"Element is not Xunit", "parent");
-            switch (parent.GetAttribute("type"))
+            if (!xml.HasAttribute("type"))
+                throw new ArgumentException(@"Element is not Xunit", "xml");
+            switch (xml.GetAttribute("type"))
             {
                 case "XunitTestClassElement":
-                    return XunitTestClassElement.ReadFromXml(parent, this);
+                    return XunitTestClassElement.ReadFromXml(xml, parent, this, solution);
                 case "XunitTestMethodElement":
-                    return XunitTestMethodElement.ReadFromXml(parent, parentElement, this);
+                    return XunitTestMethodElement.ReadFromXml(xml, parent, this, solution);
                 default:
-                    throw new ArgumentException(@"Element is not Xunit", "parent");
+                    throw new ArgumentException(@"Element is not Xunit", "xml");
             }
         }
 
@@ -111,15 +89,15 @@ namespace ReSharper.XUnitTestProvider
             return Comparer.Compare(x, y);
         }
 
-        public void SerializeElement(XmlElement parent, IUnitTestElement element)
+        public void SerializeElement(XmlElement xml, IUnitTestElement parent)
         {
-            parent.SetAttribute("type", element.GetType().Name);
+            xml.SetAttribute("type", parent.GetType().Name);
             
-            var testElement = element as XunitTestElementBase;
+            var testElement = parent as XunitTestElementBase;
             if (testElement == null)
-                throw new ArgumentException(string.Format("Element {0} is not MSTest", element.GetType()), "element");
+                throw new ArgumentException(string.Format("Element {0} is not MSTest", parent.GetType()), "parent");
             
-            testElement.WriteToXml(parent);
+            testElement.WriteToXml(xml);
         }
 
         public void ExploreExternal(UnitTestElementConsumer consumer)
@@ -174,30 +152,51 @@ namespace ReSharper.XUnitTestProvider
             return false;
         }
 
-        public XunitTestClassElement GetOrCreateClassElement(string typeName, IProject project, ProjectModelElementEnvoy envoy)
+        public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy, XunitTestClassElement parent)
         {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, typeName);
-            if (element != null)
-            {
-                return (element as XunitTestClassElement);
-            }
+            var persistentTypeName = typeName.GetPersistent();
+            var id = persistentTypeName.FullName;
 
-            return new XunitTestClassElement(this, envoy, typeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+            var element = GetElementById(project, id) as XunitTestClassElement ??
+                          new XunitTestClassElement(this, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+
+            element.State = UnitTestElementState.Valid;
+            element.Parent = parent;
+            
+            return element;
         }
 
-        public XunitTestMethodElement GetOrCreateMethodElement(string typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
+        public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
         {
-            IUnitTestElement element = UnitTestManager.GetInstance(Solution).GetElementById(project, string.Format("{0}.{1}", typeName, methodName));
-            if (element != null)
-            {
-                var xunitTestMethodElement = element as XunitTestMethodElement;
-                if (xunitTestMethodElement != null)
-                {
-                    xunitTestMethodElement.State = UnitTestElementState.Valid;
-                }
-                return xunitTestMethodElement;
-            }
-            return new XunitTestMethodElement(this, parent, envoy, typeName, methodName);
+            var persistentTypeName = typeName.GetPersistent();
+            var parts = new[]
+                            {
+                                parent.TypeName.FullName,
+                                parent.TypeName.Equals(persistentTypeName) ? null : persistentTypeName.ShortName,
+                                methodName
+                            }
+                .Where(x => !string.IsNullOrEmpty(x))
+                .ToArray();
+
+            var id = string.Join(".", parts);
+
+            var element = GetElementById(project, id) as XunitTestMethodElement ??
+                          new XunitTestMethodElement(this, envoy, id, persistentTypeName, methodName);
+
+            element.State = UnitTestElementState.Valid;
+            element.Parent = parent;
+
+            return element;
+        }
+
+        public IUnitTestElement CreateFakeElement(IProject project, IClrTypeName getClrName, string shortName)
+        {
+            return new XunitTestFakeElement(this, project, getClrName.GetPersistent(), shortName);
+        }
+
+        public IUnitTestElement GetElementById(IProject project, string id)
+        {
+            return UnitTestManager.GetInstance(Solution).GetElementById(project, id);
         }
     }
 }

@@ -6,20 +6,16 @@ namespace ReSharper.XUnitTestProvider
     using System.Xml;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.Psi.Caches;
-    using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
-    using JetBrains.Util;
     using XUnitTestRunner;
 
-    public class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
+    public sealed class XunitTestClassElement : XunitTestElementBase, IEquatable<XunitTestClassElement>
     {
-        public XunitTestClassElement(IUnitTestProvider provider,
-                                     ProjectModelElementEnvoy project,
-                                     string typeName,
-                                     string assemblyLocation)
-            : base(provider, null, project, typeName)
+        private readonly ICollection<IUnitTestElement> children = new List<IUnitTestElement>();
+
+        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation)
+            : base(provider, project, id, typeName)
         {
             AssemblyLocation = assemblyLocation;
         }
@@ -29,23 +25,24 @@ namespace ReSharper.XUnitTestProvider
             get { return "xUnit.net Test Class"; }
         }
 
-        public override string Id
-        {
-            get { return TypeName; }
-        }
-
         public override string ShortName
         {
-            get { return TypeName.Split('.').Last(); }
+            get { return TypeName.ShortName; }
         }
 
         public string AssemblyLocation { get; private set; }
+
+        public override ICollection<IUnitTestElement> Children
+        {
+            get { return children; }
+        }
 
         #region IEquatable<XunitTestClassElement> Members
 
         public bool Equals(XunitTestClassElement other)
         {
-            return ((other != null) && Equals(TypeName, other.TypeName));
+            return other != null &&
+                   Equals(Id, other.Id);
         }
 
         #endregion
@@ -53,14 +50,14 @@ namespace ReSharper.XUnitTestProvider
         public override IDeclaredElement GetDeclaredElement()
         {
             IProject project = GetProject();
-            ISolution solution = project
-                .GetSolution();
+            if (project == null)
+                return null;
 
-            IPsiModule primaryPsiModule = PsiModuleManager
-                .GetInstance(solution)
-                .GetPrimaryPsiModule(project);
-
-            return CacheManager.GetInstance(PsiManager.GetInstance(solution).Solution)
+            ISolution solution = project.GetSolution();
+            
+            IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
+            
+            return project.GetSolution().GetPsiServices().CacheManager
                 .GetDeclarationsCache(primaryPsiModule, false, true)
                 .GetTypeElementByCLRName(TypeName);
         }
@@ -70,73 +67,72 @@ namespace ReSharper.XUnitTestProvider
             IDeclaredElement declaredElement = GetDeclaredElement();
             if (declaredElement == null)
             {
-                return EmptyArray<IProjectFile>.Instance;
+                return null;
             }
-            return declaredElement.GetSourceFiles().Select(sf => sf.ToProjectFile());
-        }
 
-        public override UnitTestElementDisposition GetDisposition()
-        {
-            IDeclaredElement element = GetDeclaredElement();
-            if (element == null || !element.IsValid())
-                return UnitTestElementDisposition.InvalidDisposition;
-
-            IEnumerable<UnitTestElementLocation> locations = from declaration in element.GetDeclarations()
-                                                             let file = declaration.GetContainingFile()
-                                                             where file != null
-                                                             select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(),
-                                                                                             declaration.GetNameDocumentRange().TextRange,
-                                                                                             declaration.GetDocumentRange().TextRange);
-
-            return new UnitTestElementDisposition(locations.ToList(), this);
+            return declaredElement
+                .GetSourceFiles()
+                .Select(sf => sf.ToProjectFile());
         }
 
         public override string GetPresentation()
         {
-            return ShortName;
+            return TypeName.ShortName;
         }
 
-        public override sealed IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
+        public override IList<UnitTestTask> GetTaskSequence(IEnumerable<IUnitTestElement> explicitElements)
         {
             return new List<UnitTestTask>
                        {
                            new UnitTestTask(null, new AssemblyLoadTask(AssemblyLocation)),
                            new UnitTestTask(null, new XunitTestAssemblyTask(AssemblyLocation)),
-                           new UnitTestTask(this, new XunitTestClassTask(AssemblyLocation, TypeName, explicitElements.Contains(this)))
+                           new UnitTestTask(this, new XunitTestClassTask(AssemblyLocation, TypeName.FullName, explicitElements.Contains(this)))
                        };
         }
 
-        public override sealed bool Equals(IUnitTestElement other)
+        public override bool Equals(IUnitTestElement other)
         {
             return Equals(other as XunitTestClassElement);
         }
 
-        public override sealed bool Equals(object obj)
+        public override bool Equals(object obj)
         {
             return Equals(obj as XunitTestClassElement);
         }
 
-        public override sealed int GetHashCode()
+        public override int GetHashCode()
         {
-            return TypeName.GetHashCode();
+            return Id.GetHashCode();
         }
 
-        public override void WriteToXml(XmlElement parent)
+        public override void WriteToXml(XmlElement xml)
         {
-            parent.SetAttribute("TypeName", TypeName);
+            xml.SetAttribute("TypeName", TypeName.FullName);
             IProject project = GetProject();
             if (project != null)
-                parent.SetAttribute("Project", project.GetPersistentID());
+                xml.SetAttribute("Project", project.GetPersistentID());
         }
 
-        public static IUnitTestElement ReadFromXml(XmlElement parent, XunitTestProvider provider)
+        public static IUnitTestElement ReadFromXml(XmlElement xml, IUnitTestElement parent, XunitTestProvider provider, ISolution solution)
         {
-            string typeName = parent.GetAttribute("TypeName");
-            string projectId = parent.GetAttribute("Project");
-            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId);
+            var classElement = parent as XunitTestClassElement;
+            IClrTypeName typeName = new ClrTypeName(xml.GetAttribute("TypeName"));
+            string projectId = xml.GetAttribute("Project");
+            var project = (IProject)ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
-            return provider.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project));
+            return provider.GetOrCreateClassElement(typeName, project, ProjectModelElementEnvoy.Create(project), classElement);
+        }
+
+        public void AppendChild(IUnitTestElement element)
+        {
+            children.Add(element);
+        }
+
+        public void RemoveChild(IUnitTestElement element)
+        {
+            if (!children.Remove(element))
+                throw new InvalidOperationException("No such element");
         }
     }
 }

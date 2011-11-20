@@ -3,9 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7C834612-8F96-4F3F-8802-0CEA6C0845A4}"
 	ProjectSection(SolutionItems) = preProject
-		src\CommonAssemblyInfo.cs = src\CommonAssemblyInfo.cs
+		build.cmd = build.cmd
 		License.txt = License.txt
-		src\Notes.txt = src\Notes.txt
+		ReSharper.XUnitTestRunner.build = ReSharper.XUnitTestRunner.build
+		ReSharper.XUnitTestRunner.nsi = ReSharper.XUnitTestRunner.nsi
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReSharper", "ReSharper", "{7680498F-0E24-4EAD-9ED6-86875A17BCE6}"
@@ -31,8 +32,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{8687D633
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Setup.TemplatesInstaller", "src\Setup.TemplatesInstaller\Setup.TemplatesInstaller.csproj", "{40BCA0DA-81F2-4F1F-8485-E069BC8B1E69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Setup", "src\Setup\Setup.csproj", "{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestProvider.Debugger", "src\XUnitTestProvider\XUnitTestProvider.Debugger.csproj", "{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}"
 EndProject
 Global
@@ -57,10 +56,6 @@ Global
 		{40BCA0DA-81F2-4F1F-8485-E069BC8B1E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40BCA0DA-81F2-4F1F-8485-E069BC8B1E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40BCA0DA-81F2-4F1F-8485-E069BC8B1E69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,6 +69,5 @@ Global
 		{B5E17072-61C6-4282-8B7F-AFD468A84194} = {7680498F-0E24-4EAD-9ED6-86875A17BCE6}
 		{2A137327-8A64-4A79-9F9E-A20540E20B62} = {7680498F-0E24-4EAD-9ED6-86875A17BCE6}
 		{40BCA0DA-81F2-4F1F-8485-E069BC8B1E69} = {8687D633-EB97-47EB-8A10-0C4DDE6765CE}
-		{48EADC47-D682-4BE6-97E9-8CA2EA9E22AD} = {8687D633-EB97-47EB-8A10-0C4DDE6765CE}
 	EndGlobalSection
 EndGlobal

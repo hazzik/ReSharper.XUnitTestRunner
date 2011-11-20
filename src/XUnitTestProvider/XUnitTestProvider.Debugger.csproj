@@ -24,7 +24,8 @@
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -141,7 +142,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xunitcontrib.runner.resharper.runner\XUnitTestRunner.csproj">
+    <ProjectReference Include="..\XUnitTestRunner\XUnitTestRunner.csproj">
       <Project>{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}</Project>
       <Name>XUnitTestRunner</Name>
     </ProjectReference>

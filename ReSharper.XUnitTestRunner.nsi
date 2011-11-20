@@ -1,4 +1,4 @@
-;xUnit plugin for ReSharper 6.0 (by hazzik) installation script
+;xUnit plugin for ReSharper 6 and above (by hazzik) installation script
 ;Written by Eskat0n
 
 ;--------------------------------
@@ -15,11 +15,10 @@
 ;--------------------------------
 ;Global definitions
 
-	!define InstallationName "xUnit plugin for ReSharper 6.0"	
-	!define InstallRegKeyName "ReSharper.XUnitTestRunner.60"
+	!define InstallationName "xUnit plugin for ReSharper ${Version}"	
+	!define InstallRegKeyName "ReSharper.XUnitTestRunner.${Version}"
 	!define InstallRegKey "Software\${InstallRegKeyName}"
 	
-	!define OutputFileName "ReSharper.XUnitTestRunner.6.0.exe"
 	!define UninstallerName "Uninstall ${OutputFileName}"
 
 ;--------------------------------
@@ -78,8 +77,8 @@
 	LangString NAME_SecXeTemplates ${LANG_RUSSIAN} "Установить шаблоны xe-"
 	
 	;Section descriptions
-	LangString DESC_SecPlugin ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper 6.0"
-	LangString DESC_SecPlugin ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper 6.0"
+	LangString DESC_SecPlugin ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper ${Version}"
+	LangString DESC_SecPlugin ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper ${Version}"
 
 ;--------------------------------
 ;Installer Sections: Main section
@@ -91,11 +90,11 @@ Section "!$(NAME_SecPlugin)" SecPlugin
 
 	;Installing plugin
 	SetOutPath "$INSTDIR\vs10.0\plugins\XUnitTestRunner"
-	File /r "data\XUnitTestRunner\*"
+	File /r "build\XUnitTestRunner\*"
 	
 	;Installing external annotation file
 	SetOutPath "$INSTDIR\vs10.0\ExternalAnnotations"
-	File "data\ExternalAnnotations\xunit.xml"
+	File "build\ExternalAnnotations\xunit.xml"
 
 	;Store installation folder
 	WriteRegStr HKCU ${InstallRegKey} "" $INSTDIR
@@ -133,10 +132,10 @@ SectionEnd
 	
 	;Extract ae- live templates to installation directory
 	SetOutPath "$INSTDIR\vs10.0"
-	File "data\LiveTemplates\${liveTemplates}"
+	File "build\LiveTemplates\${liveTemplates}"
 	
 	;Extract live templates installer
-	File "data\TemplatesInstaller.exe"
+	File "build\TemplatesInstaller.exe"
 	
 	;Executing live templates installer
 	nsExec::ExecToLog '"$INSTDIR\vs10.0\TemplatesInstaller.exe" "$INSTDIR\vs10.0" "${liveTemplates}"'
@@ -205,20 +204,20 @@ SectionEnd
 Function .onInit
 
 	;Try to get ReSharper's installation directory from registry key
-	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v6.0\vs10.0 "InstallDir"  
+	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v${Version}\vs10.0 "InstallDir"  
 	
 	;Check whether specified registry key exists or not
 	StrCmp $R0 "" 0 +3
-	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper 6.0$\r$\nInstallation process aborted" /SD IDOK
+	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper ${Version}$\r$\nInstallation process aborted" /SD IDOK
 	Quit
 	
 	;Form path to ReSharper's app data directory for current user
-	StrCpy $R1 "$APPDATA\JetBrains\ReSharper\v6.0"
+	StrCpy $R1 "$APPDATA\JetBrains\ReSharper\v${Version}"
 	
 	;Check whether ReSharper's app data directory exists
 	${DirState} $R1 $R2
 	StrCmp $R2 "-1" 0 +3
-	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper 6.0 directory under current user's ApplicationData$\r$\nInstallation process aborted" /SD IDOK
+	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper ${Version} directory under current user's ApplicationData$\r$\nInstallation process aborted" /SD IDOK
 	Quit
 	
 	;Sets the default installation folder to ReSharper's app data directory for currect user

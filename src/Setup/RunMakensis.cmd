@@ -1,1 +1,0 @@
-"%ProgramFiles%\NSIS\makensis.exe" "%1"

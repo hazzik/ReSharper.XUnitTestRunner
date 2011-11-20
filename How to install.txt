@@ -1,10 +1,4 @@
-Build solution. Copy necessary files 
-
-xunit.dll
-xunit.extensions.dll
-xunit.runner.utility.dll
-xunitcontrib.runner.resharper.provider.6.0.dll
-xunitcontrib.runner.resharper.runner.6.0.dll
-
-from Your_Solution_Dir\resharper\xunitcontrib.runner.resharper.provider\bin\Debug or Your_Solution_Dir\resharper\xunitcontrib.runner.resharper.provider\bin\Release
-to Your_ReSharper_Dir\v6.0\Bin\Plugins\xunitcontrib.runner.resharper.6.0\
+* Download latest installation for your ReSharper version from https://github.com/hazzik/ReSharper.XUnitTestRunner/downloads
+* Make shure that you have uninstalled previous version of runner.
+* Install 
+* Enjoy
