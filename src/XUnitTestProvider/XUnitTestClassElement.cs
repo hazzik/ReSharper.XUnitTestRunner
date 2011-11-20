@@ -14,8 +14,8 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly ICollection<IUnitTestElement> children = new List<IUnitTestElement>();
 
-        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation, XunitTestClassElement parent)
-            : base(provider, project, id, typeName, parent)
+        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation)
+            : base(provider, project, id, typeName)
         {
             AssemblyLocation = assemblyLocation;
         }

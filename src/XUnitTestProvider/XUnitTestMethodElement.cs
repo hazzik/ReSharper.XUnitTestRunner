@@ -16,8 +16,8 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly string methodName;
 
-        internal XunitTestMethodElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, XunitTestClassElement parent, string methodName)
-            : base(provider, project, id, typeName, parent)
+        internal XunitTestMethodElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string methodName)
+            : base(provider, project, id, typeName)
         {
             this.methodName = methodName;
         }

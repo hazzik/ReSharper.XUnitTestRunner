@@ -16,7 +16,7 @@ namespace ReSharper.XUnitTestProvider
         private readonly ProjectModelElementEnvoy project;
         private XunitTestClassElement parent;
 
-        protected XunitTestElementBase(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, XunitTestClassElement parent)
+        protected XunitTestElementBase(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
@@ -26,7 +26,6 @@ namespace ReSharper.XUnitTestProvider
             this.project = project;
             TypeName = typeName;
             Id = id;
-            Parent = parent;
         }
 
         public IClrTypeName TypeName { get; private set; }
@@ -100,7 +99,7 @@ namespace ReSharper.XUnitTestProvider
 
         public abstract string Kind { get; }
 
-        public virtual XunitTestClassElement Parent
+        public XunitTestClassElement Parent
         {
             get { return parent; }
             set

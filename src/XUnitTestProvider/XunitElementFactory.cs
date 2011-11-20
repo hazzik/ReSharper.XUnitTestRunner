@@ -23,21 +23,13 @@ namespace ReSharper.XUnitTestProvider
             var persistentTypeName = typeName.GetPersistent();
             var id = persistentTypeName.FullName;
 
-            IUnitTestElement element = GetElementById(project, id);
-            if (element == null)
-            {
-                return new XunitTestClassElement(provider, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath, parent);
-            }
+            var element = GetElementById(project, id) as XunitTestClassElement ??
+                          new XunitTestClassElement(provider, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
 
-            var xunitTestClassElement = element as XunitTestClassElement;
-            if (xunitTestClassElement == null)
-            {
-                return null;
-            }
-
-            xunitTestClassElement.State = UnitTestElementState.Valid;
-            xunitTestClassElement.Parent = parent;
-            return xunitTestClassElement;
+            element.State = UnitTestElementState.Valid;
+            element.Parent = parent;
+            
+            return element;
         }
 
         public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
@@ -54,21 +46,13 @@ namespace ReSharper.XUnitTestProvider
 
             var id = string.Join(".", parts);
 
-            IUnitTestElement element = GetElementById(project, id);
-            if (element == null)
-            {
-                return new XunitTestMethodElement(provider, envoy, id, persistentTypeName, parent, methodName);
-            }
+            var element = GetElementById(project, id) as XunitTestMethodElement ??
+                          new XunitTestMethodElement(provider, envoy, id, persistentTypeName, methodName);
 
-            var xunitTestMethodElement = element as XunitTestMethodElement;
-            if (xunitTestMethodElement == null)
-            {
-                return null;
-            }
+            element.State = UnitTestElementState.Valid;
+            element.Parent = parent;
 
-            xunitTestMethodElement.State = UnitTestElementState.Valid;
-            xunitTestMethodElement.Parent = parent;
-            return xunitTestMethodElement;
+            return element;
         }
 
         public IUnitTestElement CreateFakeElement(IProject project, IClrTypeName getClrName, string shortName)
