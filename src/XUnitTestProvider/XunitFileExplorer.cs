@@ -13,7 +13,6 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.Util;
-    using Xunit.Sdk;
 
     internal class XunitFileExplorer : IRecursiveElementProcessor
     {
@@ -21,7 +20,7 @@ namespace ReSharper.XUnitTestProvider
         private readonly UnitTestElementLocationConsumer consumer;
         private readonly CheckForInterrupt interrupted;
         private readonly IProject project;
-        private readonly Dictionary<ITypeElement, IList<XunitTestClassElement>> classes = new Dictionary<ITypeElement, IList<XunitTestClassElement>>();
+        private readonly Dictionary<ITypeElement, ICollection<XunitTestClassElement>> classes = new Dictionary<ITypeElement, ICollection<XunitTestClassElement>>();
         private readonly IProjectFile projectFile;
         private readonly ProjectModelElementEnvoy envoy;
         private readonly SearchDomainFactory searchDomainFactory;
@@ -69,7 +68,7 @@ namespace ReSharper.XUnitTestProvider
                 return;
 
             var testClass = declaration.DeclaredElement as IClass;
-            IList<XunitTestClassElement> classElements;
+            ICollection<XunitTestClassElement> classElements;
             bool isAbstract;
             if (testClass == null || !IsValidTestClass(testClass, out isAbstract) || !classes.TryGetValue(testClass, out classElements))
                 return;
@@ -122,7 +121,7 @@ namespace ReSharper.XUnitTestProvider
                 return null;
             }
 
-            IList<XunitTestClassElement> testElements;
+            ICollection<XunitTestClassElement> testElements;
             XunitTestClassElement testElement;
             if (!classes.TryGetValue(testClass, out testElements))
             {
@@ -237,11 +236,18 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessAbstractClass(ITypeElement typeElement)
         {
+            if (classes.ContainsKey(typeElement))
+                return;
+
+            var fixtures = new HashSet<XunitTestClassElement>();
             ISolution solution = typeElement.GetSolution();
             var inheritorsConsumer = new XunitFileExplorerInheritorsConsumer();
-            var fixtures = new List<XunitTestClassElement>();
-            solution.GetPsiServices().Finder.FindInheritors(typeElement, searchDomainFactory.CreateSearchDomain(solution, true), inheritorsConsumer, NullProgressIndicator.Instance);
-            foreach (var inheritor in inheritorsConsumer.FoundElements)
+            var searchDomain = searchDomainFactory.CreateSearchDomain(solution, true);
+            solution.GetPsiServices()
+                .Finder.FindInheritors(typeElement, searchDomain, inheritorsConsumer, NullProgressIndicator.Instance);
+            var foundElements = inheritorsConsumer.FoundElements;
+
+            foreach (var inheritor in foundElements)
             {
                 IProject projectElement = project;
                 ProjectModelElementEnvoy projectEnvoy = envoy;
