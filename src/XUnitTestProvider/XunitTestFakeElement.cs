@@ -13,16 +13,17 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly string myMethodName;
         private readonly IProject myProject;
-        private readonly IClrTypeName myTypeName;
 
         public XunitTestFakeElement(IUnitTestProvider provider, IProject project, IClrTypeName typeName, string methodName)
         {
             Provider = provider;
             myProject = project;
-            myTypeName = typeName;
+            TypeName = typeName;
             myMethodName = methodName;
             State = UnitTestElementState.Fake;
         }
+
+        public IClrTypeName TypeName { get; private set; }
 
         #region IUnitTestElement Members
 
@@ -58,7 +59,7 @@ namespace ReSharper.XUnitTestProvider
 
         public string Id
         {
-            get { return string.Format("{0}.{1}", myTypeName, myMethodName); }
+            get { return string.Format("{0}.{1}", TypeName, myMethodName); }
         }
 
         public IUnitTestProvider Provider { get; private set; }
@@ -98,7 +99,7 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestNamespace GetNamespace()
         {
-            return new UnitTestNamespace(myTypeName.GetNamespaceName());
+            return new UnitTestNamespace(TypeName.GetNamespaceName());
         }
 
         public UnitTestElementDisposition GetDisposition()
@@ -106,7 +107,12 @@ namespace ReSharper.XUnitTestProvider
             IDeclaredElement element = GetDeclaredElement();
             if (element != null && element.IsValid())
             {
-                var locations = (from declaration in element.GetDeclarations() let file = declaration.GetContainingFile() where file != null select new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(), declaration.GetNameDocumentRange().TextRange, declaration.GetDocumentRange().TextRange)).ToList();
+               var locations = (from declaration in element.GetDeclarations()
+                                let file = declaration.GetContainingFile()
+                                where file != null
+                                select
+                                new UnitTestElementLocation(file.GetSourceFile().ToProjectFile(), declaration.GetNameDocumentRange().TextRange, declaration.GetDocumentRange().TextRange))
+                    .ToList();
                 return new UnitTestElementDisposition(locations, this);
             }
             return UnitTestElementDisposition.InvalidDisposition;
