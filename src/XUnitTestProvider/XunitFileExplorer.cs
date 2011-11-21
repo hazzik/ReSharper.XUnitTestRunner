@@ -227,6 +227,9 @@ namespace ReSharper.XUnitTestProvider
 
                 return null;
             }
+            if (elements.Count == 0)
+                return null;
+
             rowTests = elements.Select(classElement => GetOrCreateMethodElement(classElement, @class, method))
                 .Cast<IUnitTestElement>()
                 .ToList();

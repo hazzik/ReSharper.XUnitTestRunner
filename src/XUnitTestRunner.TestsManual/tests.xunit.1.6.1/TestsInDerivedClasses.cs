@@ -71,5 +71,15 @@ namespace tests.xunit
                 Assert.Equal(1, 1);
             }
         }
+
+        public abstract class AbstractBaseClassWithoutInheritors
+        {
+            // TEST: Should not be flagged as test method
+            [Fact]
+            public void AbstractBaseTestMethod()
+            {
+                Assert.Equal(1, 1);
+            }
+        }
     }
 }
