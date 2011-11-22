@@ -435,7 +435,8 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
         private static TaskException[] MatchExceptions(TaskException[] taskExceptions)
         {
-            return Match<TaskException[]>.Create(new TaskExceptionMatcher(taskExceptions).Match);
+            throw new NotSupportedException();
+            //return Match.Create(new TaskExceptionMatcher(taskExceptions).Match);
         }
 
         private class TaskExceptionMatcher
