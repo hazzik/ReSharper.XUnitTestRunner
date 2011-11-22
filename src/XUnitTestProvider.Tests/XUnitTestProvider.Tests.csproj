@@ -51,6 +51,7 @@
     <Compile Include="UnitTestElementPsiIdentifierTests.cs" />
     <Compile Include="XunitFileExplorerTests.cs" />
     <Compile Include="XunitFileExplorerTestsBase.cs" />
+    <Compile Include="XunitReferencesAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XUnitTestProvider\XUnitTestProvider.csproj">

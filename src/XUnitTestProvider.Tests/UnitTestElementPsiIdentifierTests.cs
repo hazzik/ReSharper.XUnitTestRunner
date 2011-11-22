@@ -50,7 +50,7 @@ namespace XUnitTestProvider.Tests
         {
             var declaration = element as IDeclaration;
             if (declaration != null)
-                action((declaration).DeclaredElement);
+                action(declaration.DeclaredElement);
         }
 
         public void ProcessAfterInterior(ITreeNode element)

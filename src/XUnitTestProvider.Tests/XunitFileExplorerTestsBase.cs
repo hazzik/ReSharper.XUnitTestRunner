@@ -5,13 +5,12 @@ namespace XUnitTestProvider.Tests
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.Psi.Search;
     using JetBrains.ReSharper.Psi.Tree;
-    using JetBrains.ReSharper.TestFramework;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.ReSharper.UnitTestFramework.Elements;
     using Moq;
     using ReSharper.XUnitTestProvider;
 
-    [TestReferences(@"D:\hazzik\Projects\ReSharper.XUnitTestRunner\3rdParty\xUnit.net-1.8\xunit.dll", @"D:\hazzik\Projects\ReSharper.XUnitTestRunner\3rdParty\xUnit.net-1.8\xunit.extensions.dll")]
+    [XunitReferences]
     public abstract class XunitFileExplorerTestsBase : PsiFileBaseTests
     {
         protected IEnumerable<UnitTestElementDisposition> FindUnitTestElementDispositions(params string[] testSrc)
