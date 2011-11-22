@@ -94,7 +94,10 @@ namespace ReSharper.XUnitTestProvider
             var testMethod = declaredElement as IMethod;
             IList<IUnitTestElement> rowTests = null;
             if (testMethod != null)
+            {
+                Console.WriteLine(testMethod);
                 testElement = ProcessTestMethod(testMethod, out rowTests) ?? testElement;
+            }
 
             if (testElement == null)
                 return;
