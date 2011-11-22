@@ -128,8 +128,19 @@ namespace ReSharper.XUnitTestProvider
 
         public override string GetPresentation()
         {
-            return !Equals(Parent.TypeName, TypeName)
+            return Parent != null && !Equals(Parent.TypeName, TypeName)
                        ? string.Format("{0}.{1}", TypeName.ShortName, methodName)
+                       : methodName;
+        }
+
+        public string GetPresentation(IUnitTestElement parent)
+        {
+            var fakeElement = parent as XunitTestFakeElement;
+            if (fakeElement == null)
+                return GetPresentation();
+
+            return Parent != null && !Equals(Parent.TypeName, fakeElement.TypeName)
+                       ? string.Format("{0}.{1}", Parent.TypeName.ShortName, methodName)
                        : methodName;
         }
 
