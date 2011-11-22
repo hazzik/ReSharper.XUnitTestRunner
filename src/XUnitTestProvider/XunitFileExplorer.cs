@@ -169,7 +169,7 @@ namespace ReSharper.XUnitTestProvider
             if (@class == null)
                 return;
 
-            foreach (IMethod method in @class.GetMembers().Where(UnitTestElementIdentifier.IsUnitTest))
+            foreach (IMethod method in @class.GetMembers().Where(UnitTestElementPsiIdentifier.IsUnitTest))
                 GetOrCreateMethodElement(classElement, @class, method);
         }
 
@@ -195,7 +195,7 @@ namespace ReSharper.XUnitTestProvider
             isAbstract = false;
             
             var typeInfo = @class.AsTypeInfo();
-            if (!UnitTestElementIdentifier.IsPublic(@class) ||
+            if (!UnitTestElementPsiIdentifier.IsPublic(@class) ||
                 !TypeUtility.ContainsTestMethods(typeInfo) ||
                 TypeUtility.HasRunWith(typeInfo))
             {
@@ -225,7 +225,7 @@ namespace ReSharper.XUnitTestProvider
                 if (classElement == null)
                     return null;
 
-                if (UnitTestElementIdentifier.IsUnitTest(method))
+                if (UnitTestElementPsiIdentifier.IsUnitTest(method))
                     return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
 
                 return null;

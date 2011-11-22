@@ -31,7 +31,7 @@
         public bool SupressUsageInspectionsOnElement(IDeclaredElement element, out ImplicitUseKindFlags flags)
         {
             flags = ImplicitUseKindFlags.Default;
-            return UnitTestElementIdentifier.IsAnyUnitTestElement(element);
+            return UnitTestElementPsiIdentifier.IsAnyUnitTestElement(element);
         }
     }
 }

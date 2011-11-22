@@ -77,16 +77,16 @@ namespace ReSharper.XUnitTestProvider
             switch (elementKind)
             {
                 case UnitTestElementKind.Unknown:
-                    return !UnitTestElementIdentifier.IsAnyUnitTestElement(declaredElement);
+                    return !UnitTestElementPsiIdentifier.IsAnyUnitTestElement(declaredElement);
 
                 case UnitTestElementKind.Test:
-                    return UnitTestElementIdentifier.IsUnitTest(declaredElement);
+                    return UnitTestElementPsiIdentifier.IsUnitTest(declaredElement);
 
                 case UnitTestElementKind.TestContainer:
-                    return UnitTestElementIdentifier.IsUnitTestContainer(declaredElement);
+                    return UnitTestElementPsiIdentifier.IsUnitTestContainer(declaredElement);
 
                 case UnitTestElementKind.TestStuff:
-                    return UnitTestElementIdentifier.IsUnitTestStuff(declaredElement);
+                    return UnitTestElementPsiIdentifier.IsUnitTestStuff(declaredElement);
             }
 
             return false;

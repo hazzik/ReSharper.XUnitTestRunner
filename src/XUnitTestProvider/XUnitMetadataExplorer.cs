@@ -30,7 +30,7 @@ namespace ReSharper.XUnitTestProvider
         {
             ITypeInfo typeInfo = metadataTypeInfo.AsTypeInfo();
             // TODO: What about HasRunWith support? Not supported in previous R# versions
-            if (!UnitTestElementIdentifier.IsUnitTestContainer(metadataTypeInfo))
+            if (!UnitTestElementMetadataIdentifier.IsUnitTestContainer(metadataTypeInfo))
                 return;
             ITestClassCommand testClassCommand = TestClassCommandFactory.Make(typeInfo);
             if (testClassCommand == null)
@@ -77,7 +77,7 @@ namespace ReSharper.XUnitTestProvider
 
         private static IEnumerable<IMetadataTypeInfo> GetExportedTypes(IEnumerable<IMetadataTypeInfo> types)
         {
-            foreach (IMetadataTypeInfo type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(UnitTestElementIdentifier.IsPublic))
+            foreach (IMetadataTypeInfo type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(UnitTestElementMetadataIdentifier.IsPublic))
             {
                 yield return type;
                 

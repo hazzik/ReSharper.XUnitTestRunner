@@ -1,11 +1,10 @@
 ﻿namespace ReSharper.XUnitTestProvider
 {
     using System.Linq;
-    using JetBrains.Metadata.Reader.API;
     using JetBrains.ReSharper.Psi;
     using Xunit.Sdk;
 
-    internal static class UnitTestElementIdentifier
+    internal static class UnitTestElementPsiIdentifier
     {
         private static readonly ClrTypeName PropertyDataAttributeName = new ClrTypeName("Xunit.Extensions.PropertyDataAttribute");
 
@@ -77,18 +76,6 @@
         public static bool IsPublic(IAccessRightsOwner element)
         {
             return element.GetAccessRights() == AccessRights.PUBLIC;
-        }
-
-        public static bool IsUnitTestContainer(IMetadataTypeInfo metadataTypeInfo)
-        {
-            return IsPublic(metadataTypeInfo) && TypeUtility.IsTestClass(metadataTypeInfo.AsTypeInfo());
-        }
-
-        public static bool IsPublic(IMetadataTypeInfo type)
-        {
-            // Hmmm. This seems a little odd. Resharper reports public nested types with IsNestedPublic,
-            // while IsPublic is false
-            return type.IsPublic || (type.IsNested && type.IsNestedPublic);
         }
     }
 }
