@@ -2,13 +2,30 @@ TODO:
 
 Resharper + xunit - XunitFileExplorer
 
-1. ProcessBeforeInterior - refactor to split into ProcessDeclaredElement
-2. Either have ProcessTestClass add all test methods, or just have ProcessTestMethod add them - don't try and do both
-3. Where does the output from the Theory tests come from?
-4. Get Theory tests to display with parameter information
-5. Get Theory tests to display as different to normal tests - multiple? different icon?
-6. Nested test should display nested name? nunit doesn't
-7. Nunit tests show reasons for skip + fail in tree view pane - we don't
-8. IsUnitTestElement can return true for public methods with a [Fact] attribute but that aren't in a public class
-	(affects solution wide analysis more visibly)
-9. Split xunit tests into separate files with more distinct names
+1. Nested test should display nested name? 
+2. Tests failing in fixture constructor should fail child tests
+3. Look into filter usages - there's a filter for unit tests. How does it work?
+4. InvalidFactMethod + AmbiguousMethodNames tests. Should these be marked as tests? xunit will run
+ them, but will fail (if the xunit sdk identifies them as tests, we should display them as tests)
+5. Fix up the manual tests. There's tons of them, tons of duplicated code and while there's a nice
+ mix of x86/x64/anycpu, they're all .net 2.0 based. There are no .net 4 tests, and no vs2008 projects
+
+6. How to support DisplayName?
+7. How to support RunWith?
+8. How to support traits/categories?
+9. How to support Theory tests?
+	a. Where does the output from the Theory tests come from?
+	b. Get Theory tests to display with parameter information
+	C. Get Theory tests to display as different to normal tests - multiple? different icon?
+
+
+1. [FIXED]	Skipped tests not currently displayed in grey before run
+2. [FIXED]	ConcreteBaseClass test doesn't include BaseTestMethod as child test
+3. [FIXED]	DerivedFromAbstractBaseClass test doesn't run AbstractBaseTestMethod. Should it? Does xunit?
+4. [FIXED]	Tests from base classes not currently being displayed correctly in test explorer (should display Base.TestMethod, but just displays TestMethod)
+5. [FIXED]	Usage analysis is currently broken:
+ 		    a. Test classes are not marked as in use during Solution Wide Analysis
+ 			(includes parents of nested test classes, although this is the same with nunit)
+ 		    b. Properties used by PropertyDataAttribute are not marked as in use
+ 		    c. Non test methods (e.g. private methods marked with [Fact]) are incorrectly marked as in use
+
