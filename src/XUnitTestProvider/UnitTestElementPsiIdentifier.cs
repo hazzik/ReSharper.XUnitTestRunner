@@ -15,7 +15,7 @@
         public static bool ContainsTestMethods(IClass @class)
         {
             return GetMethods(@class)
-                .Any(method => !method.IsAbstract && IsTest(method));
+                .Any(method => !method.IsAbstract && IsTest(method, @class));
         }
 
         [UsedImplicitly]
@@ -56,7 +56,7 @@
         public static bool IsUnitTest(IDeclaredElement element)
         {
             var method = element as IMethod;
-            return method != null && IsTest(method);
+            return method != null && IsTest(method, null);
         }
 
         public static bool IsUnitTestContainer(IDeclaredElement element)
@@ -122,9 +122,13 @@
             return @class != null && IsPublic(@class) && @class.NestedTypes.Any(IsAnyUnitTestElement);
         }
 
-        private static bool IsTest(IMethod method)
+        private static bool IsTest(IMethod method, IClass @class)
         {
-            return !method.IsAbstract && HasAttribute(method, factAttributeName);
+            @class = @class ?? method.GetContainingType() as IClass;
+            if (@class == null)
+                return false;
+            var command = Xunit.Sdk.TestClassCommandFactory.Make(@class.AsTypeInfo());
+            return command != null && (!method.IsAbstract && command.IsTestMethod(method.AsMethodInfo()));
         }
 
         private static bool IsTheoryPropertyDataProperty(ITypeMember element)
