@@ -8,7 +8,6 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.UnitTestFramework;
-    using Xunit.Sdk;
 
     public sealed class XunitMetadataExplorer
     {
@@ -28,15 +27,34 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessTypeInfo(IMetadataTypeInfo metadataTypeInfo)
         {
-            ITypeInfo typeInfo = metadataTypeInfo.AsTypeInfo();
             // TODO: What about HasRunWith support? Not supported in previous R# versions
             if (!UnitTestElementMetadataIdentifier.IsUnitTestContainer(metadataTypeInfo))
                 return;
-            ITestClassCommand testClassCommand = TestClassCommandFactory.Make(typeInfo);
-            if (testClassCommand == null)
-                return;
 
-            ProcessTestClass(new ClrTypeName(metadataTypeInfo.FullyQualifiedName), testClassCommand.EnumerateTestMethods(), GetParentClassElement(metadataTypeInfo));
+            ProcessTestClass(metadataTypeInfo);
+        }
+
+        private void ProcessTestClass(IMetadataTypeInfo metadataTypeInfo)
+        {
+            var typeName = new ClrTypeName(metadataTypeInfo.FullyQualifiedName);
+
+            XunitTestClassElement classElement = factory.GetOrCreateClassElement(typeName, project, envoy, GetParentClassElement(metadataTypeInfo));
+            consumer(classElement);
+
+            foreach (IMetadataMethod info in UnitTestElementMetadataIdentifier.GetTestMethods(metadataTypeInfo))
+            {
+                ProcessTestMethod(classElement, info);
+            }
+        }
+
+        private void ProcessTestMethod(XunitTestClassElement classElement, IMetadataMethod info)
+        {
+            var typeName = new ClrTypeName(info.DeclaringType.FullyQualifiedName);
+
+            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(typeName, info.Name, project, classElement, envoy);
+            methodUnitTestElement.ExplicitReason = UnitTestElementMetadataIdentifier.GetSkipReason(info);
+            // TODO: Categories?
+            consumer(methodUnitTestElement);
         }
 
         private XunitTestClassElement GetParentClassElement(IMetadataTypeInfo type)
@@ -46,25 +64,6 @@ namespace ReSharper.XUnitTestProvider
                 return null;
             }
             return factory.GetElementById(project, type.DeclaringType.FullyQualifiedName) as XunitTestClassElement;
-        }
-
-        private void ProcessTestClass(IClrTypeName typeName, IEnumerable<IMethodInfo> methods, XunitTestClassElement parent)
-        {
-            XunitTestClassElement classElement = factory.GetOrCreateClassElement(typeName, project, envoy, parent);
-            consumer(classElement);
-
-            foreach (IMethodInfo method in methods)
-            {
-                ProcessTestMethod(classElement, method);
-            }
-        }
-
-        private void ProcessTestMethod(XunitTestClassElement classUnitTestElement, IMethodInfo method)
-        {
-            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(new ClrTypeName( method.TypeName), method.Name, project, classUnitTestElement, envoy);
-            methodUnitTestElement.ExplicitReason = MethodUtility.GetSkipReason(method);
-            // TODO: Categories?
-            consumer(methodUnitTestElement);
         }
 
         public void ExploreAssembly(IMetadataAssembly assembly)

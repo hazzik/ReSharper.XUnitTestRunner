@@ -194,16 +194,15 @@ namespace ReSharper.XUnitTestProvider
         {
             isAbstract = false;
             
-            var typeInfo = @class.AsTypeInfo();
             if (!UnitTestElementPsiIdentifier.IsPublic(@class) ||
-                !TypeUtility.ContainsTestMethods(typeInfo) ||
-                TypeUtility.HasRunWith(typeInfo))
+                !UnitTestElementPsiIdentifier.ContainsTestMethods(@class) ||
+                UnitTestElementPsiIdentifier.HasRunWith(@class))
             {
                 return false;
             }
 
 
-            if (!TypeUtility.IsStatic(typeInfo) && TypeUtility.IsAbstract(typeInfo))
+            if (!UnitTestElementPsiIdentifier.IsStatic(@class) && UnitTestElementPsiIdentifier.IsAbstract(@class))
             {
                 isAbstract = true;
             }

@@ -90,6 +90,7 @@
     <Compile Include="TestsInNestedClasses.cs" />
     <Compile Include="TestsWithDisplayNames.cs" />
     <Compile Include="TestsWithFixtures.cs" />
+    <Compile Include="TestsWithRunWith.cs" />
     <Compile Include="TestsWithTraits.cs" />
     <Compile Include="TheoryTests.cs" />
     <Compile Include="TimedOutTests.cs" />
