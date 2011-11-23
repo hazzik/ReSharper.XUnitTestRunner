@@ -193,19 +193,18 @@ namespace ReSharper.XUnitTestProvider
         private static bool IsValidTestClass([NotNull] IClass @class, out bool isAbstract)
         {
             isAbstract = false;
-            
+
             if (!UnitTestElementPsiIdentifier.IsPublic(@class) ||
-                !UnitTestElementPsiIdentifier.ContainsTestMethods(@class) ||
-                UnitTestElementPsiIdentifier.HasRunWith(@class))
+                !UnitTestElementPsiIdentifier.HasRunWith(@class) && !UnitTestElementPsiIdentifier.ContainsTestMethods(@class))
             {
                 return false;
             }
-
 
             if (!UnitTestElementPsiIdentifier.IsStatic(@class) && UnitTestElementPsiIdentifier.IsAbstract(@class))
             {
                 isAbstract = true;
             }
+
             return true;
         }
 
