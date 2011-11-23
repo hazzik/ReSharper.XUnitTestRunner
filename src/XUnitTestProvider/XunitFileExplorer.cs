@@ -173,13 +173,13 @@ namespace ReSharper.XUnitTestProvider
                 GetOrCreateMethodElement(classElement, @class, method);
         }
 
-        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement classElement, ITypeElement @class, IDeclaredElement method)
+        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement classElement, ITypeElement @class, IMethod method)
         {
             var projectElement = classElement.GetProject();
             var projectEnvoy = Equals(projectElement, project)
                                    ? envoy
                                    : ProjectModelElementEnvoy.Create(projectElement);
-            return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, projectElement, classElement, projectEnvoy);
+            return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, projectElement, classElement, projectEnvoy, UnitTestElementPsiIdentifier.GetSkipReason(method));
         }
 
         private IEnumerable<IUnitTestElement> ChildrenInThisFile(IUnitTestElement testElement)
@@ -225,7 +225,7 @@ namespace ReSharper.XUnitTestProvider
                     return null;
 
                 if (UnitTestElementPsiIdentifier.IsUnitTest(method))
-                    return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
+                    return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy, UnitTestElementPsiIdentifier.GetSkipReason(method));
 
                 return null;
             }

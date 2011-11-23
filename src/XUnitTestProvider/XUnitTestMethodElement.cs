@@ -162,7 +162,7 @@ namespace ReSharper.XUnitTestProvider
             var project = (IProject) ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;
-            return factory.GetOrCreateMethodElement(classElement.TypeName, methodName, project, classElement, ProjectModelElementEnvoy.Create(project));
+            return factory.GetOrCreateMethodElement(classElement.TypeName, methodName, project, classElement, ProjectModelElementEnvoy.Create(project), null);
         }
     }
 }

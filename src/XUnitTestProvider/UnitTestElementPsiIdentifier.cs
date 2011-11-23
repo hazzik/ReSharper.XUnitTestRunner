@@ -99,7 +99,10 @@
 
         private static T GetPropertyValue<T>(IAttributeInstance attribute, string skip)
         {
-            return (T) attribute.NamedParameter(skip).ConstantValue.Value;
+            var parameter = attribute.NamedParameter(skip);
+            return parameter.IsConstant
+                       ? (T) parameter.ConstantValue.Value
+                       : default(T);
         }
 
         private static bool HasAttribute(IAttributesSet attributesSet, IClrTypeName typeName)

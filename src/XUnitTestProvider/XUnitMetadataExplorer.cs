@@ -12,9 +12,9 @@ namespace ReSharper.XUnitTestProvider
     public sealed class XunitMetadataExplorer
     {
         private readonly UnitTestElementConsumer consumer;
-        private readonly IProject project;
-        private readonly XunitElementFactory factory;
         private readonly ProjectModelElementEnvoy envoy;
+        private readonly XunitElementFactory factory;
+        private readonly IProject project;
 
         public XunitMetadataExplorer([NotNull] XunitElementFactory factory, IProject project, UnitTestElementConsumer consumer)
         {
@@ -25,66 +25,62 @@ namespace ReSharper.XUnitTestProvider
             envoy = ProjectModelElementEnvoy.Create(project);
         }
 
-        private void ProcessTypeInfo(IMetadataTypeInfo metadataTypeInfo)
-        {
-            // TODO: What about HasRunWith support? Not supported in previous R# versions
-            if (!UnitTestElementMetadataIdentifier.IsUnitTestContainer(metadataTypeInfo))
-                return;
-
-            ProcessTestClass(metadataTypeInfo);
-        }
-
-        private void ProcessTestClass(IMetadataTypeInfo metadataTypeInfo)
-        {
-            var typeName = new ClrTypeName(metadataTypeInfo.FullyQualifiedName);
-
-            XunitTestClassElement classElement = factory.GetOrCreateClassElement(typeName, project, envoy, GetParentClassElement(metadataTypeInfo));
-            consumer(classElement);
-
-            foreach (IMetadataMethod info in UnitTestElementMetadataIdentifier.GetTestMethods(metadataTypeInfo))
-            {
-                ProcessTestMethod(classElement, info);
-            }
-        }
-
-        private void ProcessTestMethod(XunitTestClassElement classElement, IMetadataMethod info)
-        {
-            var typeName = new ClrTypeName(info.DeclaringType.FullyQualifiedName);
-
-            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(typeName, info.Name, project, classElement, envoy);
-            methodUnitTestElement.ExplicitReason = UnitTestElementMetadataIdentifier.GetSkipReason(info);
-            // TODO: Categories?
-            consumer(methodUnitTestElement);
-        }
-
-        private XunitTestClassElement GetParentClassElement(IMetadataTypeInfo type)
-        {
-            if (!type.IsNested)
-            {
-                return null;
-            }
-            return factory.GetElementById(project, type.DeclaringType.FullyQualifiedName) as XunitTestClassElement;
-        }
-
         public void ExploreAssembly(IMetadataAssembly assembly)
         {
-            foreach (IMetadataTypeInfo metadataTypeInfo in GetExportedTypes(assembly.GetTypes()))
+            foreach (var metadataTypeInfo in GetExportedTypes(assembly.GetTypes()))
             {
-                ProcessTypeInfo(metadataTypeInfo);
+                ProcessClass(metadataTypeInfo);
             }
         }
 
         private static IEnumerable<IMetadataTypeInfo> GetExportedTypes(IEnumerable<IMetadataTypeInfo> types)
         {
-            foreach (IMetadataTypeInfo type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(UnitTestElementMetadataIdentifier.IsPublic))
+            foreach (var type in (types ?? Enumerable.Empty<IMetadataTypeInfo>()).Where(UnitTestElementMetadataIdentifier.IsPublic))
             {
                 yield return type;
-                
-                foreach (IMetadataTypeInfo nestedType in GetExportedTypes(type.GetNestedTypes()))
+
+                foreach (var nestedType in GetExportedTypes(type.GetNestedTypes()))
                 {
                     yield return nestedType;
                 }
             }
+        }
+
+        private XunitTestClassElement GetParentClassElement(IMetadataTypeInfo @class)
+        {
+            if (!@class.IsNested)
+            {
+                return null;
+            }
+            return factory.GetElementById(project, @class.DeclaringType.FullyQualifiedName) as XunitTestClassElement;
+        }
+
+        private void ProcessClass(IMetadataTypeInfo @class)
+        {
+            // TODO: What about HasRunWith support? Not supported in previous R# versions
+            if (!UnitTestElementMetadataIdentifier.IsUnitTestContainer(@class))
+                return;
+
+            ProcessTestClass(@class);
+        }
+
+        private void ProcessTestClass(IMetadataTypeInfo @class)
+        {
+            var typeName = new ClrTypeName(@class.FullyQualifiedName);
+
+            var classElement = factory.GetOrCreateClassElement(typeName, project, envoy, GetParentClassElement(@class));
+            consumer(classElement);
+
+            foreach (var info in UnitTestElementMetadataIdentifier.GetTestMethods(@class))
+                ProcessTestMethod(classElement, info);
+        }
+
+        private void ProcessTestMethod(XunitTestClassElement classElement, IMetadataMethod method)
+        {
+            var typeName = new ClrTypeName(method.DeclaringType.FullyQualifiedName);
+
+            var methodElement = factory.GetOrCreateMethodElement(typeName, method.Name, project, classElement, envoy, UnitTestElementMetadataIdentifier.GetSkipReason(method));
+            consumer(methodElement);
         }
     }
 }
