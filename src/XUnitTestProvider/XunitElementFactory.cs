@@ -32,7 +32,7 @@ namespace ReSharper.XUnitTestProvider
             return element;
         }
 
-        public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy)
+        public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy, string explicitReason)
         {
             var persistentTypeName = typeName.GetPersistent();
             var parts = new[]
@@ -51,6 +51,7 @@ namespace ReSharper.XUnitTestProvider
 
             element.State = UnitTestElementState.Valid;
             element.Parent = parent;
+            element.ExplicitReason = explicitReason;
 
             return element;
         }

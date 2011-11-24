@@ -13,6 +13,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi.Util;
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.Util;
+    using Xunit.Sdk;
 
     internal class XunitFileExplorer : IRecursiveElementProcessor
     {
@@ -165,7 +166,7 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessSuperType(XunitTestClassElement classElement, IDeclaredType type)
         {
-            ITypeElement @class = type.GetTypeElement() as IClass;
+            var @class = type.GetTypeElement() as IClass;
             if (@class == null)
                 return;
 
@@ -173,13 +174,13 @@ namespace ReSharper.XUnitTestProvider
                 GetOrCreateMethodElement(classElement, @class, method);
         }
 
-        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement classElement, ITypeElement @class, IDeclaredElement method)
+        private XunitTestMethodElement GetOrCreateMethodElement(XunitTestClassElement classElement, IClass @class, IMethod method)
         {
             var projectElement = classElement.GetProject();
             var projectEnvoy = Equals(projectElement, project)
                                    ? envoy
                                    : ProjectModelElementEnvoy.Create(projectElement);
-            return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, projectElement, classElement, projectEnvoy);
+            return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, projectElement, classElement, projectEnvoy, UnitTestElementPsiIdentifier.GetSkipReason(method));
         }
 
         private IEnumerable<IUnitTestElement> ChildrenInThisFile(IUnitTestElement testElement)
@@ -226,7 +227,7 @@ namespace ReSharper.XUnitTestProvider
                     return null;
 
                 if (UnitTestElementPsiIdentifier.IsUnitTest(method))
-                    return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy);
+                    return factory.GetOrCreateMethodElement(@class.GetClrName(), method.ShortName, project, classElement, envoy, UnitTestElementPsiIdentifier.GetSkipReason(method));
 
                 return null;
             }

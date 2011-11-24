@@ -61,9 +61,7 @@ namespace ReSharper.XUnitTestProvider
 
         private void ProcessTestMethod(XunitTestClassElement classUnitTestElement, IMethodInfo method)
         {
-            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(new ClrTypeName( method.TypeName), method.Name, project, classUnitTestElement, envoy);
-            methodUnitTestElement.ExplicitReason = MethodUtility.GetSkipReason(method);
-            // TODO: Categories?
+            XunitTestMethodElement methodUnitTestElement = factory.GetOrCreateMethodElement(new ClrTypeName(method.TypeName), method.Name, project, classUnitTestElement, envoy, MethodUtility.GetSkipReason(method));
             consumer(methodUnitTestElement);
         }
 

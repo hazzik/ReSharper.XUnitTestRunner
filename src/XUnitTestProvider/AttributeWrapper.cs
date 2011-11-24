@@ -33,7 +33,10 @@ namespace ReSharper.XUnitTestProvider
 
             public TValue GetPropertyValue<TValue>(string propertyName)
             {
-                return (TValue)attribute.NamedParameter(propertyName).ConstantValue.Value;
+                var parameter = attribute.NamedParameter(propertyName);
+                if (parameter.IsConstant)
+                    return (TValue) parameter.ConstantValue.Value;
+                return default(TValue);
             }
         }
 

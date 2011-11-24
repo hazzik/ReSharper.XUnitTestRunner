@@ -1,6 +1,7 @@
 namespace ReSharper.XUnitTestProvider
 {
     using JetBrains.Metadata.Reader.API;
+    using Xunit.Sdk;
 
     internal static class UnitTestElementMetadataIdentifier
     {

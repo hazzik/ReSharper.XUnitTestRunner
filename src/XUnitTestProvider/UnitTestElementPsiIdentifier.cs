@@ -77,5 +77,10 @@
         {
             return element.GetAccessRights() == AccessRights.PUBLIC;
         }
+
+        public static string GetSkipReason(IMethod method)
+        {
+            return MethodUtility.GetSkipReason(method.AsMethodInfo());
+        }
     }
 }
