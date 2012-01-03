@@ -67,15 +67,6 @@
 	LangString NAME_SecPlugin ${LANG_ENGLISH} "Plugin installation"
 	LangString NAME_SecPlugin ${LANG_RUSSIAN} "Установка плагина"
 	
-	LangString NAME_SecNoTemplates ${LANG_ENGLISH} "Do not install templates"
-	LangString NAME_SecNoTemplates ${LANG_RUSSIAN} "Не устанавливать шаблоны"
-	
-	LangString NAME_SecAeTemplates ${LANG_ENGLISH} "Install ae- templates"
-	LangString NAME_SecAeTemplates ${LANG_RUSSIAN} "Установить шаблоны ae-"
-	
-	LangString NAME_SecXeTemplates ${LANG_ENGLISH} "Install xe- templates"
-	LangString NAME_SecXeTemplates ${LANG_RUSSIAN} "Установить шаблоны xe-"
-	
 	;Section descriptions
 	LangString DESC_SecPlugin ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper ${Version}"
 	LangString DESC_SecPlugin ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper ${Version}"
@@ -128,48 +119,8 @@ SectionEnd
 ;--------------------------------
 ;Installer Sections: macros
 
-!macro InstallTemplates liveTemplates
-	
-	;Extract ae- live templates to installation directory
-	SetOutPath "$INSTDIR\vs10.0"
-	File "build\LiveTemplates\${liveTemplates}"
-	
-	;Extract live templates installer
-	File "build\TemplatesInstaller.exe"
-	
-	;Executing live templates installer
-	nsExec::ExecToLog '"$INSTDIR\vs10.0\TemplatesInstaller.exe" "$INSTDIR\vs10.0" "${liveTemplates}"'
-	Pop $1 ;Output value
-	
-	StrCmp "$1" "1" 0 +2
-	MessageBox MB_OK "Error while installing live templates"
-	
-	;Delete ae- live templates and installer from installation directory
-	Delete "$INSTDIR\vs10.0\${liveTemplates}"
-	Delete "$INSTDIR\vs10.0\TemplatesInstaller.exe"
-
-!macroend
-
 ;--------------------------------
 ;Installer Sections: satellite sections
-
-Section $(NAME_SecNoTemplates) SecNoTemplates
-	
-	;Empty section
-
-SectionEnd
-
-Section /o $(NAME_SecAeTemplates) SecAeTemplates
-	
-	!insertmacro InstallTemplates "xunit-ae.xml"
-
-SectionEnd
-
-Section /o $(NAME_SecXeTemplates) SecXeTemplates
-
-	!insertmacro InstallTemplates "xunit-xe.xml"
-
-SectionEnd
 
 ;--------------------------------
 ;Descriptions	
@@ -223,18 +174,12 @@ Function .onInit
 	;Sets the default installation folder to ReSharper's app data directory for currect user
 	StrCpy $INSTDIR $R1	
 	
-	;SecNoTemplates is selected by default
-	StrCpy $R9 ${SecNoTemplates}
-	
 FunctionEnd
 
 Function .onSelChange
 
 	;Process radio button section selection change
 	!insertmacro StartRadioButtons $R9
-		!insertmacro RadioButton ${SecNoTemplates}
-		!insertmacro RadioButton ${SecAeTemplates}
-		!insertmacro RadioButton ${SecXeTemplates}
 	!insertmacro EndRadioButtons	
 
 FunctionEnd
