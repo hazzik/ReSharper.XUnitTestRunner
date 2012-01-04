@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using JetBrains.ReSharper.TaskRunnerFramework;
-using Moq;
-using ReSharper.XUnitTestRunner;
-using Xunit;
-using Xunit.Sdk;
-
-namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
+namespace ReSharper.XUnitTestRunner.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using JetBrains.ReSharper.TaskRunnerFramework;
+    using Moq;
+    using XUnitTestRunner;
+    using Xunit;
+    using Xunit.Sdk;
+
     // These tests are a bit horrible. They are purely testing interaction
     public class ReSharperRunnerLoggerTests
     {
