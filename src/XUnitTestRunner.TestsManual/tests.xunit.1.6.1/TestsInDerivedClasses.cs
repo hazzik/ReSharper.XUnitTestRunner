@@ -49,7 +49,6 @@ namespace tests.xunit
         }
 
         //TEST: should not throw exceptions
-        //NOTE: nUnit also throws exception
         public abstract partial class AbstractPartialBaseClass { }
         public abstract partial class AbstractPartialBaseClass
         {
@@ -62,7 +61,7 @@ namespace tests.xunit
             }
         }
 
-        // TEST: Should have 2 tests; should also include "AbstractBaseClass.BaseTestMethod"
+        // TEST: Should have 2 tests; should also include "AbstractPartialBaseClass.BaseTestMethod"
         public class DerivedFromAbstractPartialBaseClass : AbstractPartialBaseClass
         {
             // TEST: Should be flagged as test
