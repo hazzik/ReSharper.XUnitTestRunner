@@ -14,10 +14,9 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly ICollection<IUnitTestElement> children = new List<IUnitTestElement>();
 
-        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string assemblyLocation)
+        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
             : base(provider, project, id, typeName)
         {
-            AssemblyLocation = assemblyLocation;
         }
 
         public override string Kind
@@ -30,7 +29,7 @@ namespace ReSharper.XUnitTestProvider
             get { return TypeName.ShortName; }
         }
 
-        public string AssemblyLocation { get; private set; }
+        public string AssemblyLocation { get; set; }
 
         public override ICollection<IUnitTestElement> Children
         {

@@ -24,10 +24,11 @@ namespace ReSharper.XUnitTestProvider
             var id = persistentTypeName.FullName;
 
             var element = GetElementById(project, id) as XunitTestClassElement ??
-                          new XunitTestClassElement(provider, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
+                          new XunitTestClassElement(provider, envoy, id, persistentTypeName);
 
             element.State = UnitTestElementState.Valid;
             element.Parent = parent;
+            element.AssemblyLocation = UnitTestManager.GetOutputAssemblyPath(project).FullPath;
             
             return element;
         }
