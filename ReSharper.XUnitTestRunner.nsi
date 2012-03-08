@@ -80,11 +80,11 @@ Section "!$(NAME_SecPlugin)" SecPlugin
 	SectionIn RO
 
 	;Installing plugin
-	SetOutPath "$INSTDIR\vs10.0\plugins\XUnitTestRunner"
+	SetOutPath "$INSTDIR\plugins\XUnitTestRunner"
 	File /r "build\XUnitTestRunner\*"
 	
 	;Installing external annotation file
-	SetOutPath "$INSTDIR\vs10.0\ExternalAnnotations"
+	SetOutPath "$INSTDIR\ExternalAnnotations"
 	File "build\ExternalAnnotations\xunit.xml"
 
 	;Store installation folder
@@ -136,9 +136,9 @@ SectionEnd
 Section "Uninstall"
 
 	;Delete plugin files
-	RMDir /r "$INSTDIR\vs10.0\plugins\XUnitTestRunner"
+	RMDir /r "$INSTDIR\plugins\XUnitTestRunner"
 	;Delete external annotation file
-	Delete "$INSTDIR\vs10.0\ExternalAnnotations\xunit.xml"
+	Delete "$INSTDIR\ExternalAnnotations\xunit.xml"
 	;Delete uninstaller
 	Delete "$INSTDIR\${UninstallerName}"
 	
@@ -155,7 +155,7 @@ SectionEnd
 Function .onInit
 
 	;Try to get ReSharper's installation directory from registry key
-	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v${Version}\vs10.0 "InstallDir"  
+	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v${Version} "InstallDir"  
 	
 	;Check whether specified registry key exists or not
 	StrCmp $R0 "" 0 +3
