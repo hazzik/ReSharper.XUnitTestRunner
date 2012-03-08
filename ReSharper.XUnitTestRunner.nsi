@@ -19,7 +19,7 @@
 	!define InstallRegKeyName "ReSharper.XUnitTestRunner.${Version}"
 	!define InstallRegKey "Software\${InstallRegKeyName}"
 	
-	!define UninstallerName "Uninstall ${OutputFileName}"
+	!define UninstallerName "Uninstall.ReSharper.XUnitTestRunner.${Version}.exe"
 
 ;--------------------------------
 ;General
@@ -89,11 +89,11 @@ Section "!$(NAME_SecPlugin)" SecPlugin
 	SectionIn RO
 
 	;Installing plugin
-	SetOutPath "$INSTDIR\vs10.0\plugins\XUnitTestRunner"
+	SetOutPath "$INSTDIR\plugins\XUnitTestRunner"
 	File /r "build\XUnitTestRunner\*"
 	
 	;Installing external annotation file
-	SetOutPath "$INSTDIR\vs10.0\ExternalAnnotations"
+	SetOutPath "$INSTDIR\ExternalAnnotations"
 	File "build\ExternalAnnotations\xunit.xml"
 
 	;Store installation folder
@@ -131,22 +131,22 @@ SectionEnd
 !macro InstallTemplates liveTemplates
 	
 	;Extract ae- live templates to installation directory
-	SetOutPath "$INSTDIR\vs10.0"
+	SetOutPath "$INSTDIR"
 	File "build\LiveTemplates\${liveTemplates}"
 	
 	;Extract live templates installer
 	File "build\TemplatesInstaller.exe"
 	
 	;Executing live templates installer
-	nsExec::ExecToLog '"$INSTDIR\vs10.0\TemplatesInstaller.exe" "$INSTDIR\vs10.0" "${liveTemplates}"'
+	nsExec::ExecToLog '"$INSTDIR\TemplatesInstaller.exe" "$INSTDIR" "${liveTemplates}"'
 	Pop $1 ;Output value
 	
 	StrCmp "$1" "1" 0 +2
 	MessageBox MB_OK "Error while installing live templates"
 	
 	;Delete ae- live templates and installer from installation directory
-	Delete "$INSTDIR\vs10.0\${liveTemplates}"
-	Delete "$INSTDIR\vs10.0\TemplatesInstaller.exe"
+	Delete "$INSTDIR\${liveTemplates}"
+	Delete "$INSTDIR\TemplatesInstaller.exe"
 
 !macroend
 
@@ -185,9 +185,9 @@ SectionEnd
 Section "Uninstall"
 
 	;Delete plugin files
-	RMDir /r "$INSTDIR\vs10.0\plugins\XUnitTestRunner"
+	RMDir /r "$INSTDIR\plugins\XUnitTestRunner"
 	;Delete external annotation file
-	Delete "$INSTDIR\vs10.0\ExternalAnnotations\xunit.xml"
+	Delete "$INSTDIR\ExternalAnnotations\xunit.xml"
 	;Delete uninstaller
 	Delete "$INSTDIR\${UninstallerName}"
 	
@@ -202,15 +202,6 @@ SectionEnd
 ;Global event handlers
 
 Function .onInit
-
-	;Try to get ReSharper's installation directory from registry key
-	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v${Version}\vs10.0 "InstallDir"  
-	
-	;Check whether specified registry key exists or not
-	StrCmp $R0 "" 0 +3
-	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper ${Version}$\r$\nInstallation process aborted" /SD IDOK
-	Quit
-	
 	;Form path to ReSharper's app data directory for current user
 	StrCpy $R1 "$APPDATA\JetBrains\ReSharper\v${Version}"
 	
