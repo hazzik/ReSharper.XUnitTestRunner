@@ -72,12 +72,12 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public string GetPresentation()
+        public string GetPresentation(IUnitTestElement parent = null)
         {
             return myMethodName;
         }
 
-        public IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
+        public IList<UnitTestTask> GetTaskSequence(ICollection<IUnitTestElement> explicitElements, IUnitTestLaunch launch)
         {
             throw new InvalidOperationException("Test from abstract fixture is not runnable itself");
         }

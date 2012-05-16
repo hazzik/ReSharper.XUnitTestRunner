@@ -12,7 +12,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Util;
     using XUnitTestRunner;
 
-    public sealed class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>, IUnitTestElementContextSensitivePresentation
+    public sealed class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
     {
         private readonly string methodName;
 
@@ -37,15 +37,11 @@ namespace ReSharper.XUnitTestProvider
             get { return EmptyArray<IUnitTestElement>.Instance; }
         }
 
-        #region IEquatable<XunitTestMethodElement> Members
-
         public bool Equals(XunitTestMethodElement other)
         {
             return other != null &&
                    Equals(Id, other.Id);
         }
-
-        #endregion
 
         public override bool Equals(object obj)
         {
@@ -64,11 +60,11 @@ namespace ReSharper.XUnitTestProvider
 
         public override IEnumerable<IProjectFile> GetProjectFiles()
         {
-            ITypeElement declaredType = GetDeclaredType();
+            var declaredType = GetDeclaredType();
             if (declaredType == null)
                 return null;
 
-            List<IProjectFile> result = declaredType
+            var result = declaredType
                 .GetSourceFiles()
                 .Select(sf => sf.ToProjectFile())
                 .ToList();
@@ -76,7 +72,7 @@ namespace ReSharper.XUnitTestProvider
             if (result.Count == 1)
                 return result;
 
-            IDeclaredElement declaredMethod = FindDeclaredMethod(declaredType);
+            var declaredMethod = FindDeclaredMethod(declaredType);
             if (declaredMethod == null)
                 return null;
 
@@ -86,24 +82,24 @@ namespace ReSharper.XUnitTestProvider
                 .ToList();
         }
 
-        public override IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
+        public override IList<UnitTestTask> GetTaskSequence(ICollection<IUnitTestElement> explicitElements, IUnitTestLaunch launch)
         {
-            IList<UnitTestTask> tasks = Parent.GetTaskSequence(explicitElements);
+            var tasks = Parent.GetTaskSequence(explicitElements, launch);
             tasks.Add(new UnitTestTask(this, new XunitTestMethodTask(Parent.AssemblyLocation, Parent.TypeName.FullName, methodName, explicitElements.Contains(this))));
             return tasks;
         }
 
         private ITypeElement GetDeclaredType()
         {
-            IProject project = GetProject();
+            var project = GetProject();
             if (project == null)
                 return null;
 
             using (ReadLockCookie.Create())
             {
-                ISolution solution = project.GetSolution();
+                var solution = project.GetSolution();
 
-                IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
+                var primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
 
                 return solution.GetPsiServices().CacheManager
                     .GetDeclarationsCache(primaryPsiModule, true, true)
@@ -113,7 +109,7 @@ namespace ReSharper.XUnitTestProvider
 
         public override IDeclaredElement GetDeclaredElement()
         {
-            ITypeElement declaredType = GetDeclaredType();
+            var declaredType = GetDeclaredType();
             if (declaredType == null)
                 return null;
             return FindDeclaredMethod(declaredType);
@@ -126,28 +122,33 @@ namespace ReSharper.XUnitTestProvider
                 .FirstOrDefault(method => !method.IsAbstract && method.TypeParameters.Count == 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC);
         }
 
-        public override string GetPresentation()
-        {
-            return Parent != null && !Equals(Parent.TypeName, TypeName)
-                       ? string.Format("{0}.{1}", TypeName.ShortName, methodName)
-                       : methodName;
-        }
-
-        public string GetPresentation(IUnitTestElement parent)
+        public override string GetPresentation(IUnitTestElement parent = null)
         {
             var fakeElement = parent as XunitTestFakeElement;
-            if (fakeElement == null)
-                return GetPresentation();
-
-            return Parent != null && !Equals(Parent.TypeName, fakeElement.TypeName)
-                       ? string.Format("{0}.{1}", Parent.TypeName.ShortName, methodName)
-                       : methodName;
+            if (Parent != null)
+            {
+                if (fakeElement == null)
+                {
+                    if (!Equals(Parent.TypeName, TypeName))
+                    {
+                        return string.Format("{0}.{1}", TypeName.ShortName, methodName);
+                    }
+                }
+                else
+                {
+                    if (!Equals(Parent.TypeName, fakeElement.TypeName))
+                    {
+                        return string.Format("{0}.{1}", Parent.TypeName.ShortName, methodName);
+                    }
+                }
+            }
+            return methodName;
         }
 
         public override void WriteToXml(XmlElement xml)
         {
             xml.SetAttribute("MethodName", methodName);
-            IProject project = GetProject();
+            var project = GetProject();
             if (project != null)
                 xml.SetAttribute("Project", project.GetPersistentID());
         }
@@ -157,8 +158,8 @@ namespace ReSharper.XUnitTestProvider
             var classElement = parent as XunitTestClassElement;
             if (classElement == null)
                 return null;
-            string methodName = xml.GetAttribute("MethodName");
-            string projectId = xml.GetAttribute("Project");
+            var methodName = xml.GetAttribute("MethodName");
+            var projectId = xml.GetAttribute("Project");
             var project = (IProject) ProjectUtil.FindProjectElementByPersistentID(solution, projectId);
             if (project == null)
                 return null;

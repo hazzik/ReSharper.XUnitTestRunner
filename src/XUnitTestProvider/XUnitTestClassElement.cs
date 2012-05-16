@@ -74,12 +74,12 @@ namespace ReSharper.XUnitTestProvider
                 .Select(sf => sf.ToProjectFile());
         }
 
-        public override string GetPresentation()
+        public override string GetPresentation(IUnitTestElement parent = null)
         {
             return TypeName.ShortName;
         }
 
-        public override IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
+        public override IList<UnitTestTask> GetTaskSequence(ICollection<IUnitTestElement> explicitElements, IUnitTestLaunch launch)
         {
             return new List<UnitTestTask>
                        {
