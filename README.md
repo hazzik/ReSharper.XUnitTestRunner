@@ -16,3 +16,7 @@
 ## Roadmap
 * Unit test categories
 * Better support for [Theory] attribute (one test item per theory's data)
+
+##Known Issues
+# Runner for 7.0 EAP 
+* does not create sub-items for theory row tests in test session explorer
