@@ -3,6 +3,6 @@
 1. Set XUnitTestProvider.Debugger as your "StartUp Project"
 2. In the Properties -> Debug page for this project, set the start program as Visual Studio
    (e.g. C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe)
-3. Set the arguments to "..\..\..\tests.2010.sln /ReSharper.Internal /ReSharper.Plugin ReSharper.XUnitTestProvider.6.1.dll"
+3. Set the arguments to "..\..\..\tests.vs2010.sln /ReSharper.Internal /ReSharper.Plugin ReSharper.XUnitTestProvider.6.1.dll"
    (without the quotes)
 4. Leave working directory blank, it will default to the bin\Debug directory

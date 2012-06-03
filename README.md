@@ -5,6 +5,8 @@
 
 * Unit tests session persistence
 * Full and complete [dotCover](http://www.jetbrains.com/dotcover/) support
+* Beautiful installer
+* Set of predefined code snippets
 
 ##Installation
 
