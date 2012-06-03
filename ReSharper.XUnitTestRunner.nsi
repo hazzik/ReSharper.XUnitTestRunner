@@ -19,7 +19,7 @@
 	!define InstallRegKeyName "ReSharper.XUnitTestRunner.${Version}"
 	!define InstallRegKey "Software\${InstallRegKeyName}"
 	
-	!define UninstallerName "Uninstall ${OutputFileName}"
+	!define UninstallerName "Uninstall.ReSharper.XUnitTestRunner.${Version}.exe"
 
 ;--------------------------------
 ;General
