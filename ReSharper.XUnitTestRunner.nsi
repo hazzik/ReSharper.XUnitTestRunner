@@ -153,15 +153,6 @@ SectionEnd
 ;Global event handlers
 
 Function .onInit
-
-	;Try to get ReSharper's installation directory from registry key
-	ReadRegStr $R0 HKLM Software\JetBrains\ReSharper\v${Version} "InstallDir"  
-	
-	;Check whether specified registry key exists or not
-	StrCmp $R0 "" 0 +3
-	MessageBox MB_OK|MB_ICONSTOP "Unable to locate ReSharper ${Version}$\r$\nInstallation process aborted" /SD IDOK
-	Quit
-	
 	;Form path to ReSharper's app data directory for current user
 	StrCpy $R1 "$APPDATA\JetBrains\ReSharper\v${Version}"
 	
