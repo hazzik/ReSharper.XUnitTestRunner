@@ -1,12 +1,10 @@
 namespace ReSharper.XUnitTestProvider
 {
-    using System.Drawing;
     using JetBrains.Annotations;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
-    using Properties;
     using XUnitTestRunner;
 
     [UnitTestProvider, UsedImplicitly]
@@ -40,11 +38,6 @@ namespace ReSharper.XUnitTestProvider
             get { return "xUnit.net"; }
         }
 
-        public Image Icon
-        {
-            get { return Resources.xunit; }
-        }
-  
         public RemoteTaskRunnerInfo GetTaskRunnerInfo()
         {
             return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
