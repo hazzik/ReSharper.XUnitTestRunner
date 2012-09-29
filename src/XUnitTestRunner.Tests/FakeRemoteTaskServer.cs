@@ -43,7 +43,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             throw new NotImplementedException();
         }
 
-        public IList<RemoteTaskRunnerInfo> GetRunnerInfos()
+        public string GetAdditionalControllerInfo()
         {
             throw new NotImplementedException();
         }

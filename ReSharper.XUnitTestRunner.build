@@ -5,11 +5,11 @@
 	</PropertyGroup>
 
 	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
-  
+
 	<PropertyGroup>
 		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-		<version>7.0</version>
-    <assemblyVersion>0.7.0.0</assemblyVersion>
+		<version>7.1</version>
+		<assemblyVersion>0.7.1.0</assemblyVersion>
 
 		<xunit>$(MSBuildProjectDirectory)\tools\xunit\xunit.console.exe</xunit>
 
