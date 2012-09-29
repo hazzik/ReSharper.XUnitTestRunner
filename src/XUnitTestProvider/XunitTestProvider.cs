@@ -46,7 +46,7 @@ namespace ReSharper.XUnitTestProvider
 
         public string Name
         {
-            get { return "xUnit.net"; }
+            get { return "xUnit.net (hazzik)"; }
         }
 
         public Image Icon

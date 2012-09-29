@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.ReSharper.TaskRunnerFramework;
 using Xunit;
 
 namespace ReSharper.XUnitTestRunner
 {
-    using System.Linq;
-
     public class XunitTaskRunner : RecursiveRemoteTaskRunner
     {
-        public const string RunnerId = "xUnit";
+        public const string RunnerId = "xUnit_hazzik";
 
         private ExecutorWrapper executorWrapper;
         private string priorCurrentDirectory;
