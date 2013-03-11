@@ -37,14 +37,22 @@ namespace ReSharper.XUnitTestRunner
             SetXmlAttribute(element, AttributeNames.AssemblyLocation, assemblyLocation);
         }
 
-        public bool Equals(XunitTestAssemblyTask otherAssemblyTask)
+        public bool Equals(XunitTestAssemblyTask other)
         {
-            return otherAssemblyTask != null && Equals(assemblyLocation, otherAssemblyTask.assemblyLocation);
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return String.Equals(assemblyLocation, other.assemblyLocation, StringComparison.CurrentCulture);
         }
 
         public override bool Equals(RemoteTask remoteTask)
         {
             return Equals(remoteTask as XunitTestAssemblyTask);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as XunitTestAssemblyTask);
         }
 
         // Blimey. ReSharper created this
@@ -58,7 +66,7 @@ namespace ReSharper.XUnitTestRunner
 
         public override bool IsMeaningfulTask
         {
-            get { return false; }
+            get { return true; }
         }
     }
 }

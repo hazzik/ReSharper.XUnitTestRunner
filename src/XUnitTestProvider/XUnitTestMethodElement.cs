@@ -100,7 +100,7 @@ namespace ReSharper.XUnitTestProvider
                 var primaryPsiModule = ServiceProvider.PsiModuleManager.GetPrimaryPsiModule(project);
 
                 return ServiceProvider.CacheManager
-                    .GetDeclarationsCache(primaryPsiModule, true, true)
+                    .GetSymbolScope(primaryPsiModule, project.GetResolveContext(), true, true)
                     .GetTypeElementByCLRName(TypeName);
             }
         }

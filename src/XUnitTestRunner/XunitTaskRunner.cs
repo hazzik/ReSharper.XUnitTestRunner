@@ -1,32 +1,18 @@
 ﻿namespace ReSharper.XUnitTestRunner
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using JetBrains.ReSharper.TaskRunnerFramework;
-    using Xunit;
+using System;
+using System.IO;
+using System.Linq;
+using JetBrains.ReSharper.TaskRunnerFramework;
+using Xunit;
 
-    public class XunitTaskRunner : RecursiveRemoteTaskRunner
+    public partial class XunitTaskRunner : RecursiveRemoteTaskRunner
     {
         public const string RunnerId = "xUnit_hazzik";
 
-        public XunitTaskRunner(IRemoteTaskServer server) : base(server)
+        public XunitTaskRunner(IRemoteTaskServer server) 
+            : base(server)
         {
-        }
-
-        public override TaskResult Start(TaskExecutionNode node)
-        {
-            return TaskResult.Success;
-        }
-
-        public override TaskResult Execute(TaskExecutionNode node)
-        {
-            return TaskResult.Success;
-        }
-
-        public override TaskResult Finish(TaskExecutionNode node)
-        {
-            return TaskResult.Success;
         }
 
         public override void ExecuteRecursive(TaskExecutionNode node)
@@ -35,13 +21,14 @@
             try
             {
                 var assemblyTask = (XunitTestAssemblyTask) node.RemoteTask;
-
                 var assemblyLocation = assemblyTask.AssemblyLocation;
+                var assemblyFolder = Path.GetDirectoryName(assemblyLocation);
+                var assemblyPath = Path.Combine(assemblyFolder, Path.GetFileName(assemblyLocation));
+                var config = assemblyPath + ".config";
+                Environment.CurrentDirectory = assemblyFolder;
 
-                Environment.CurrentDirectory = Path.GetDirectoryName(assemblyLocation);
-
-                var shadowCopy = Server.GetConfiguration().ShadowCopy;
-                using (var executorWrapper = new ExecutorWrapper(assemblyLocation, null, shadowCopy))
+                var shadowCopy = TaskExecutor.Configuration != null && TaskExecutor.Configuration.ShadowCopy;
+                using (var executorWrapper = new ExecutorWrapper(assemblyLocation, config, shadowCopy))
                 {
                     foreach (var childNode in node.Children)
                     {

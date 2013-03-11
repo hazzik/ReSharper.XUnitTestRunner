@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0C7AE6F7-6068-4107-9BC7-44E9A48B26FA}</ProjectGuid>
+    <ProjectGuid>{5E9D22C3-BDDF-4BC8-BC0D-0216AC131A76}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReSharper.XUnitTestProvider</RootNamespace>
-    <AssemblyName>ReSharper.XUnitTestProvider.7.1.Debugger</AssemblyName>
+    <AssemblyName>ReSharper.XUnitTestProvider.Debugger</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
@@ -46,16 +46,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XUnitTestRunner\XUnitTestRunner.csproj">
-      <Project>{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}</Project>
-      <Name>XUnitTestRunner</Name>
-    </ProjectReference>
-    <ProjectReference Include="XUnitTestProvider.csproj">
-      <Project>{AE37EF14-4EC4-4D53-A3A8-90BECB3F9566}</Project>
-      <Name>XUnitTestProvider</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>

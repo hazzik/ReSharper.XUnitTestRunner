@@ -10,7 +10,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.Psi.Tree;
     using JetBrains.ReSharper.UnitTestFramework;
 
-    public abstract class XunitTestElementBase : IUnitTestElement
+    public abstract partial class XunitTestElementBase : IUnitTestElement
     {
         private readonly IEnumerable<UnitTestElementCategory> categories = UnitTestElementCategory.Uncategorized;
         private readonly XunitServiceProvider provider;

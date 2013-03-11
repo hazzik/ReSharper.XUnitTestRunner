@@ -55,14 +55,14 @@ namespace ReSharper.XUnitTestRunner
             SetXmlAttribute(element, AttributeNames.Explicitly, explicitly.ToString());
         }
 
-        public bool Equals(XunitTestClassTask otherClassTask)
+        public bool Equals(XunitTestClassTask other)
         {
-            if (otherClassTask == null)
-                return false;
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-            return Equals(assemblyLocation, otherClassTask.assemblyLocation) &&
-                   Equals(typeName, otherClassTask.typeName) &&
-                   explicitly == otherClassTask.explicitly;
+            return String.Equals(assemblyLocation, other.assemblyLocation, StringComparison.CurrentCulture) &&
+                   String.Equals(typeName, other.typeName, StringComparison.CurrentCulture) &&
+                   explicitly == other.explicitly;
         }
 
         public override bool Equals(RemoteTask other)
@@ -70,12 +70,17 @@ namespace ReSharper.XUnitTestRunner
             return Equals(other as XunitTestClassTask);
         }
 
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as XunitTestClassTask);
+        }
+
         // Blimey. ReSharper created this
         public override int GetHashCode()
         {
             unchecked
             {
-                int result = base.GetHashCode();
+                int result = 0;
                 result = (result * 397) ^ (assemblyLocation != null ? assemblyLocation.GetHashCode() : 0);
                 result = (result * 397) ^ (typeName != null ? typeName.GetHashCode() : 0);
                 result = (result * 397) ^ explicitly.GetHashCode();

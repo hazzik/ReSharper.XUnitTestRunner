@@ -119,7 +119,7 @@ namespace ReSharper.XUnitTestRunner
 
 			server.TaskStarting(GetMethodTask(method));
 
-            server.TaskExplain(GetMethodTask(method), reason);
+//            server.TaskExplain(GetMethodTask(method), reason);
             testResult = TaskResult.Skipped;
             testFinishMessage = reason;
         }

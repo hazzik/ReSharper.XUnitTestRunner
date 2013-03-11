@@ -29,7 +29,7 @@ namespace ReSharper.XUnitTestProvider
 
             element.State = UnitTestElementState.Valid;
             element.Parent = parent;
-            element.AssemblyLocation = UnitTestManager.GetOutputAssemblyPath(project).FullPath;
+            element.AssemblyLocation = project.GetOutputFilePath().FullPath;
             
             return element;
         }

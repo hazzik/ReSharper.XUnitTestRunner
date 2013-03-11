@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D4C11286-1981-4D28-A40E-FB624929C61D}</ProjectGuid>
+    <ProjectGuid>{FDDB314E-FCFF-4838-A006-CE488291EF38}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ReSharper.XUnitTestRunner.Tests</RootNamespace>
-    <AssemblyName>ReSharper.XUnitTestRunner.Tests</AssemblyName>
+    <RootNamespace>ReSharper.XUnitTestRunner</RootNamespace>
+    <AssemblyName>ReSharper.XUnitTestRunner.7.1</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
@@ -47,21 +47,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq">
-      <HintPath>..\..\packages\Moq.4.0.10827\lib\NET35\Moq.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="xunit">
       <HintPath>..\..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="xunit.extensions">
       <HintPath>..\..\packages\xunit.extensions.1.9.1\lib\net20\xunit.extensions.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="xunit.runner.utility, Version=1.8.0.1545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -72,18 +64,15 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ExceptionConverterTests.cs" />
-    <Compile Include="FakeRemoteTaskServer.cs" />
-    <Compile Include="NewReSharperRunnerLoggerTests.cs" />
-    <Compile Include="ReSharperRunnerLoggerTests.cs" />
-    <Compile Include="XunitTestAssemblyTaskTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XUnitTestRunner\XUnitTestRunner.8.0.csproj">
-      <Project>{CFB96B45-E0FC-402F-97BE-0D9754CE7E3B}</Project>
-      <Name>XUnitTestRunner.8.0</Name>
-    </ProjectReference>
+    <Compile Include="AttributeNames.cs" />
+    <Compile Include="Properties\AssemblyInfo.71.cs" />
+    <Compile Include="ExceptionConverter.cs" />
+    <Compile Include="ReSharperRunnerLogger.cs" />
+    <Compile Include="XunitTaskRunner.cs" />
+    <Compile Include="XunitTaskRunner.pre-80.cs" />
+    <Compile Include="XunitTestAssemblyTask.cs" />
+    <Compile Include="XunitTestClassTask.cs" />
+    <Compile Include="XunitTestMethodTask.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -97,8 +86,12 @@
   </Target>
   -->
   <PropertyGroup>
-    <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v8.0</ReSharperSdkTargets>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="$(ReSharperSdkTargets)\Plugin.Tests.Targets" />
+  <PropertyGroup>
+    <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v7.1</ReSharperSdkTargets>
+  </PropertyGroup>
+  <Import Project="$(ReSharperSdkTargets)\Plugin.Targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

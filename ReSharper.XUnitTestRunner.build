@@ -8,8 +8,8 @@
 
 	<PropertyGroup>
 		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-		<version>7.1</version>
-		<assemblyVersion>0.7.1.0</assemblyVersion>
+		<version>8.0</version>
+		<assemblyVersion>0.8.0.0</assemblyVersion>
 
 		<xunit>$(MSBuildProjectDirectory)\tools\xunit\xunit.console.exe</xunit>
 
@@ -79,7 +79,7 @@
   </Target>
   
   <Target Name="MakeSetup" DependsOnTargets="CopyToOutput">
-    <Exec Command="&quot;$(ProgramFiles)\NSIS\makensis.exe&quot; /DOutputFileName=&quot;$(artifactPath)\$(main).$(Version)-$(BuildDate).exe&quot; /DVersion=&quot;$(Version)&quot; &quot;$(MSBuildProjectDirectory)\ReSharper.XUnitTestRunner.nsi&quot;" />
+    <Exec Command="&quot;$(ProgramFiles)\NSIS\makensis.exe&quot; /DOutputFileName=&quot;$(artifactPath)\$(main)-$(BuildDate).exe&quot; /DVersion=&quot;$(Version)&quot; &quot;$(MSBuildProjectDirectory)\ReSharper.XUnitTestRunner.nsi&quot;" />
   </Target>
 
   <Target Name="MakeZip" DependsOnTargets="CopyToOutput">

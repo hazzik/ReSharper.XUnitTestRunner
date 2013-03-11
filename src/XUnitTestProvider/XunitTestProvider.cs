@@ -8,7 +8,7 @@ namespace ReSharper.XUnitTestProvider
     using XUnitTestRunner;
 
     [UnitTestProvider, UsedImplicitly]
-    public class XunitTestProvider : IUnitTestProvider
+    public partial class XunitTestProvider : IUnitTestProvider
     {
         private static readonly AssemblyLoader AssemblyLoader = new AssemblyLoader();
         private static readonly UnitTestElementComparer Comparer;
@@ -36,11 +36,6 @@ namespace ReSharper.XUnitTestProvider
         public string Name
         {
             get { return "xUnit.net (hazzik)"; }
-        }
-
-        public RemoteTaskRunnerInfo GetTaskRunnerInfo()
-        {
-            return new RemoteTaskRunnerInfo(typeof(XunitTaskRunner));
         }
 
         public bool IsSupported(IHostProvider hostProvider)

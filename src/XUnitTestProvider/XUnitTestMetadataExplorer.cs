@@ -1,5 +1,6 @@
 namespace ReSharper.XUnitTestProvider
 {
+    using JetBrains.Application;
     using JetBrains.Metadata.Reader.API;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.UnitTestFramework;
@@ -9,6 +10,7 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly XunitTestProvider provider;
         private readonly XunitElementFactory factory;
+        private readonly IShellLocks shellLocks;
 
         public IUnitTestProvider Provider
         {
@@ -18,10 +20,11 @@ namespace ReSharper.XUnitTestProvider
             }
         }
 
-        public XUnitTestMetadataExplorer(XunitTestProvider provider, XunitElementFactory factory)
+        public XUnitTestMetadataExplorer(XunitTestProvider provider, XunitElementFactory factory, IShellLocks shellLocks)
         {
             this.provider = provider;
             this.factory = factory;
+            this.shellLocks = shellLocks;
         }
 
         /// Provides Reflection-like metadata of a physical assembly, called at startup (if the
@@ -43,7 +46,13 @@ namespace ReSharper.XUnitTestProvider
         /// just explore all the types
         public void ExploreAssembly(IProject project, IMetadataAssembly assembly, UnitTestElementConsumer consumer)
         {
-            new XunitMetadataExplorer(factory, project , consumer).ExploreAssembly(assembly);
+            using (shellLocks.UsingReadLock())
+            {
+                if (project.IsValid())
+                {
+                    new XunitMetadataExplorer(factory, project, consumer).ExploreAssembly(assembly);
+                }
+            }
         }
     }
 }

@@ -158,13 +158,13 @@ namespace ReSharper.XUnitTestProvider
 			public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
 			{
 				return from attribute in method.GetAttributeInstances(false)
-				       where attributeType.IsAssignableFrom(attribute.AttributeType)
+				       where attributeType.IsAssignableFrom(attribute.GetAttributeType())
 				       select attribute.AsAttributeInfo();
 			}
 
 			public bool HasAttribute(Type attributeType)
 			{
-				return method.GetAttributeInstances(false).Any(attribute => attributeType.IsAssignableFrom(attribute.AttributeType));
+				return method.GetAttributeInstances(false).Any(attribute => attributeType.IsAssignableFrom(attribute.GetAttributeType()));
 			}
 
 			public override string ToString()

@@ -4,9 +4,9 @@ namespace ReSharper.XUnitTestProvider
     using System.Collections.Generic;
     using System.Linq;
     using System.Xml;
+    using JetBrains.Metadata.Reader.API;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
-    using JetBrains.ReSharper.TaskRunnerFramework;
     using JetBrains.ReSharper.UnitTestFramework;
     using XUnitTestRunner;
 
@@ -36,15 +36,11 @@ namespace ReSharper.XUnitTestProvider
             get { return children; }
         }
 
-        #region IEquatable<XunitTestClassElement> Members
-
         public bool Equals(XunitTestClassElement other)
         {
             return other != null &&
                    Equals(Id, other.Id);
         }
-
-        #endregion
 
         public override IDeclaredElement GetDeclaredElement()
         {
@@ -53,9 +49,9 @@ namespace ReSharper.XUnitTestProvider
                 return null;
 
             var primaryPsiModule = ServiceProvider.PsiModuleManager.GetPrimaryPsiModule(project);
-            
+
             return ServiceProvider.CacheManager
-                .GetDeclarationsCache(primaryPsiModule, false, true)
+                .GetSymbolScope(primaryPsiModule, EmptyResolveContext.Instance, false, true)
                 .GetTypeElementByCLRName(TypeName);
         }
 
@@ -81,7 +77,7 @@ namespace ReSharper.XUnitTestProvider
         {
             return new List<UnitTestTask>
                        {
-                           new UnitTestTask(null, new AssemblyLoadTask(AssemblyLocation)),
+//                           new UnitTestTask(null, new AssemblyLoadTask(AssemblyLocation)),
                            new UnitTestTask(null, new XunitTestAssemblyTask(AssemblyLocation)),
                            new UnitTestTask(this, new XunitTestClassTask(AssemblyLocation, TypeName.FullName, explicitElements.Contains(this)))
                        };

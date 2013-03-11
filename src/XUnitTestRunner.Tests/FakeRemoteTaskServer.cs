@@ -48,7 +48,12 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             throw new NotImplementedException();
         }
 
-        public bool CreateDynamicElement(RemoteTask remoteTask)
+        public void TaskDuration(RemoteTask remoteTask, TimeSpan duration)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateDynamicElement(RemoteTask remoteTask)
         {
             throw new NotImplementedException();
         }
@@ -68,14 +73,12 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
         public readonly List<RemoteTask> TaskStartingCalls = new List<RemoteTask>();
 
-        public bool TaskStarting(RemoteTask remoteTask)
+        public void TaskStarting(RemoteTask remoteTask)
         {
             Assert.NotNull(remoteTask);
 
             tasks.Push(remoteTask);
             TaskStartingCalls.Add(remoteTask);
-
-            return true;
         }
 
         public readonly Dictionary<RemoteTask, List<string>> TaskProgressCalls = new Dictionary<RemoteTask, List<string>>();
@@ -99,7 +102,7 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
         public readonly Dictionary<RemoteTask, List<TaskException[]>> TaskExceptionCalls = new Dictionary<RemoteTask, List<TaskException[]>>();
 
-        public bool TaskException(RemoteTask remoteTask, TaskException[] exceptions)
+        public void TaskException(RemoteTask remoteTask, TaskException[] exceptions)
         {
             Assert.NotNull(remoteTask);
             Assert.Same(tasks.Peek(), remoteTask);
@@ -107,13 +110,11 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             if (!TaskExceptionCalls.ContainsKey(remoteTask))
                 TaskExceptionCalls.Add(remoteTask, new List<TaskException[]>());
             TaskExceptionCalls[remoteTask].Add(exceptions);
-
-            return true;
         }
 
         public readonly Dictionary<RemoteTask, string> TaskOutputCalls = new Dictionary<RemoteTask, string>();
 
-        public bool TaskOutput(RemoteTask remoteTask, string text, TaskOutputType outputType)
+        public void TaskOutput(RemoteTask remoteTask, string text, TaskOutputType outputType)
         {
             Assert.NotNull(remoteTask);
             Assert.Same(tasks.Peek(), remoteTask);
@@ -122,8 +123,6 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             if(!TaskOutputCalls.ContainsKey(remoteTask))
                 TaskOutputCalls.Add(remoteTask, string.Empty);
             TaskOutputCalls[remoteTask] += text;
-
-            return true;
         }
 
         public class TaskFinishedParameters
@@ -142,13 +141,11 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
 
         public readonly List<TaskFinishedParameters> TaskFinishedCalls = new List<TaskFinishedParameters>();
 
-        public bool TaskFinished(RemoteTask remoteTask, string message, TaskResult result)
+        public void TaskFinished(RemoteTask remoteTask, string message, TaskResult result)
         {
             Assert.NotNull(remoteTask);
             Assert.Same(tasks.Pop(), remoteTask);
             TaskFinishedCalls.Add(new TaskFinishedParameters(remoteTask, message, result));
-
-            return true;
         }
 
         public readonly Dictionary<RemoteTask, List<string>> TaskExplainCalls = new Dictionary<RemoteTask, List<string>>();

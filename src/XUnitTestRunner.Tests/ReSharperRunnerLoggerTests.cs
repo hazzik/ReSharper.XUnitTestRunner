@@ -27,7 +27,7 @@ namespace ReSharper.XUnitTestRunner.Tests
         [Fact]
         public void ClassStartCallsServerTaskStarting()
         {
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 
@@ -46,9 +46,9 @@ namespace ReSharper.XUnitTestRunner.Tests
             var taskExceptions = ExceptionConverter.ConvertExceptions(exception.GetType().FullName, message, stackTrace,
                                                                       out simplifiedMessage);
 
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskException(classTask, MatchExceptions(taskExceptions))).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(classTask, simplifiedMessage, TaskResult.Exception)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskException(classTask, MatchExceptions(taskExceptions))).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(classTask, simplifiedMessage, TaskResult.Exception)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
             logger.ClassFailed("className", exception.GetType().FullName, message, stackTrace);
@@ -69,9 +69,9 @@ namespace ReSharper.XUnitTestRunner.Tests
             var taskExceptions = ExceptionConverter.ConvertExceptions(exception.GetType().FullName, message, stackTrace,
                                                                       out simplifiedMessage);
 
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskException(classTask, MatchExceptions(taskExceptions))).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(classTask, simplifiedMessage, TaskResult.Exception)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskException(classTask, MatchExceptions(taskExceptions))).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(classTask, simplifiedMessage, TaskResult.Exception)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
             logger.ExceptionThrown("C:\\assembly.dll", exception);
@@ -84,8 +84,8 @@ namespace ReSharper.XUnitTestRunner.Tests
         // It's purely on if the class worked correctly
         private void AddSuccessfulClassExpectations()
         {
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(classTask, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(classTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(classTask, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
         }
 
         [Fact]
@@ -99,9 +99,9 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
             logger.TestStart(displayName, TestClassTypeName, methodName);
@@ -122,8 +122,8 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
             logger.TestStart(displayName, TestClassTypeName, methodName);
@@ -145,9 +145,9 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskExplain(methodTask, expectedSkipReason)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, expectedSkipReason, TaskResult.Skipped)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+//            mockRemoteTaskServer.Setup(m => m.TaskExplain(methodTask, expectedSkipReason)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, expectedSkipReason, TaskResult.Skipped)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
             // TestStart isn't called!
@@ -178,10 +178,10 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskException(methodTask, MatchExceptions(taskExceptions))).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, simplifiedMessage, TaskResult.Exception)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskException(methodTask, MatchExceptions(taskExceptions))).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, simplifiedMessage, TaskResult.Exception)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
             logger.TestStart(displayName, TestClassTypeName, methodName);
@@ -209,12 +209,12 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask1, methodTask2 });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask1, expectedOutput1, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask1, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask2)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask2, expectedOutput2, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask2, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask1, expectedOutput1, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask1, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask2)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask2, expectedOutput2, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask2, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 
@@ -247,12 +247,12 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask1, methodTask2 });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskExplain(methodTask1, expectedSkipReason)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask1, expectedSkipReason, TaskResult.Skipped)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask2)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask2, expectedOutput2, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask2, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).AtMostOnce().Verifiable();
+//            mockRemoteTaskServer.Setup(m => m.TaskExplain(methodTask1, expectedSkipReason)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask1, expectedSkipReason, TaskResult.Skipped)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask2)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask2, expectedOutput2, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask2, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 
@@ -284,12 +284,12 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask1, methodTask2 });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask1, expectedOutput1, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask1, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask2)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskExplain(methodTask2, expectedSkipReason)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask2, expectedSkipReason, TaskResult.Skipped)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask1)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask1, expectedOutput1, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask1, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask2)).AtMostOnce().Verifiable();
+//            mockRemoteTaskServer.Setup(m => m.TaskExplain(methodTask2, expectedSkipReason)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask2, expectedSkipReason, TaskResult.Skipped)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 
@@ -318,10 +318,10 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput1, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput2, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, string.Empty, TaskResult.Success)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput1, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput2, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, string.Empty, TaskResult.Success)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 
@@ -360,11 +360,11 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput1, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskException(methodTask, MatchExceptions(taskExceptions))).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput2, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, simplifiedMessage, TaskResult.Exception)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput1, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskException(methodTask, MatchExceptions(taskExceptions))).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput2, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, simplifiedMessage, TaskResult.Exception)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 
@@ -404,11 +404,11 @@ namespace ReSharper.XUnitTestRunner.Tests
             logger.SetMethodTasks(new List<XunitTestMethodTask> { methodTask });
 
             AddSuccessfulClassExpectations();
-            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput1, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskException(methodTask, MatchExceptions(taskExceptions))).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput2, TaskOutputType.STDOUT)).Returns(true).AtMostOnce().Verifiable();
-            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, simplifiedMessage, TaskResult.Exception)).Returns(true).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskStarting(methodTask)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput1, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskException(methodTask, MatchExceptions(taskExceptions))).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskOutput(methodTask, expectedOutput2, TaskOutputType.STDOUT)).AtMostOnce().Verifiable();
+            mockRemoteTaskServer.Setup(m => m.TaskFinished(methodTask, simplifiedMessage, TaskResult.Exception)).AtMostOnce().Verifiable();
 
             logger.ClassStart();
 

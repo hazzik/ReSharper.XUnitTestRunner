@@ -9,7 +9,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.ReSharper.UnitTestFramework;
     using JetBrains.Util;
 
-    public sealed class XunitTestFakeElement : IUnitTestElement
+    public sealed partial class XunitTestFakeElement : IUnitTestElement
     {
         private readonly string myMethodName;
         private readonly IProject myProject;

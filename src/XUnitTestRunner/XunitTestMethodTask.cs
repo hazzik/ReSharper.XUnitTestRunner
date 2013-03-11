@@ -62,15 +62,15 @@ namespace ReSharper.XUnitTestRunner
             SetXmlAttribute(element, AttributeNames.Explicitly, explicitly.ToString());
         }
 
-        public bool Equals(XunitTestMethodTask otherMethodTask)
+        public bool Equals(XunitTestMethodTask other)
         {
-            if (otherMethodTask == null)
-                return false;
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-            return Equals(assemblyLocation, otherMethodTask.assemblyLocation) && 
-                   Equals(classTypeName, otherMethodTask.classTypeName) &&
-                   Equals(methodName, otherMethodTask.methodName) &&
-                   explicitly == otherMethodTask.explicitly;
+            return Equals(assemblyLocation, other.assemblyLocation) && 
+                   Equals(classTypeName, other.classTypeName) &&
+                   Equals(methodName, other.methodName) &&
+                   explicitly == other.explicitly;
         }
 
         public override bool Equals(RemoteTask other)
@@ -78,11 +78,16 @@ namespace ReSharper.XUnitTestRunner
             return Equals(other as XunitTestMethodTask);
         }
 
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as XunitTestMethodTask);
+        }
+
         public override int GetHashCode()
         {
             unchecked
             {
-                int result = base.GetHashCode();
+                int result = 0;
                 result = (result*397) ^ explicitly.GetHashCode();
                 result = (result*397) ^ (methodName != null ? methodName.GetHashCode() : 0);
                 result = (result*397) ^ (classTypeName != null ? classTypeName.GetHashCode() : 0);
