@@ -9,13 +9,13 @@ namespace ReSharper.XUnitTestProvider
     [SolutionComponent]
     public class XunitElementFactory
     {
-        private readonly XunitTestProvider provider;
         private readonly IUnitTestElementManager unitTestElementManager;
+        private readonly XunitServiceProvider provider;
 
-        public XunitElementFactory(XunitTestProvider provider, IUnitTestElementManager unitTestElementManager)
+        public XunitElementFactory(XunitServiceProvider provider, IUnitTestElementManager unitTestElementManager)
         {
-            this.provider = provider;
             this.unitTestElementManager = unitTestElementManager;
+            this.provider = provider;
         }
 
         public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy, XunitTestClassElement parent)
@@ -59,7 +59,7 @@ namespace ReSharper.XUnitTestProvider
 
         public IUnitTestElement CreateFakeElement(IProject project, IClrTypeName getClrName, string shortName)
         {
-            return new XunitTestFakeElement(provider, project, getClrName.GetPersistent(), shortName);
+            return new XunitTestFakeElement(provider.Provider, project, getClrName.GetPersistent(), shortName);
         }
 
         public IUnitTestElement GetElementById(IProject project, string id)

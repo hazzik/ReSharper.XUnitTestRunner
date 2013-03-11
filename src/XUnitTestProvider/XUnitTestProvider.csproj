@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="XunitDefaultTemplates.cs" />
     <Compile Include="UnitTestElementMetadataIdentifier.cs" />
+    <Compile Include="XunitServiceProvider.cs" />
     <Compile Include="XunitTestFakeElement.cs" />
     <Compile Include="XunitFileExplorerInheritorsConsumer.cs" />
     <Compile Include="XunitElementFactory.cs" />

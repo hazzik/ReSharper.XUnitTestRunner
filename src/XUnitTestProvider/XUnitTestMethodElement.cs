@@ -16,7 +16,7 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly string methodName;
 
-        internal XunitTestMethodElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string methodName)
+        internal XunitTestMethodElement(XunitServiceProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName, string methodName)
             : base(provider, project, id, typeName)
         {
             this.methodName = methodName;
@@ -97,11 +97,9 @@ namespace ReSharper.XUnitTestProvider
 
             using (ReadLockCookie.Create())
             {
-                var solution = project.GetSolution();
+                var primaryPsiModule = ServiceProvider.PsiModuleManager.GetPrimaryPsiModule(project);
 
-                var primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
-
-                return solution.GetPsiServices().CacheManager
+                return ServiceProvider.CacheManager
                     .GetDeclarationsCache(primaryPsiModule, true, true)
                     .GetTypeElementByCLRName(TypeName);
             }
@@ -112,6 +110,7 @@ namespace ReSharper.XUnitTestProvider
             var declaredType = GetDeclaredType();
             if (declaredType == null)
                 return null;
+
             return FindDeclaredMethod(declaredType);
         }
 

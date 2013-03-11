@@ -14,7 +14,7 @@ namespace ReSharper.XUnitTestProvider
     {
         private readonly ICollection<IUnitTestElement> children = new List<IUnitTestElement>();
 
-        internal XunitTestClassElement(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
+        internal XunitTestClassElement(XunitServiceProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
             : base(provider, project, id, typeName)
         {
         }
@@ -48,15 +48,13 @@ namespace ReSharper.XUnitTestProvider
 
         public override IDeclaredElement GetDeclaredElement()
         {
-            IProject project = GetProject();
+            var project = GetProject();
             if (project == null)
                 return null;
 
-            ISolution solution = project.GetSolution();
+            var primaryPsiModule = ServiceProvider.PsiModuleManager.GetPrimaryPsiModule(project);
             
-            IPsiModule primaryPsiModule = PsiModuleManager.GetInstance(solution).GetPrimaryPsiModule(project);
-            
-            return project.GetSolution().GetPsiServices().CacheManager
+            return ServiceProvider.CacheManager
                 .GetDeclarationsCache(primaryPsiModule, false, true)
                 .GetTypeElementByCLRName(TypeName);
         }

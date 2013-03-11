@@ -13,24 +13,23 @@ namespace ReSharper.XUnitTestProvider
     public abstract class XunitTestElementBase : IUnitTestElement
     {
         private readonly IEnumerable<UnitTestElementCategory> categories = UnitTestElementCategory.Uncategorized;
+        private readonly XunitServiceProvider provider;
         private readonly ProjectModelElementEnvoy project;
         private XunitTestClassElement parent;
 
-        protected XunitTestElementBase(IUnitTestProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
+        protected XunitTestElementBase([NotNull] XunitServiceProvider provider, ProjectModelElementEnvoy project, string id, IClrTypeName typeName)
         {
-            if (provider == null)
+            if (provider == null) 
                 throw new ArgumentNullException("provider");
             if (project == null)
                 throw new ArgumentNullException("project");
-            Provider = provider;
+            this.provider = provider;
             this.project = project;
             TypeName = typeName;
             Id = id;
         }
 
         public IClrTypeName TypeName { get; private set; }
-
-        #region IUnitTestElement Members
 
         public string ExplicitReason { get; set; }
 
@@ -48,8 +47,11 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public IUnitTestProvider Provider { get; private set; }
-        
+        public IUnitTestProvider Provider
+        {
+            get { return provider.Provider; }
+        }
+
         IUnitTestElement IUnitTestElement.Parent
         {
             get { return Parent; }
@@ -142,8 +144,11 @@ namespace ReSharper.XUnitTestProvider
             return new UnitTestElementDisposition(locations.ToList(), this);
         }
 
-        #endregion
-
         public abstract void WriteToXml(XmlElement xml);
+
+        protected XunitServiceProvider ServiceProvider
+        {
+            get { return provider; }
+        }
     }
 }
