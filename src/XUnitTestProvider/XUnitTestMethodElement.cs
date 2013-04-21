@@ -121,7 +121,7 @@ namespace ReSharper.XUnitTestProvider
                 .FirstOrDefault(method => !method.IsAbstract && method.TypeParameters.Count == 0 && method.AccessibilityDomain.DomainType == AccessibilityDomain.AccessibilityDomainType.PUBLIC);
         }
 
-        public override string GetPresentation(IUnitTestElement parent = null)
+        public override string GetPresentation(IUnitTestElement parent)
         {
             var fakeElement = parent as XunitTestFakeElement;
             if (Parent != null)

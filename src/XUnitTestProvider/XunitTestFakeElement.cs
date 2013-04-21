@@ -25,8 +25,6 @@ namespace ReSharper.XUnitTestProvider
 
         public IClrTypeName TypeName { get; private set; }
 
-        #region IUnitTestElement Members
-
         public string ShortName
         {
             get { return myMethodName; }
@@ -72,12 +70,22 @@ namespace ReSharper.XUnitTestProvider
 
         public UnitTestElementState State { get; set; }
 
-        public string GetPresentation(IUnitTestElement parent = null)
+        public string GetPresentation()
+        {
+            return GetPresentation(null);
+        }
+
+        public string GetPresentation(IUnitTestElement parent)
         {
             return myMethodName;
         }
 
         public IList<UnitTestTask> GetTaskSequence(ICollection<IUnitTestElement> explicitElements, IUnitTestLaunch launch)
+        {
+            throw new InvalidOperationException("Test from abstract fixture is not runnable itself");
+        }
+
+        public IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
         {
             throw new InvalidOperationException("Test from abstract fixture is not runnable itself");
         }
@@ -122,7 +130,5 @@ namespace ReSharper.XUnitTestProvider
         {
             return myProject;
         }
-
-        #endregion
     }
 }

@@ -65,8 +65,13 @@ namespace ReSharper.XUnitTestProvider
 
         public abstract bool Equals(IUnitTestElement other);
 
-        public abstract string GetPresentation(IUnitTestElement parent = null);
-        
+        public abstract string GetPresentation(IUnitTestElement parent);
+
+        public string GetPresentation()
+        {
+            return GetPresentation(null);
+        }
+
         public abstract IDeclaredElement GetDeclaredElement();
         
         public abstract IEnumerable<IProjectFile> GetProjectFiles();
@@ -98,6 +103,11 @@ namespace ReSharper.XUnitTestProvider
         /// the remote tasks from these lists, over into the new app domain). This is the default way the
         /// nunit and mstest providers work.
         public abstract IList<UnitTestTask> GetTaskSequence(ICollection<IUnitTestElement> explicitElements, IUnitTestLaunch launch);
+
+        public IList<UnitTestTask> GetTaskSequence(IList<IUnitTestElement> explicitElements)
+        {
+            return GetTaskSequence(explicitElements, null);
+        }
 
         public abstract string Kind { get; }
 

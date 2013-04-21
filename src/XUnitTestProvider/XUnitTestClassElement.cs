@@ -68,7 +68,7 @@ namespace ReSharper.XUnitTestProvider
                 .Select(sf => sf.ToProjectFile());
         }
 
-        public override string GetPresentation(IUnitTestElement parent = null)
+        public override string GetPresentation(IUnitTestElement parent)
         {
             return TypeName.ShortName;
         }

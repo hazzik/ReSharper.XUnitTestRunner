@@ -64,6 +64,8 @@
 ;Translations
 
 	;Section names
+	LangString NAME_SecPlugin_61 ${LANG_ENGLISH} "R# v6.1 Plugin"
+	LangString NAME_SecPlugin_61 ${LANG_RUSSIAN} "Установка плагина для ReSharper v6.1"
 	LangString NAME_SecPlugin_70 ${LANG_ENGLISH} "R# v7.0 Plugin"
 	LangString NAME_SecPlugin_70 ${LANG_RUSSIAN} "Установка плагина для ReSharper v7.0"
 	LangString NAME_SecPlugin_71 ${LANG_ENGLISH} "R# v7.1 Plugin"
@@ -72,6 +74,8 @@
 	LangString NAME_SecPlugin_80 ${LANG_RUSSIAN} "Установка плагина для ReSharper v8.0"
 	
 	;Section descriptions
+	LangString DESC_SecPlugin_61 ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper v6.1"
+	LangString DESC_SecPlugin_61 ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper v6.1"
 	LangString DESC_SecPlugin_70 ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper v7.0"
 	LangString DESC_SecPlugin_70 ${LANG_RUSSIAN} "Установка плагина xUnit для ReSharper v7.0"
 	LangString DESC_SecPlugin_71 ${LANG_ENGLISH} "Installation of xUnit plugin for ReSharper v7.1"
@@ -128,6 +132,10 @@ Section "-Common" SecUninstaller
 
 SectionEnd
 
+Section "!$(NAME_SecPlugin_61)" SecPlugin_61
+    !insertmacro InstallPlugin "6.1"
+SectionEnd
+
 Section "!$(NAME_SecPlugin_70)" SecPlugin_70
     !insertmacro InstallPlugin "7.0"
 SectionEnd
@@ -151,6 +159,7 @@ SectionEnd
 
 	;Assign language strings to sections
 	!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecPlugin_61} $(DESC_SecPlugin_61)
 	!insertmacro MUI_DESCRIPTION_TEXT ${SecPlugin_70} $(DESC_SecPlugin_70)
 	!insertmacro MUI_DESCRIPTION_TEXT ${SecPlugin_71} $(DESC_SecPlugin_71)
 	!insertmacro MUI_DESCRIPTION_TEXT ${SecPlugin_80} $(DESC_SecPlugin_80)
@@ -161,6 +170,8 @@ SectionEnd
 
 Section "Uninstall"
 
+	;Delete plugin files
+	RMDir /r "$INSTDIR\v6.1\plugins\XUnitTestRunner"
 	;Delete plugin files
 	RMDir /r "$INSTDIR\v7.0\plugins\XUnitTestRunner"
 	;Delete plugin files
