@@ -1,6 +1,6 @@
 namespace ReSharper.XUnitTestProvider
 {
-    using System.Linq;
+    using System.Text;
     using JetBrains.ProjectModel;
     using JetBrains.ReSharper.Psi;
     using JetBrains.ReSharper.UnitTestFramework;
@@ -21,7 +21,8 @@ namespace ReSharper.XUnitTestProvider
         public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy, XunitTestClassElement parent)
         {
             var persistentTypeName = typeName.GetPersistent();
-            var id = persistentTypeName.FullName;
+            var id = MakeId(project.GetPersistentID(),
+                            persistentTypeName.FullName);
 
             var element = GetElementById(project, id) as XunitTestClassElement ??
                           new XunitTestClassElement(provider, envoy, id, persistentTypeName);
@@ -36,16 +37,10 @@ namespace ReSharper.XUnitTestProvider
         public XunitTestMethodElement GetOrCreateMethodElement(IClrTypeName typeName, string methodName, IProject project, XunitTestClassElement parent, ProjectModelElementEnvoy envoy, string explicitReason)
         {
             var persistentTypeName = typeName.GetPersistent();
-            var parts = new[]
-                            {
-                                parent.TypeName.FullName,
-                                parent.TypeName.Equals(persistentTypeName) ? null : persistentTypeName.ShortName,
-                                methodName
-                            }
-                .Where(x => !string.IsNullOrEmpty(x))
-                .ToArray();
-
-            var id = string.Join(".", parts);
+            var id = MakeId(project.GetPersistentID(),
+                            parent.TypeName.FullName,
+                            parent.TypeName.Equals(persistentTypeName) ? null : persistentTypeName.ShortName,
+                            methodName);
 
             var element = GetElementById(project, id) as XunitTestMethodElement ??
                           new XunitTestMethodElement(provider, envoy, id, persistentTypeName, methodName);
@@ -65,6 +60,19 @@ namespace ReSharper.XUnitTestProvider
         public IUnitTestElement GetElementById(IProject project, string id)
         {
             return unitTestElementManager.GetElementById(project, id);
+        }
+
+        private static string MakeId(params string[] parts)
+        {
+            var sb = new StringBuilder();
+            foreach (var part in parts)
+            {
+                if (sb.Length > 0)
+                    sb.Append('.');
+                if (!string.IsNullOrEmpty(part))
+                    sb.Append(part);
+            }
+            return sb.ToString();
         }
     }
 }
