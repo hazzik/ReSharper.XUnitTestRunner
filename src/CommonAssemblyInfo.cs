@@ -13,8 +13,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyProduct("xUnit.net unit test runner for ReSharper 6")]
-[assembly: AssemblyCopyright("Copyright © xunitcontrib team 2010, hazzik 2011")]
+[assembly: AssemblyProduct("xUnit.net test runner for ReSharper")]
+[assembly: AssemblyCopyright("Copyright © xunitcontrib team 2010, hazzik 2011-2013")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(false)]
 [assembly: AssemblyVersion("0.8.0.0")]

@@ -51,8 +51,8 @@
 	<Target Name="Build">
 		<AssemblyInfo CodeLanguage="CS"
 					OutputFile="src\CommonAssemblyInfo.cs"
-					AssemblyProduct="xUnit.net unit test runner for ReSharper 6"
-					AssemblyCopyright="Copyright © xunitcontrib team 2010, hazzik 2011"
+					AssemblyProduct="xUnit.net test runner for ReSharper"
+					AssemblyCopyright="Copyright © xunitcontrib team 2010, hazzik 2011-2013"
 					ComVisible="false"
 					CLSCompliant="false"
 					AssemblyVersion="$(assemblyVersion)"
@@ -88,7 +88,7 @@
 		</ItemGroup>
 		<Zip Files="@(ZipFiles)"
 			WorkingDirectory="$(outputPath)"
-			ZipFileName="$(artifactPath)\$(main).$(Version)-$(BuildDate).zip"
+			ZipFileName="$(artifactPath)\$(main)-$(BuildDate).zip"
 			ZipLevel="9"/>
 	</Target>
  
