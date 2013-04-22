@@ -155,7 +155,7 @@ namespace ReSharper.XUnitTestProvider
         public XunitTestClassElement GetOrCreateClassElement(IClrTypeName typeName, IProject project, ProjectModelElementEnvoy envoy, XunitTestClassElement parent)
         {
             var persistentTypeName = typeName.GetPersistent();
-            var id = persistentTypeName.FullName;
+            var id = ID + project.GetPersistentID() + persistentTypeName.FullName;
 
             var element = GetElementById(project, id) as XunitTestClassElement ??
                           new XunitTestClassElement(this, envoy, id, persistentTypeName, UnitTestManager.GetOutputAssemblyPath(project).FullPath);
@@ -171,6 +171,8 @@ namespace ReSharper.XUnitTestProvider
             var persistentTypeName = typeName.GetPersistent();
             var parts = new[]
                             {
+                                ID,
+                                project.GetPersistentID(),
                                 parent.TypeName.FullName,
                                 parent.TypeName.Equals(persistentTypeName) ? null : persistentTypeName.ShortName,
                                 methodName

@@ -51,8 +51,8 @@
 	<Target Name="Build">
 		<AssemblyInfo CodeLanguage="CS"
 					OutputFile="src\CommonAssemblyInfo.cs"
-					AssemblyProduct="xUnit.net unit test runner for ReSharper 6"
-					AssemblyCopyright="Copyright © xunitcontrib team 2010, hazzik 2011"
+					AssemblyProduct="xUnit.net unit test runner for ReSharper v$(Version)"
+					AssemblyCopyright="Copyright © xunitcontrib team 2010, hazzik 2011-2013"
 					ComVisible="false"
 					CLSCompliant="false"
 					AssemblyVersion="$(assemblyVersion)"
