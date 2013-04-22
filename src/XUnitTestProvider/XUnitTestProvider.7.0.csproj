@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{91383179-6D15-469A-B279-0005F1C653E6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ReSharper.XUnitTestProvider</RootNamespace>
+    <AssemblyName>ReSharper.XUnitTestProvider.7.0</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit">
+      <HintPath>..\..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\..\packages\xunit.extensions.1.9.1\lib\net20\xunit.extensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="CompatibilityExtension.cs" />
+    <Compile Include="Properties\AssemblyInfo.70.cs" />
+    <Compile Include="XunitDefaultTemplates.cs" />
+    <Compile Include="UnitTestElementMetadataIdentifier.cs" />
+    <Compile Include="XunitServiceProvider.cs" />
+    <Compile Include="XunitTestFakeElement.cs" />
+    <Compile Include="XunitFileExplorerInheritorsConsumer.cs" />
+    <Compile Include="XunitElementFactory.cs" />
+    <Compile Include="XunitTestElementSerializer.cs" />
+    <Compile Include="XUnitTestFileExplorer.cs" />
+    <Compile Include="UnitTestElementPsiIdentifier.cs" />
+    <Compile Include="AttributeWrapper.cs" />
+    <Compile Include="MethodWrapper.cs" />
+    <Compile Include="TypeExtensions.cs" />
+    <Compile Include="TypeWrapper.cs" />
+    <Compile Include="XunitTestElementBase.cs" />
+    <Compile Include="XUnitMetadataExplorer.cs" />
+    <Compile Include="XUnitTestMetadataExplorer.cs" />
+    <Compile Include="XunitTestClassElement.cs" />
+    <Compile Include="XunitTestMethodElement.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SuppressUnusedXunitTestElements.cs" />
+    <Compile Include="XunitFileExplorer.cs" />
+    <Compile Include="XunitTestProvider.71.cs" />
+    <Compile Include="XunitTestProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Resources\LiveTemplates.DotSettings">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\xunit.png" />
+    <Compile Include="XunitServiceProvider.71.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XUnitTestRunner\XUnitTestRunner.7.0.csproj">
+      <Project>{91f69ad5-198d-4a24-a18a-1f5a669dbd55}</Project>
+      <Name>XUnitTestRunner.7.0</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v7.0</ReSharperSdkTargets>
+  </PropertyGroup>
+  <Import Project="$(ReSharperSdkTargets)\Plugin.Targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+</Project>
