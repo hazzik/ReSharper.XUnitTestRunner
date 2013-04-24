@@ -63,10 +63,13 @@
     </Compile>
     <Compile Include="CompatibilityExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.71.cs" />
+    <Compile Include="UnitTestElements\XUnitTestClassElement.cs" />
+    <Compile Include="UnitTestElements\XunitTestElementBase.cs" />
+    <Compile Include="UnitTestElements\XunitTestFakeElement.cs" />
+    <Compile Include="UnitTestElements\XUnitTestMethodElement.cs" />
     <Compile Include="XunitDefaultTemplates.cs" />
     <Compile Include="UnitTestElementMetadataIdentifier.cs" />
     <Compile Include="XunitServiceProvider.cs" />
-    <Compile Include="XunitTestFakeElement.cs" />
     <Compile Include="XunitFileExplorerInheritorsConsumer.cs" />
     <Compile Include="XunitElementFactory.cs" />
     <Compile Include="XunitTestElementSerializer.cs" />
@@ -76,11 +79,8 @@
     <Compile Include="MethodWrapper.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="TypeWrapper.cs" />
-    <Compile Include="XunitTestElementBase.cs" />
     <Compile Include="XUnitMetadataExplorer.cs" />
     <Compile Include="XUnitTestMetadataExplorer.cs" />
-    <Compile Include="XunitTestClassElement.cs" />
-    <Compile Include="XunitTestMethodElement.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
