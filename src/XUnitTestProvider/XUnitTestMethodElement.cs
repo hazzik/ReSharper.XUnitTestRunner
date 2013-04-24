@@ -12,7 +12,7 @@ namespace ReSharper.XUnitTestProvider
     using JetBrains.Util;
     using XUnitTestRunner;
 
-    public sealed class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
+    public sealed partial class XunitTestMethodElement : XunitTestElementBase, IEquatable<XunitTestMethodElement>
     {
         private readonly string methodName;
 
