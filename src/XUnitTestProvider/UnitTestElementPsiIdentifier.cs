@@ -67,9 +67,15 @@
             // According to msdn, parameters to the constructor are positional parameters, and any
             // public read-write fields are named parameters. The name of the property we're after
             // is not a public field/property, so it's a positional parameter
-            var propertyNames = from method in element.GetContainingType().Methods
-                                from attributeInstance in method.GetAttributeInstances(PropertyDataAttributeName, false)
-                                select attributeInstance.PositionParameter(0).ConstantValue.Value as string;
+            var containingType = element.GetContainingType();
+            if (containingType == null)
+            {
+                return false;
+            }
+
+            var propertyNames = from method in containingType.Methods
+                from attributeInstance in method.GetAttributeInstances(PropertyDataAttributeName, false)
+                select attributeInstance.PositionParameter(0).ConstantValue.Value as string;
             return propertyNames.Any(name => name == element.ShortName);
         }
 
