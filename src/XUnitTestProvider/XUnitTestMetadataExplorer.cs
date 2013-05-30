@@ -1,5 +1,6 @@
 namespace ReSharper.XUnitTestProvider
 {
+    using System.Threading;
     using JetBrains.Application;
     using JetBrains.Metadata.Reader.API;
     using JetBrains.ProjectModel;
@@ -14,10 +15,7 @@ namespace ReSharper.XUnitTestProvider
 
         public IUnitTestProvider Provider
         {
-            get
-            {
-                return provider;
-            }
+            get { return provider; }
         }
 
         public XUnitTestMetadataExplorer(XunitTestProvider provider, XunitElementFactory factory, IShellLocks shellLocks)
@@ -46,13 +44,12 @@ namespace ReSharper.XUnitTestProvider
         /// just explore all the types
         public void ExploreAssembly(IProject project, IMetadataAssembly assembly, UnitTestElementConsumer consumer)
         {
-            using (shellLocks.UsingReadLock())
-            {
-                if (project.IsValid())
-                {
-                    new XunitMetadataExplorer(factory, project, consumer).ExploreAssembly(assembly);
-                }
-            }
+            ExploreAssembly(project, assembly, consumer, new ManualResetEvent(true));
+        }
+
+        public void ExploreAssembly(IProject project, IMetadataAssembly assembly, UnitTestElementConsumer consumer, ManualResetEvent exitEvent)
+        {
+            new XunitMetadataExplorer(factory, shellLocks, project, consumer).ExploreAssembly(assembly);
         }
     }
 }

@@ -53,6 +53,11 @@ namespace XunitContrib.Runner.ReSharper.RemoteRunner.Tests
             throw new NotImplementedException();
         }
 
+        public void TaskDiscovered(RemoteTask remoteTask)
+        {
+            throw new NotImplementedException();
+        }
+
         public void CreateDynamicElement(RemoteTask remoteTask)
         {
             throw new NotImplementedException();
